@@ -12,7 +12,7 @@ export const AppBar: FC = props => {
     <div>
 
       {/* NavBar / Header */}
-      <div className="navbar flex flex-row md:mb-2 shadow-lg bg-neutral text-neutral-content">
+      <div className="navbar flex flex-row md:mb-2 shadow-lg bg-primary text-neutral-content">
         <div className="navbar-start">
           <label htmlFor="my-drawer" className="btn btn-square btn-ghost">
 
@@ -55,8 +55,8 @@ export const AppBar: FC = props => {
             <Link href="/">
               <a className="btn btn-ghost btn-sm rounded-btn">Home</a>
             </Link>
-            <Link href="/basics">
-              <a className="btn btn-ghost btn-sm rounded-btn">Basics</a>
+            <Link href="/collections">
+              <a className="btn btn-ghost btn-sm rounded-btn">Collections</a>
             </Link>
           </div>
         </div>
@@ -74,7 +74,7 @@ export const AppBar: FC = props => {
             </div>
             <ul tabIndex={0} className="p-2 shadow menu dropdown-content bg-base-100 rounded-box sm:w-52">
               <li>
-                <div className="form-control">
+                <div className="form-control text-base-content">
                   <label className="cursor-pointer label">
                     <a>Autoconnect</a>
                     <input type="checkbox" checked={autoConnect} onChange={(e) => setAutoConnect(e.target.checked)} className="toggle" />

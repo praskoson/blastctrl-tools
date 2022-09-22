@@ -4,13 +4,11 @@ import { WalletModalProvider as ReactUIWalletModalProvider } from '@solana/walle
 import {
     PhantomWalletAdapter,
     SolflareWalletAdapter,
-    SolletExtensionWalletAdapter,
     SolletWalletAdapter,
-    TorusWalletAdapter,
-    // LedgerWalletAdapter,
-    // SlopeWalletAdapter,
+    LedgerWalletAdapter,
+    GlowWalletAdapter
 } from '@solana/wallet-adapter-wallets';
-import { Cluster, clusterApiUrl } from '@solana/web3.js';
+import { clusterApiUrl } from '@solana/web3.js';
 import { FC, ReactNode, useCallback, useMemo } from 'react';
 import { AutoConnectProvider, useAutoConnect } from './AutoConnectProvider';
 import { notify } from "../utils/notifications";
@@ -19,19 +17,18 @@ import { NetworkConfigurationProvider, useNetworkConfiguration } from './Network
 const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
     const { autoConnect } = useAutoConnect();
     const { networkConfiguration } = useNetworkConfiguration();
-    const network = networkConfiguration as WalletAdapterNetwork;
+    console.log(networkConfiguration)
+    // const network = 'devnet' as WalletAdapterNetwork;
+    const network = networkConfiguration
     const endpoint = useMemo(() => clusterApiUrl(network), [network]);
-
-    console.log(network);
 
     const wallets = useMemo(
         () => [
             new PhantomWalletAdapter(),
             new SolflareWalletAdapter(),
             new SolletWalletAdapter({ network }),
-            new SolletExtensionWalletAdapter({ network }),
-            new TorusWalletAdapter(),
-            // new LedgerWalletAdapter(),
+            new GlowWalletAdapter(),
+            new LedgerWalletAdapter(),
             // new SlopeWalletAdapter(),
         ],
         [network]
