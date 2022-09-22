@@ -32,7 +32,7 @@ export const unverifyCollectionNft = async (
       collectionAuthority: wallet,
     });
   } catch (err) {
-    throw Error('Error creating unverifyCollectionInstruction', { cause: err });
+    throw Error('Error creating unverifyCollectionInstruction');
   }
 };
 
@@ -56,7 +56,7 @@ export const addNftToCollection = (
         metadata
       });
     } catch (err) {
-      throw Error('Error creating unverifyCollectionInstruction', { cause: err });
+      throw Error('Error creating unverifyCollectionInstruction');
     }
   };
   
