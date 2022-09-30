@@ -7,6 +7,7 @@ import { Transition } from '@headlessui/react';
 import dayjs from 'dayjs';
 import { Amount, Currency, formatAmount } from 'types';
 import { Uploads } from './Uploads';
+import { useNetworkConfiguration } from 'contexts/NetworkConfigurationProvider';
 
 export type UploadedFile = {
   name: string;
@@ -16,15 +17,20 @@ export type UploadedFile = {
 };
 
 const classNames = (...args: any[]) => args.filter(Boolean).join(' ');
+function pascalify(text: string) {
+  text = text.replace(/[-_\s.]+(.)?/g, (_, c) => (c ? c.toUpperCase() : ''));
+  return text.substring(0, 1).toUpperCase() + text.substring(1);
+}
 
 export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
   const { connected } = useWallet();
+  const { networkConfiguration } = useNetworkConfiguration();
   const [dragActive, setDragActive] = useState(false);
   const [file, setFile] = useState<File>();
   const [filePrice, setFilePrice] = useState<Amount<Currency>>();
   const [isUploading, setIsUploading] = useState(false);
   const [uploads, setUploads] = useLocalStorage<UploadedFile[]>(
-    'previous-uploads',
+    `previousUploads${pascalify(networkConfiguration)}`,
     []
   );
 
@@ -113,7 +119,7 @@ export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
           <h1 className='text-center text-3xl font-semibold text-gray-900 font-display mb-2'>
             Simple Arweave Uploader
           </h1>
-          <p className='text-sm text-gray-900 tracking-tight leading-snug'>
+          <p className='text-sm text-gray-900 tracking-tight leading-snug text-center'>
             Upload files to Arweave using the Bundlr Network and paying in SOL.
           </p>
         </div>
