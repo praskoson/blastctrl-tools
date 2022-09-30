@@ -23,7 +23,7 @@ const Arweave: NextPage = (props) => {
             ? 'https://node1.bundlr.network'
             : 'https://devnet.bundlr.network',
       }),
-    [connection, wallet]
+    [connection, wallet, networkConfiguration]
   );
 
   return (
