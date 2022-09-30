@@ -290,7 +290,7 @@ export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
           </Transition>
         </div>
 
-        {uploads.length >= 0 && (
+        {uploads?.length > 0 && (
           <div className='my-4 sm:my-6'>
             <Uploads files={uploads} />
           </div>
