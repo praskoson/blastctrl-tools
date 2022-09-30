@@ -112,6 +112,7 @@ export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
     }
   };
 
+  // TODO: add FAQ, disclosures
   return (
     <div className='md:hero mx-auto p-4'>
       <div className='md:hero-content flex flex-col'>
@@ -123,13 +124,6 @@ export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
             Upload files to Arweave using the Bundlr Network and paying in SOL.
           </p>
         </div>
-        {/* <h1 className='text-left text-3xl font-semibold text-gray-900 font-display from-neutral-content mb-4 sm:mb-0 sm:border-b sm:border-gray-200 sm:pb-5'>
-          Simple Arweave Uploader
-        </h1>
-        <p className='text-sm text-gray-900 tracking-tight leading-snug'>
-          Upload files to Arweave using the Bunldr Network, with payments in
-          SOL.
-        </p> */}
 
         {/* Drop upload */}
         <div>
