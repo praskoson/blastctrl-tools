@@ -1,9 +1,7 @@
-import { WalletAccountError } from '@solana/wallet-adapter-base';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { TransactionSignature, PublicKey, Transaction } from '@solana/web3.js';
 import { FormEvent, useCallback, useState } from 'react';
 import { notify } from 'utils/notifications';
-import { unverifyCollectionNft } from 'utils/spl';
 import { addNftToCollection } from 'utils/spl/collections';
 
 export const AddTo = () => {

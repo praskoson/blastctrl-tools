@@ -58,6 +58,9 @@ export const AppBar: FC = props => {
             <Link href="/collections">
               <a className="btn btn-ghost btn-sm rounded-btn">Collections</a>
             </Link>
+            <Link href="/arweave">
+              <a className="btn btn-ghost btn-sm rounded-btn">Arweave</a>
+            </Link>
           </div>
         </div>
 

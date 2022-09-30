@@ -3,8 +3,8 @@ import {
   CheckCircleIcon,
   InformationCircleIcon,
   XCircleIcon,
-} from '@heroicons/react/outline';
-import { XIcon } from '@heroicons/react/solid';
+} from '@heroicons/react/24/outline';
+import { XMarkIcon } from '@heroicons/react/20/solid';
 import useNotificationStore from '../stores/useNotificationStore';
 import { useConnection } from '@solana/wallet-adapter-react';
 import { getExplorerUrl } from '../utils/explorer';
@@ -117,7 +117,7 @@ const Notification = ({ type, message, description, txid, onHide }) => {
               onClick={() => onHide()}
               className={`bg-bkg-2 default-transition rounded-md inline-flex text-fgd-3 hover:text-fgd-4 focus:outline-none`}>
               <span className={`sr-only`}>Close</span>
-              <XIcon className='h-5 w-5' />
+              <XMarkIcon className='h-5 w-5' />
             </button>
           </div>
         </div>

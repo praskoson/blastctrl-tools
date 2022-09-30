@@ -1,7 +1,7 @@
 import {
   Metadata,
   createUnverifyCollectionInstruction,
-  createSetAndVerifySizedCollectionItemInstruction
+  createSetAndVerifySizedCollectionItemInstruction,
 } from '@metaplex-foundation/mpl-token-metadata';
 import { Connection, PublicKey, TransactionInstruction } from '@solana/web3.js';
 import { getMasterEdition, getMetadata } from './common';
@@ -37,26 +37,25 @@ export const unverifyCollectionNft = async (
 };
 
 export const addNftToCollection = (
-    wallet: PublicKey,
-    nftMint: PublicKey,
-    collectionMint: PublicKey
-  ): TransactionInstruction => {
-    try {
-      const metadata = getMetadata(nftMint);
-      const collection = getMetadata(collectionMint);
-      const collectionMasterEditionAccount = getMasterEdition(collectionMint);
-  
-      return createSetAndVerifySizedCollectionItemInstruction({
-        payer: wallet,
-        updateAuthority: wallet,
-        collectionMint,
-        collection,
-        collectionMasterEditionAccount,
-        collectionAuthority: wallet,
-        metadata
-      });
-    } catch (err) {
-      throw Error('Error creating unverifyCollectionInstruction');
-    }
-  };
-  
+  wallet: PublicKey,
+  nftMint: PublicKey,
+  collectionMint: PublicKey
+): TransactionInstruction => {
+  try {
+    const metadata = getMetadata(nftMint);
+    const collection = getMetadata(collectionMint);
+    const collectionMasterEditionAccount = getMasterEdition(collectionMint);
+
+    return createSetAndVerifySizedCollectionItemInstruction({
+      payer: wallet,
+      updateAuthority: wallet,
+      collectionMint,
+      collection,
+      collectionMasterEditionAccount,
+      collectionAuthority: wallet,
+      metadata,
+    });
+  } catch (err) {
+    throw Error('Error creating unverifyCollectionInstruction');
+  }
+};
