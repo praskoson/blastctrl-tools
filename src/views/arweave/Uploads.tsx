@@ -21,24 +21,24 @@ type UploadsProps = {
 const getFilePreview = (item: UploadedFile) => {
   // startsWith: text, audio, video, image | special: application/json, text/javascript
   if (item.contentType === 'application/json') {
-    return <BsBraces className='h-8 w-8 rounded-md' />;
+    return <BsBraces className='h-10 w-10 rounded-md' />;
   }
 
   if (
     item.contentType === 'text/javascript' ||
     item.contentType === 'text/html'
   ) {
-    return <CodeBracketIcon className='h-8 w-8 rounded-md' />;
+    return <CodeBracketIcon className='h-10 w-10 rounded-md' />;
   }
 
   const type = item.contentType.split('/')[0];
   switch (type) {
     case 'text':
-      return <DocumentTextIcon className='h-8 w-8 rounded-md' />;
+      return <DocumentTextIcon className='h-10 w-10 rounded-md' />;
     case 'video':
-      return <PlayCircleIcon className='h-8 w-8 rounded-md' />;
+      return <PlayCircleIcon className='h-10 w-10 rounded-md' />;
     case 'audio':
-      return <MusicalNoteIcon className='h-8 w-8 rounded-md' />;
+      return <MusicalNoteIcon className='h-10 w-10 rounded-md' />;
     case 'image':
       return (
         <Image
@@ -50,7 +50,7 @@ const getFilePreview = (item: UploadedFile) => {
         />
       );
     default:
-      return <QuestionMarkCircleIcon className='h-8 w-8 rounded-md' />;
+      return <QuestionMarkCircleIcon className='h-10 w-10 rounded-md' />;
   }
 };
 
