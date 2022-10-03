@@ -18,7 +18,7 @@ const fetchWalletNfts =
     const metaplex = Metaplex.make(connection, { cluster }).use(
       guestIdentity()
     );
-
+    
     // Can be NFT | SFT | "token with metadata"
     return await metaplex
       .nfts()

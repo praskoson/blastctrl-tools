@@ -8,6 +8,8 @@ import { Footer } from '../components/Footer';
 import Notifications from '../components/Notification';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import dayjs from 'dayjs';
+// import { Breadcrumbs } from 'components/Breadcrumbs';
+
 
 dayjs.extend(relativeTime);
 require('@solana/wallet-adapter-react-ui/styles.css');
@@ -24,6 +26,7 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
         <div className='flex flex-col h-screen'>
           <Notifications />
           <AppBar />
+          {/* <Breadcrumbs /> */}
           <ContentContainer>
             <Component {...pageProps} />
           </ContentContainer>
