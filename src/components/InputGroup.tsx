@@ -1,8 +1,8 @@
 import { ExclamationCircleIcon } from "@heroicons/react/20/solid";
-import { useForm, UseFormRegisterReturn, FieldError } from "react-hook-form";
+import { useEffect } from "react";
+import { UseFormRegisterReturn, FieldError } from "react-hook-form";
 
 type InputGroupProps = {
-  name: string;
   label: string;
   register: UseFormRegisterReturn;
   error: FieldError;
@@ -10,16 +10,16 @@ type InputGroupProps = {
 
 const classNames = (...classes: any[]) => classes.filter(Boolean).join(" ");
 
-export const InputGroup = ({ name, label, register, error }: InputGroupProps) => {
+export const InputGroup = ({ label, register, error }: InputGroupProps) => {
   return (
     <>
-      <label htmlFor={name} className="block text-sm font-medium text-gray-700">
+      <label htmlFor={register.name} className="block text-sm font-medium text-gray-700">
         {label}
       </label>
       <div className="relative mt-1">
         <input
           type="text"
-          id={name}
+          id={register.name}
           {...register}
           className={classNames(
             "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm",
@@ -36,7 +36,7 @@ export const InputGroup = ({ name, label, register, error }: InputGroupProps) =>
       </div>
       {error && (
         <p className="mt-2 text-sm text-red-600" id={error.type}>
-          {error.message}
+          Not a valid public key
         </p>
       )}
     </>

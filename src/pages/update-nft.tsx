@@ -6,22 +6,37 @@ import { SwitchButton } from "components/Switch";
 import { CreatorsInput } from "components/CreatorsInput";
 import { useForm } from "react-hook-form";
 import { InputGroup } from "components/InputGroup";
+import { isPublicKey } from "utils/spl/common";
 
-type Inputs = {
-  mint: string;
+export type FormInputs = {
+  mint: any;
   name: string;
   symbol: string;
   uri: string;
+  updateAuthority: string;
+  isMutable: boolean;
+  primarySaleHappened: boolean;
 };
 
 const UpdateNft: NextPage = (props) => {
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
-  } = useForm<Inputs>();
-  const submit = (data: Inputs) => console.log(data);
+    control,
+  } = useForm<FormInputs>({
+    mode: "onSubmit",
+    defaultValues: {
+      name: "",
+      symbol: "",
+      uri: "",
+      updateAuthority: "",
+      mint: null,
+      isMutable: true,
+      primarySaleHappened: false,
+    },
+  });
+  const submit = (data: FormInputs) => console.log(data);
 
   return (
     <>
@@ -50,7 +65,13 @@ const UpdateNft: NextPage = (props) => {
 
               <div className="mt-4 grid grid-cols-1 gap-x-4 sm:grid-cols-6">
                 <div className="sm:col-span-4">
-                  <NftSelector />
+                  <NftSelector
+                    control={control}
+                    name="mint"
+                    rules={{
+                      required: { value: true, message: "Select a token or enter an address." },
+                    }}
+                  />
                 </div>
               </div>
             </div>
@@ -64,7 +85,6 @@ const UpdateNft: NextPage = (props) => {
                 <div className="sm:col-span-4">
                   <InputGroup
                     label="Name"
-                    name="name"
                     register={register("name", {
                       maxLength: {
                         value: 32,
@@ -78,7 +98,6 @@ const UpdateNft: NextPage = (props) => {
                 <div className="sm:col-span-2">
                   <InputGroup
                     label="Symbol"
-                    name="symbol"
                     register={register("symbol", {
                       maxLength: {
                         value: 10,
@@ -91,7 +110,6 @@ const UpdateNft: NextPage = (props) => {
 
                 <div className="sm:col-span-6">
                   <InputGroup
-                    name="uri"
                     label="URI"
                     register={register("uri", {
                       maxLength: {
@@ -129,26 +147,20 @@ const UpdateNft: NextPage = (props) => {
 
               <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
                 <div className="sm:col-span-4">
-                  <label
-                    htmlFor="update_authority"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Update authority
-                  </label>
-                  <div className="mt-1">
-                    <input
-                      type="text"
-                      name="update_authority"
-                      id="update_authority"
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                    />
-                  </div>
+                  <InputGroup
+                    label="Update authority"
+                    register={register("updateAuthority", {
+                      validate: { pubkey: (value) => isPublicKey(value) || value === "" },
+                    })}
+                    error={errors?.updateAuthority}
+                  />
                 </div>
 
                 <div className="sm:col-span-5">
                   <SwitchButton
                     label="Is mutable"
                     description="If this flag is changed to false, it wont be possible to change the metadata anymore."
+                    props={{ name: "isMutable", control }}
                   />
                 </div>
 
@@ -156,6 +168,7 @@ const UpdateNft: NextPage = (props) => {
                   <SwitchButton
                     label="Primary sale happened"
                     description="Indicates that the first sale of this token happened. This flag can be enabled only once and can affect royalty distribution."
+                    props={{ name: "primarySaleHappened", control }}
                   />
                 </div>
               </div>

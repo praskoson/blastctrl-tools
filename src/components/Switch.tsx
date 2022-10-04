@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { Switch } from '@headlessui/react';
+import { useController, UseControllerProps } from 'react-hook-form';
+import { FormInputs } from 'pages/update-nft';
 
 function classNames(...classes: any[]) {
   return classes.filter(Boolean).join(' ');
@@ -8,10 +10,12 @@ function classNames(...classes: any[]) {
 type SwitchButtonProps = {
   label?: string;
   description?: string;
+  props: UseControllerProps<FormInputs>
 };
 
-export const SwitchButton = ({ label, description }: SwitchButtonProps) => {
-  const [enabled, setEnabled] = useState(false);
+export const SwitchButton = ({ label, description, props }: SwitchButtonProps) => {
+  const { field } = useController(props)
+  const [enabled, setEnabled] = useState(field.value || false);
 
   return (
     <Switch.Group as='div' className='flex items-center justify-between'>
@@ -32,7 +36,11 @@ export const SwitchButton = ({ label, description }: SwitchButtonProps) => {
       )}
       <Switch
         checked={enabled}
-        onChange={setEnabled}
+        // onChange={setEnabled}
+        onChange={(e) => {
+          field.onChange(e);
+          setEnabled(e)
+        }}
         className={classNames(
           enabled ? 'bg-indigo-600' : 'bg-gray-200',
           'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'

@@ -4,7 +4,7 @@ import {
 } from '@heroicons/react/20/solid';
 import { useMemo, useState } from 'react';
 import { produce } from 'immer';
-
+import { v4 as uuidv4 } from 'uuid';
 
 export const MAX_CREATORS = 5;
 
@@ -55,7 +55,7 @@ export const CreatorsInput = () => {
 
   const inputGroup = ({ idx }: { idx: number }) => {
     return (
-      <fieldset>
+      <fieldset key={uuidv4()}>
         <legend className='sr-only'>Creator address and share</legend>
         <div className='mt-1 -space-y-px rounded-md bg-white shadow-sm'>
           <div className='grid grid-cols-9 -space-x-px'>
