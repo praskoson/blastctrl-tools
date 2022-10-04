@@ -150,7 +150,7 @@ const UpdateNft: NextPage = (props) => {
 
           <form onSubmit={handleSubmit(submit)} className="space-y-8 divide-y divide-gray-200">
             <div>
-              <div>
+              <div className="mt-4">
                 <h3 className="text-lg font-medium leading-6 text-gray-900">Select Token</h3>
                 <p className="mt-1 text-sm text-gray-500">
                   Select an NFT or enter the mint address. You need to be its update authority.
@@ -175,7 +175,7 @@ const UpdateNft: NextPage = (props) => {
             </div>
 
             <div>
-              <div>
+              <div className="mt-4">
                 <h3 className="text-lg font-medium leading-6 text-gray-900">Basic Information</h3>
               </div>
 
@@ -222,7 +222,7 @@ const UpdateNft: NextPage = (props) => {
             </div>
 
             <div>
-              <div>
+              <div className="mt-4">
                 <h3 className="text-lg font-medium leading-6 text-gray-900">Creators</h3>
                 <p className="mt-1 text-sm text-gray-500">There can be up to 5 creators.</p>
               </div>
@@ -276,7 +276,7 @@ const UpdateNft: NextPage = (props) => {
             </div>
 
             <div>
-              <div>
+              <div className="mt-4">
                 <h3 className="text-lg font-medium leading-6 text-gray-900">Flags and authority</h3>
                 <p className="mt-1 text-sm text-gray-500">
                   Be careful when changing these. If you remove your own update authority, you will
