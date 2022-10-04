@@ -16,6 +16,10 @@ export type FormInputs = {
   updateAuthority: string;
   isMutable: boolean;
   primarySaleHappened: boolean;
+  creators: {
+    address: string;
+    share: number;
+  }[];
 };
 
 const UpdateNft: NextPage = (props) => {
@@ -34,6 +38,7 @@ const UpdateNft: NextPage = (props) => {
       mint: null,
       isMutable: true,
       primarySaleHappened: false,
+      creators: [],
     },
   });
   const submit = (data: FormInputs) => console.log(data);
@@ -131,7 +136,7 @@ const UpdateNft: NextPage = (props) => {
 
               <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
                 <div className="sm:col-span-6">
-                  <CreatorsInput />
+                  <CreatorsInput control={control} register={register} errors={errors} />
                 </div>
               </div>
             </div>
@@ -150,7 +155,10 @@ const UpdateNft: NextPage = (props) => {
                   <InputGroup
                     label="Update authority"
                     register={register("updateAuthority", {
-                      validate: { pubkey: (value) => isPublicKey(value) || value === "" },
+                      validate: {
+                        pubkey: (value) =>
+                          isPublicKey(value) || value === "" || "Not a valid pubkey",
+                      },
                     })}
                     error={errors?.updateAuthority}
                   />

@@ -35,8 +35,8 @@ export const InputGroup = ({ label, register, error }: InputGroupProps) => {
         )}
       </div>
       {error && (
-        <p className="mt-2 text-sm text-red-600" id={error.type}>
-          Not a valid public key
+        <p className="mt-2 text-sm text-red-600" id={error?.type}>
+          {error?.message}
         </p>
       )}
     </>

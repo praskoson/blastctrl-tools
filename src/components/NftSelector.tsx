@@ -16,7 +16,6 @@ type Token = {
 
 export const NftSelector = (props: UseControllerProps<FormInputs>) => {
   const [query, setQuery] = useState("");
-  // const [selectedToken, setSelectedToken] = useState<Token>(null);
   const { isError, isLoading, nfts } = useUserNfts();
 
   const {
