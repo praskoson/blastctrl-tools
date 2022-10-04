@@ -1,5 +1,5 @@
 import { NftSelector } from "components/NftSelector";
-import { ChevronDoubleRightIcon } from "@heroicons/react/20/solid";
+import { ChevronDoubleRightIcon, ExclamationCircleIcon } from "@heroicons/react/20/solid";
 import type { NextPage } from "next";
 import Head from "next/head";
 import { SwitchButton } from "components/Switch";
@@ -7,9 +7,29 @@ import { CreatorsInput } from "components/CreatorsInput";
 import { useForm } from "react-hook-form";
 import { InputGroup } from "components/InputGroup";
 import { isPublicKey } from "utils/spl/common";
+import {
+  Metaplex,
+  Nft,
+  NftWithToken,
+  Sft,
+  SftWithToken,
+  UpdateNftInput,
+  walletAdapterIdentity,
+} from "@metaplex-foundation/js";
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import { notify } from "utils/notifications";
+import { PublicKey } from "@solana/web3.js";
+import { classNames } from "utils";
+
+export type FormToken = {
+  name: string;
+  address: string;
+  uri: string;
+  model: "nft" | "sft" | "metadata";
+};
 
 export type FormInputs = {
-  mint: any;
+  mint: FormToken;
   name: string;
   symbol: string;
   uri: string;
@@ -20,13 +40,17 @@ export type FormInputs = {
     address: string;
     share: number;
   }[];
+  sellerFeeBasisPoints: number;
 };
 
 const UpdateNft: NextPage = (props) => {
+  const { connection } = useConnection();
+  const wallet = useWallet();
+
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, dirtyFields },
     control,
   } = useForm<FormInputs>({
     mode: "onSubmit",
@@ -39,9 +63,74 @@ const UpdateNft: NextPage = (props) => {
       isMutable: true,
       primarySaleHappened: false,
       creators: [],
+      sellerFeeBasisPoints: null,
     },
   });
-  const submit = (data: FormInputs) => console.log(data);
+
+  const submit = async (data: FormInputs) => {
+    if (!wallet.connected) {
+      notify({ type: "error", message: "Connect your wallet" });
+      return;
+    }
+
+    const metaplex = Metaplex.make(connection).use(walletAdapterIdentity(wallet));
+    let token: Sft | SftWithToken | Nft | NftWithToken;
+    if (data.mint.model === "metadata") {
+      const metadata = new PublicKey(data.mint.address);
+      token = await metaplex.nfts().findByMetadata({ metadata, commitment: "confirmed" }).run();
+    } else {
+      const mintAddress = new PublicKey(data.mint.address);
+      token = await metaplex.nfts().findByMint({ mintAddress, commitment: "confirmed" }).run();
+    }
+
+    if (!token.updateAuthorityAddress.equals(wallet.publicKey)) {
+      notify({
+        type: "error",
+        message: "Invalid authority",
+        description: "This wallet is not the correct update authority.",
+      });
+      return;
+    }
+
+    const updateNftInput: UpdateNftInput = {
+      nftOrSft: token,
+      name: dirtyFields.name ? data.name : undefined,
+      symbol: dirtyFields.symbol ? data.symbol : undefined,
+      uri: dirtyFields.uri ? data.uri : undefined,
+      newUpdateAuthority: dirtyFields.updateAuthority
+        ? new PublicKey(data.updateAuthority)
+        : undefined,
+      isMutable: dirtyFields.isMutable ? data.isMutable : undefined,
+      primarySaleHappened: dirtyFields.primarySaleHappened ? data.primarySaleHappened : undefined,
+      creators: dirtyFields.creators
+        ? data.creators.map(({ address, share }) => ({
+            address: new PublicKey(address),
+            share,
+            authority: address === wallet.publicKey.toBase58() ? wallet : undefined,
+          }))
+        : undefined,
+      sellerFeeBasisPoints: dirtyFields.sellerFeeBasisPoints
+        ? data.sellerFeeBasisPoints
+        : undefined,
+    };
+
+    try {
+      const { response } = await metaplex.nfts().update(updateNftInput).run();
+      notify({
+        type: "success",
+        message: "Update succesful",
+        description: "View the transaction here",
+        txid: response.signature,
+      });
+    } catch (err) {
+      console.log(err);
+      notify({
+        type: "error",
+        message: "Error updating",
+        description: "Check the console for more information",
+      });
+    }
+  };
 
   return (
     <>
@@ -75,6 +164,10 @@ const UpdateNft: NextPage = (props) => {
                     name="mint"
                     rules={{
                       required: { value: true, message: "Select a token or enter an address." },
+                      validate: {
+                        pubkey: (value: FormToken) =>
+                          isPublicKey(value?.address) || "Not a valid pubkey",
+                      },
                     }}
                   />
                 </div>
@@ -137,6 +230,47 @@ const UpdateNft: NextPage = (props) => {
               <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
                 <div className="sm:col-span-6">
                   <CreatorsInput control={control} register={register} errors={errors} />
+                </div>
+              </div>
+
+              <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                <div className="sm:col-span-3">
+                  <label
+                    htmlFor="sellerFeeBasisPoints"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Royalties <code className="prose">(sellerFeeBasisPoints)</code>
+                  </label>
+                  <div className="relative mt-1">
+                    <input
+                      id="sellerFeeBasisPoints"
+                      type="number"
+                      {...register("sellerFeeBasisPoints", {
+                        min: 0,
+                        max: 1000,
+                        valueAsNumber: true,
+                      })}
+                      className={classNames(
+                        "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm",
+                        errors?.sellerFeeBasisPoints &&
+                          "border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:outline-none focus:ring-red-500"
+                      )}
+                      aria-invalid={errors?.sellerFeeBasisPoints ? "true" : "false"}
+                    />
+                    {errors?.sellerFeeBasisPoints && (
+                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                        <ExclamationCircleIcon
+                          className="h-5 w-5 text-red-500"
+                          aria-hidden="true"
+                        />
+                      </div>
+                    )}
+                  </div>
+                  {errors?.sellerFeeBasisPoints && (
+                    <p className="mt-2 text-sm text-red-600" id={errors.sellerFeeBasisPoints.type}>
+                      Seller fee must be between 0 and 1000
+                    </p>
+                  )}
                 </div>
               </div>
             </div>

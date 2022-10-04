@@ -1,18 +1,11 @@
-import {  useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useUserNfts } from "hooks";
 import { Combobox } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import { NftSelectorOption } from "./NftSelectorOption";
 import { UseControllerProps, useController } from "react-hook-form";
-import type { FormInputs } from "pages/update-nft";
-
-const classNames = (...classNames: any[]) => classNames.filter(Boolean).join(" ");
-
-type Token = {
-  name: string;
-  mint: string;
-  uri: string;
-};
+import type { FormInputs, FormToken } from "pages/update-nft";
+import { classNames } from "utils";
 
 export const NftSelector = (props: UseControllerProps<FormInputs>) => {
   const [query, setQuery] = useState("");
@@ -29,8 +22,9 @@ export const NftSelector = (props: UseControllerProps<FormInputs>) => {
         ? []
         : nfts.map((nft) => ({
             name: nft.name,
-            mint: nft.address.toBase58(),
+            address: nft.address.toBase58(),
             uri: nft.uri,
+            model: nft.model,
           })),
     [isError, isLoading, nfts]
   );
@@ -65,7 +59,7 @@ export const NftSelector = (props: UseControllerProps<FormInputs>) => {
             name={name}
             onBlur={onBlur}
             onChange={(event) => setQuery(event.target.value)}
-            displayValue={(nft: Token) => nft?.name || ""}
+            displayValue={(nft: FormToken) => nft?.name || ""}
             aria-invalid={error ? "true" : "false"}
           />
 
@@ -82,7 +76,7 @@ export const NftSelector = (props: UseControllerProps<FormInputs>) => {
           >
             {query.length > 0 && (
               <Combobox.Option
-                value={{ name: query, address: query, uri: "" }}
+                value={{ name: query, address: query, uri: "", model: 'nft' }}
                 className={({ active }) =>
                   classNames(
                     "relative cursor-default select-none py-2 pl-3 pr-9",
@@ -95,7 +89,7 @@ export const NftSelector = (props: UseControllerProps<FormInputs>) => {
             )}
             {filteredTokens.map((nft) => (
               <Combobox.Option
-                key={nft.mint}
+                key={nft.address}
                 value={nft}
                 className={({ active }) =>
                   classNames(

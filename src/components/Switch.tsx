@@ -35,7 +35,8 @@ export const SwitchButton = ({ label, description, props }: SwitchButtonProps) =
         </span>
       )}
       <Switch
-        checked={enabled}
+        // TODO
+        checked={!!enabled}
         // onChange={setEnabled}
         onChange={(e) => {
           field.onChange(e);

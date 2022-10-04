@@ -1,8 +1,9 @@
 import { useNftJson } from "hooks";
 import Image from "next/image";
+import { FormToken } from "pages/update-nft";
 
 type NftSelectorProp = {
-  metadata: { name: string; mint: string; uri: string };
+  metadata: FormToken;
   selected: boolean;
 };
 
@@ -19,9 +20,10 @@ export const NftSelectorOption = ({ metadata, selected }: NftSelectorProp) => {
         <div className="h-6 w-6 flex-shrink-0 animate-pulse rounded bg-slate-400"></div>
       )}
 
-      {json && (
+      {/* TODO: default image if the json is invalid */}
+      {json?.image && (
         <Image
-          src={json.image}
+          src={json?.image}
           alt=""
           height={24}
           width={24}
