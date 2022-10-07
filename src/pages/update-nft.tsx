@@ -138,8 +138,8 @@ const UpdateNft: NextPage = (props) => {
         <title>BlastCtrl Tools - Update NFT</title>
         <meta name="Metaplex NFT" content="Basic Functionality" />
       </Head>
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto mt-2 max-w-xl overflow-visible bg-white px-4 py-5 shadow sm:mt-6 sm:rounded-lg sm:p-6">
+      <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-xl overflow-visible bg-white px-4 py-5 shadow sm:my-6 sm:rounded-lg sm:p-6">
           <div className="border-b border-gray-200 pb-4">
             <h1 className="mb-4 font-display text-3xl font-semibold">Manual NFT update</h1>
             <p className="text-sm text-gray-500">
