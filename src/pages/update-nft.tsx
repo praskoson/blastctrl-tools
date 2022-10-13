@@ -74,6 +74,7 @@ const UpdateNft: NextPage = (props) => {
     }
 
     const metaplex = Metaplex.make(connection).use(walletAdapterIdentity(wallet));
+    
     let token: Sft | SftWithToken | Nft | NftWithToken;
     if (data.mint.model === "metadata") {
       const metadata = new PublicKey(data.mint.address);
@@ -87,7 +88,7 @@ const UpdateNft: NextPage = (props) => {
       notify({
         type: "error",
         message: "Invalid authority",
-        description: "This wallet is not the correct update authority.",
+        description: `This wallet is not the correct update authority. Update authority is: ${token.updateAuthorityAddress.toBase58()}`,
       });
       return;
     }
@@ -166,7 +167,8 @@ const UpdateNft: NextPage = (props) => {
                       required: { value: true, message: "Select a token or enter an address." },
                       validate: {
                         pubkey: (value: FormToken) =>
-                          isPublicKey(value?.address) || "Not a valid pubkey",
+                          isPublicKey(value?.address) ||
+                          `Not a valid pubkey: ${JSON.stringify(value)}`,
                       },
                     }}
                   />
