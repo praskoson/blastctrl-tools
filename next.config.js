@@ -9,6 +9,7 @@ const nextConfig = {
       'cdn.blastctrl.com',
       's3.eu-central-1.amazonaws.com',
       'dweb.link',
+      'images.unsplash.com'
     ],
   },
 };

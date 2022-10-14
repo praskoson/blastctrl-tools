@@ -114,7 +114,7 @@ export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
 
   // TODO: add FAQ, disclosures
   return (
-    <div className='md:hero mx-auto p-4'>
+    <div className='md:hero mx-auto px-4'>
       <div className='md:hero-content flex flex-col'>
         <div className='mb-4 sm:mb-0 sm:border-b sm:border-gray-200 sm:pb-3'>
           <h1 className='text-center text-3xl font-semibold text-gray-900 font-display mb-2'>
