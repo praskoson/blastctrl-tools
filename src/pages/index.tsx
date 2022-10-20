@@ -7,10 +7,7 @@ const Home: NextPage = (props) => {
     <div>
       <Head>
         <title>BlastCtrl Tools - Home</title>
-        <meta
-          name="description"
-          content="Home Navigation"
-        />
+        <meta name="description" content="Home Navigation" />
       </Head>
       <HomeView />
     </div>

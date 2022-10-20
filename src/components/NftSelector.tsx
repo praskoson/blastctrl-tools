@@ -76,7 +76,7 @@ export const NftSelector = (props: UseControllerProps<FormInputs>) => {
           >
             {query.length > 0 && (
               <Combobox.Option
-                value={{ name: query, address: query, uri: "", model: 'nft' }}
+                value={{ name: query, address: query, uri: "", model: "nft" }}
                 className={({ active }) =>
                   classNames(
                     "relative cursor-default select-none py-2 pl-3 pr-9",

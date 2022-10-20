@@ -1,16 +1,16 @@
 // Next, React
-import { FC, useEffect, useState } from 'react';
-import Link from 'next/link';
+import { FC, useEffect, useState } from "react";
+import Link from "next/link";
 
 // Wallet
-import { useWallet, useConnection } from '@solana/wallet-adapter-react';
+import { useWallet, useConnection } from "@solana/wallet-adapter-react";
 
 // Components
-import { RequestAirdrop } from '../../components/RequestAirdrop';
-import pkg from '../../../package.json';
+import { RequestAirdrop } from "../../components/RequestAirdrop";
+import pkg from "../../../package.json";
 
 // Store
-import useUserSOLBalanceStore from '../../stores/useUserSOLBalanceStore';
+import useUserSOLBalanceStore from "../../stores/useUserSOLBalanceStore";
 
 export const HomeView: FC = ({}) => {
   const wallet = useWallet();
@@ -27,26 +27,24 @@ export const HomeView: FC = ({}) => {
   }, [wallet.publicKey, connection, getUserSOLBalance]);
 
   return (
-    <div className='md:hero mx-auto p-4'>
-      <div className='md:hero-content flex flex-col'>
-        <h1 className='text-center text-5xl font-bold font-display text-slate-700'>
+    <div className="mx-auto p-4 md:hero">
+      <div className="flex flex-col md:hero-content">
+        <h1 className="text-center font-display text-5xl font-bold text-slate-700">
           BlastCtrl <span>Tools</span>
         </h1>
-        <h4 className='md:w-full text-center text-slate-600 my-2'>
+        <h4 className="my-2 text-center text-slate-600 md:w-full">
           <p>A small toolbox for the adventuring Solana user.</p>
-          <p className='px-10 sm:px-0'>Mint, build and use these to get out of any trouble.</p>
+          <p className="px-10 sm:px-0">Mint, build and use these to get out of any trouble.</p>
         </h4>
-        <div className='max-w-md mx-auto mockup-code bg-primary pr-6 my-2'>
-          <pre data-prefix='>'>
-            <code className='truncate'>LFG!!!!!!!!</code>
+        <div className="mockup-code mx-auto my-2 max-w-md bg-primary pr-6">
+          <pre data-prefix=">">
+            <code className="truncate">LFG!!!!!!!!</code>
           </pre>
         </div>
-        <div className='text-center'>
+        <div className="text-center">
           {/* <<RequestAirdrop />> */}
-          <a href='https://blastctrl.com'>
-            <button className='btn btn-secondary btn-link'>
-              Visit our homepage
-            </button>
+          <a href="https://blastctrl.com">
+            <button className="btn btn-secondary btn-link">Visit our homepage</button>
           </a>
         </div>
       </div>

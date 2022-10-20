@@ -1,6 +1,6 @@
 // https://github.com/metaplex-foundation/js
 
-import { WebBundlr } from '@bundlr-network/client';
+import { WebBundlr } from "@bundlr-network/client";
 import {
   Connection,
   PublicKey,
@@ -8,10 +8,10 @@ import {
   Transaction,
   TransactionSignature,
   Signer,
-} from '@solana/web3.js';
-import BigNumber from 'bignumber.js';
-import { WalletContextState } from '@solana/wallet-adapter-react';
-import { Amount, lamports, toBigNumber } from 'types';
+} from "@solana/web3.js";
+import BigNumber from "bignumber.js";
+import { WalletContextState } from "@solana/wallet-adapter-react";
+import { Amount, lamports, toBigNumber } from "types";
 
 export type BundlrOptions = {
   address?: string;
@@ -39,11 +39,7 @@ export class BundlrStorageDriver {
   protected _bundlr: WebBundlr | null = null;
   protected _options: BundlrOptions;
 
-  constructor(
-    connection: Connection,
-    identity: WalletContextState,
-    options: BundlrOptions = {}
-  ) {
+  constructor(connection: Connection, identity: WalletContextState, options: BundlrOptions = {}) {
     this._connection = connection;
     this._identity = identity;
     this._options = {
@@ -57,10 +53,8 @@ export class BundlrStorageDriver {
     if (this._identity && this._identity.connected) {
       wallet = {
         publicKey: this._identity.publicKey,
-        signMessage: (message: Uint8Array) =>
-          this._identity.signMessage(message),
-        signTransaction: (transaction: Transaction) =>
-          this._identity.signTransaction(transaction),
+        signMessage: (message: Uint8Array) => this._identity.signMessage(message),
+        signTransaction: (transaction: Transaction) => this._identity.signTransaction(transaction),
         signAllTransactions: (transactions: Transaction[]) =>
           this._identity.signAllTransactions(transactions),
         sendTransaction: (
@@ -69,30 +63,21 @@ export class BundlrStorageDriver {
           options: SendOptions & { signers?: Signer[] } = {}
         ): Promise<TransactionSignature> => {
           const { signers, ...sendOptions } = options;
-          return this._identity.sendTransaction(
-            transaction,
-            connection,
-            sendOptions
-          );
+          return this._identity.sendTransaction(transaction, connection, sendOptions);
         },
       };
     } else {
       wallet = undefined;
     }
 
-    const bundlr = new WebBundlr(
-      'https://node1.bundlr.network',
-      'solana',
-      wallet,
-      this._options
-    );
+    const bundlr = new WebBundlr("https://node1.bundlr.network", "solana", wallet, this._options);
 
     try {
       // Try to initiate bundlr.
       await bundlr.ready();
     } catch (error) {
       //   throw new FailedToInitializeBundlrError({ cause: error as Error });
-      throw new Error('Failed to initialize bundlr', { cause: error as Error });
+      throw new Error("Failed to initialize bundlr", { cause: error as Error });
     }
 
     return bundlr;
@@ -117,9 +102,7 @@ export class BundlrStorageDriver {
     const bundlr = await this.bundlr();
     const price = await bundlr.getPrice(bytes);
 
-    return bigNumberToAmount(
-      price.multipliedBy(this._options.priceMultiplier ?? 1.5)
-    );
+    return bigNumberToAmount(price.multipliedBy(this._options.priceMultiplier ?? 1.5));
   }
 
   async fund(amount: Amount, skipBalanceCheck = false): Promise<void> {
@@ -129,9 +112,7 @@ export class BundlrStorageDriver {
     if (!skipBalanceCheck) {
       const balance = await bundlr.getLoadedBalance();
 
-      toFund = toFund.isGreaterThan(balance)
-        ? toFund.minus(balance)
-        : new BigNumber(0);
+      toFund = toFund.isGreaterThan(balance) ? toFund.minus(balance) : new BigNumber(0);
     }
 
     if (toFund.isLessThanOrEqualTo(0)) {
@@ -173,17 +154,14 @@ export class BundlrStorageDriver {
 
   async uploadAll(files: File[]): Promise<string[]> {
     const bundlr = await this.bundlr();
-    const amount = await this.getUploadPrice(
-      files.reduce((sum, file) => (sum += file.size), 0)
-    );
+    const amount = await this.getUploadPrice(files.reduce((sum, file) => (sum += file.size), 0));
     await this.fund(amount);
 
     const promises = files.map(async (file) => {
       const buffer = await file.arrayBuffer();
-      const { status, data } = await bundlr.uploader.upload(
-        Buffer.from(buffer),
-        { tags: [{ name: 'Content-Type', value: file.type }] }
-      );
+      const { status, data } = await bundlr.uploader.upload(Buffer.from(buffer), {
+        tags: [{ name: "Content-Type", value: file.type }],
+      });
 
       if (status >= 300) {
         // throw new AssetUploadFailedError(status);

@@ -1,6 +1,6 @@
-import axios from 'axios';
-import useSWR from 'swr';
-import { JsonMetadata } from '@metaplex-foundation/js';
+import axios from "axios";
+import useSWR from "swr";
+import { JsonMetadata } from "@metaplex-foundation/js";
 
 const fetcher = async (uri: string): Promise<JsonMetadata> =>
   (await axios.get(uri)).data as JsonMetadata;
