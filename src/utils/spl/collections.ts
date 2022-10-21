@@ -2,9 +2,9 @@ import {
   Metadata,
   createUnverifyCollectionInstruction,
   createSetAndVerifySizedCollectionItemInstruction,
-} from '@metaplex-foundation/mpl-token-metadata';
-import { Connection, PublicKey, TransactionInstruction } from '@solana/web3.js';
-import { getMasterEdition, getMetadata } from './common';
+} from "@metaplex-foundation/mpl-token-metadata";
+import { Connection, PublicKey, TransactionInstruction } from "@solana/web3.js";
+import { getMasterEdition, getMetadata } from "./common";
 
 export const unverifyCollectionNft = async (
   connection: Connection,
@@ -13,12 +13,9 @@ export const unverifyCollectionNft = async (
 ): Promise<TransactionInstruction> => {
   try {
     const metadata = getMetadata(nftMint);
-    const metadataInfo = await Metadata.fromAccountAddress(
-      connection,
-      metadata
-    );
+    const metadataInfo = await Metadata.fromAccountAddress(connection, metadata);
     if (!metadataInfo.collection?.key) {
-      throw Error('NFT does not have a verified collection');
+      throw Error("NFT does not have a verified collection");
     }
     const collectionMint = metadataInfo.collection?.key;
     const collection = getMetadata(collectionMint);
@@ -32,7 +29,7 @@ export const unverifyCollectionNft = async (
       collectionAuthority: wallet,
     });
   } catch (err) {
-    throw Error('Error creating unverifyCollectionInstruction');
+    throw Error("Error creating unverifyCollectionInstruction");
   }
 };
 
@@ -56,6 +53,6 @@ export const addNftToCollection = (
       metadata,
     });
   } catch (err) {
-    throw Error('Error creating unverifyCollectionInstruction');
+    throw Error("Error creating unverifyCollectionInstruction");
   }
 };

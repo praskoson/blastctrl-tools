@@ -1,15 +1,9 @@
 // https://github.com/metaplex-foundation/js
 
-export type PartialKeys<T extends object, K extends keyof T = keyof T> = Omit<
-  T,
-  K
-> &
+export type PartialKeys<T extends object, K extends keyof T = keyof T> = Omit<T, K> &
   Partial<Pick<T, K>>;
 
-export type RequiredKeys<T extends object, K extends keyof T = keyof T> = Omit<
-  T,
-  K
-> &
+export type RequiredKeys<T extends object, K extends keyof T = keyof T> = Omit<T, K> &
   Required<Pick<T, K>>;
 
 export type Option<T> = T | null;

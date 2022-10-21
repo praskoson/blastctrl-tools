@@ -1,2 +1,2 @@
-export { unverifyCollectionNft } from './collections';
-export { getMasterEdition, getMetadata } from './common';
+export { unverifyCollectionNft } from "./collections";
+export { getMasterEdition, getMetadata, compress } from "./common";

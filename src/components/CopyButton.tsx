@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode } from "react";
 
 type CopyButtonProps = {
   children: ReactNode;
@@ -8,7 +8,7 @@ type CopyButtonProps = {
 export const CopyButton = ({ children, content }: CopyButtonProps) => {
   const handleClick = async () => {
     if (!navigator?.clipboard) {
-      console.warn('Clipboard not supported');
+      console.warn("Clipboard not supported");
       return;
     }
     await navigator.clipboard.writeText(content);

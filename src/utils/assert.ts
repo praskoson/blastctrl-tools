@@ -5,7 +5,7 @@
 export class AssertionError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = 'AssertionError';
+    this.name = "AssertionError";
     if (Error.captureStackTrace) {
       Error.captureStackTrace(this, this.constructor);
     }
@@ -16,12 +16,9 @@ export class AssertionError extends Error {
  * Assserts that the provided condition is true.
  * @internal
  */
-export default function assert(
-  condition: boolean,
-  message?: string
-): asserts condition {
+export default function assert(condition: boolean, message?: string): asserts condition {
   if (!condition) {
-    throw new AssertionError(message ?? 'Assertion failed');
+    throw new AssertionError(message ?? "Assertion failed");
   }
 }
 
@@ -35,6 +32,6 @@ assert.equal = function assertEqual<T>(
   message?: string
 ): asserts actual is T {
   if (actual !== expected) {
-    throw new AssertionError((message ?? '') + ` ${actual} !== ${expected}`);
+    throw new AssertionError((message ?? "") + ` ${actual} !== ${expected}`);
   }
 };
