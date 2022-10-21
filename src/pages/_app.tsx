@@ -1,45 +1,38 @@
 import { AppProps } from "next/app";
 import Head from "next/head";
-import { FC, Fragment } from "react";
+import { FC, useState } from "react";
 import { ContextProvider } from "../contexts/ContextProvider";
 import relativeTime from "dayjs/plugin/relativeTime";
 import dayjs from "dayjs";
 import Link from "next/link";
-import { Disclosure, Menu, Transition } from "@headlessui/react";
+import { Disclosure } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { MagnifyingGlassIcon } from "@heroicons/react/20/solid";
-import { classNames } from "utils";
 import Image from "next/image";
 import { Breadcrumbs } from "components/Breadcrumbs";
 import BlastCtrlIcon from "../../public/blastctrl_icon_white.svg";
-import { Jdenticon } from "components/Jdenticon";
 import { Footer } from "components/Footer";
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { MobileWallet } from "components/MobileWallet";
 import { DesktopWallet } from "components/DesktopWallet";
+import { CommandPalette } from "components/CommandPalette";
+import { classNames } from "utils";
 
 dayjs.extend(relativeTime);
 require("@solana/wallet-adapter-react-ui/styles.css");
 require("../styles/globals.css");
 
-const user = {
-  name: "Floyd Miles",
-  email: "floy.dmiles@example.com",
-  imageUrl:
-    "https://images.unsplash.com/photo-1463453091185-61582044d556?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-};
 const navigation = [
-  { name: "NFT Tools", href: "/nft-tools" },
-  { name: "Tokens", href: "/tokens" },
-  { name: "Storage", href: "/storage" },
-];
-const userNavigation = [
-  { name: "Your Profile", href: "#" },
-  { name: "Settings", href: "#" },
-  { name: "Sign out", href: "#" },
+  { name: "NFT Tools", href: "/nft-tools", description: "Run common Metaplex instructions" },
+  { name: "Tokens", href: "/tokens", description: "Manage token accounts" },
+  { name: "Storage", href: "/storage", description: "Decentralized file hosting" },
+  { name: "Add or remove from collection", href: "/nft-tools/collections", in: "NFT Tools" },
+  { name: "Update NFT", href: "/nft-tools/update", in: "NFT Tools" },
+  { name: "Upload to Arweave", href: "/storage/file-upload", in: "Storage" },
 ];
 
 const App: FC<AppProps> = ({ Component, pageProps }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
     <>
       <Head>
@@ -47,6 +40,8 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
       </Head>
 
       <ContextProvider>
+        <CommandPalette isOpen={isOpen} navigation={navigation} setIsOpen={setIsOpen} />
+
         <div className="flex min-h-screen flex-col">
           <>
             <Disclosure as="nav" className="bg-primary" aria-label="Global">
@@ -63,13 +58,15 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
                           </Link>
                         </div>
                         <div className="hidden lg:ml-8 lg:flex lg:space-x-4">
-                          {navigation.map((item) => (
-                            <Link key={item.name} href={item.href}>
-                              <a className="rounded-md py-2 px-3 text-sm font-medium text-white hover:bg-primary-focus">
-                                {item.name}
-                              </a>
-                            </Link>
-                          ))}
+                          {navigation
+                            .filter((nav) => !nav.in)
+                            .map((item) => (
+                              <Link key={item.name} href={item.href}>
+                                <a className="rounded-md py-2 px-3 text-sm font-medium text-white hover:bg-primary-focus">
+                                  {item.name}
+                                </a>
+                              </Link>
+                            ))}
                         </div>
                       </div>
                       <div className="flex flex-1 items-center justify-center px-2 lg:ml-6 lg:justify-end">
@@ -77,26 +74,44 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
                           <label htmlFor="search" className="sr-only">
                             Search
                           </label>
-                          <div className="relative text-white focus-within:text-gray-400">
+                          <div
+                            onClick={() => setIsOpen(true)}
+                            className="relative text-white focus-within:text-white"
+                          >
                             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                               <MagnifyingGlassIcon
                                 className="h-5 w-5 flex-shrink-0"
                                 aria-hidden="true"
                               />
                             </div>
-                            <input
+                            <button
                               id="search"
+                              onClick={() => setIsOpen(true)}
                               name="search"
-                              className="block w-full rounded-md border-transparent bg-primary-focus py-2 pl-10 pr-3 text-base leading-5 placeholder-white focus:border-white focus:bg-white focus:text-gray-900 focus:placeholder-gray-400 focus:outline-none focus:ring-0 sm:text-sm"
-                              placeholder="Search"
-                              type="search"
-                            />
+                              value="Search"
+                              className={classNames(
+                                "block w-full rounded-md border-transparent bg-primary-focus py-2 pl-10 pr-3 text-left text-base leading-5 sm:text-sm",
+                                "hover:cursor-text"
+                              )}
+                            >
+                              Search
+                            </button>
+                            <div className="absolute inset-y-0 right-0 flex py-1.5 pr-1.5">
+                              <kbd className="inline-flex items-center rounded border border-transparent px-2 font-sans text-sm font-medium text-gray-200 shadow-sm">
+                                ⌘K
+                              </kbd>
+                            </div>
                           </div>
                         </div>
                       </div>
                       <div className="flex items-center lg:hidden">
                         {/* Mobile menu button */}
-                        <Disclosure.Button className="inline-flex items-center justify-center rounded-md p-2 text-gray-50 hover:bg-accent hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+                        <Disclosure.Button
+                          className={classNames(
+                            "inline-flex items-center justify-center rounded-md p-2 text-gray-50",
+                            "hover:bg-accent hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+                          )}
+                        >
                           <span className="sr-only">Open menu</span>
                           {open ? (
                             <XMarkIcon className="block h-6 w-6" aria-hidden="true" />
@@ -108,7 +123,6 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
                       <div className="hidden lg:ml-4 lg:flex lg:items-center">
                         {/* Profile dropdown */}
                         <DesktopWallet />
-
                       </div>
                     </div>
                   </div>

@@ -1,8 +1,8 @@
 import { PlusCircleIcon, XMarkIcon } from "@heroicons/react/20/solid";
 import { useFieldArray, Control, UseFormRegister, FieldErrorsImpl } from "react-hook-form";
-import { FormInputs } from "pages/update-nft";
 import { isPublicKey } from "utils/spl/common";
 import { classNames } from "utils";
+import { FormInputs } from "pages/nft-tools/update";
 
 export const MAX_CREATORS = 5;
 

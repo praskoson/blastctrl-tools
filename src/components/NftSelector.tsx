@@ -4,8 +4,8 @@ import { Combobox } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import { NftSelectorOption } from "./NftSelectorOption";
 import { UseControllerProps, useController } from "react-hook-form";
-import type { FormInputs, FormToken } from "pages/update-nft";
 import { classNames } from "utils";
+import type { FormInputs, FormToken } from "pages/nft-tools/update";
 
 export const NftSelector = (props: UseControllerProps<FormInputs>) => {
   const [query, setQuery] = useState("");

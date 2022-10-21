@@ -6,3 +6,8 @@
 .wallet-adapter-button:not([disabled]):hover {
   background-color: #a21515;
 }
+
+.wallet-adapter-button {
+  height: 36px;
+  line-height: 36px;
+}

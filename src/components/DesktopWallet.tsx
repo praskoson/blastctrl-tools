@@ -12,6 +12,7 @@ import { classNames } from "utils";
 import { compress } from "utils/spl";
 import { Jdenticon } from "./Jdenticon";
 import Image from "next/image";
+import SolanaLogo from "../../public/solanaLogoMark.svg";
 
 export const DesktopWallet = () => {
   const { networkConfiguration, setNetworkConfiguration } = useNetworkConfiguration();
@@ -22,7 +23,6 @@ export const DesktopWallet = () => {
 
   const openModal = useCallback(() => {
     setVisible(true);
-    // closeDropdown();
   }, [setVisible]);
 
   const writeToClipboard = async () => {
@@ -36,7 +36,14 @@ export const DesktopWallet = () => {
   };
 
   if (!wallet) {
-    return <WalletModalButton className="rounded-md border border-white py-1" />;
+    return (
+      <WalletModalButton
+        startIcon={<Image src={SolanaLogo} height={20} width={20} alt="" />}
+        style={{ height: 36, lineHeight: 36 }}
+      >
+        Select Wallet
+      </WalletModalButton>
+    );
   }
   if (!publicKey) {
     return <WalletConnectButton className="rounded-md border border-white py-1" />;
