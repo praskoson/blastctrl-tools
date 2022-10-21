@@ -2,9 +2,8 @@ import { useEffect, useRef } from "react";
 import { update } from "jdenticon";
 import { useWallet } from "@solana/wallet-adapter-react";
 
-export const Jdenticon = ({ size = "100%" }) => {
-  const { publicKey } = useWallet();
-  const value = publicKey?.toBase58() ?? "test";
+export const Jdenticon = ({ size = "100%", value = "test" }) => {
+  // const value = publicKey?.toBase58() ?? "test";
   const iconRef = useRef<SVGSVGElement>(null);
 
   useEffect(() => {

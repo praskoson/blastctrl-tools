@@ -6,7 +6,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import dayjs from "dayjs";
 import Link from "next/link";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
-import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { MagnifyingGlassIcon } from "@heroicons/react/20/solid";
 import { classNames } from "utils";
 import Image from "next/image";
@@ -15,6 +15,8 @@ import BlastCtrlIcon from "../../public/blastctrl_icon_white.svg";
 import { Jdenticon } from "components/Jdenticon";
 import { Footer } from "components/Footer";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import { MobileWallet } from "components/MobileWallet";
+import { DesktopWallet } from "components/DesktopWallet";
 
 dayjs.extend(relativeTime);
 require("@solana/wallet-adapter-react-ui/styles.css");
@@ -94,7 +96,7 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
                       </div>
                       <div className="flex items-center lg:hidden">
                         {/* Mobile menu button */}
-                        <Disclosure.Button className="inline-flex items-center justify-center rounded-md p-2 text-sky-200 hover:bg-sky-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+                        <Disclosure.Button className="inline-flex items-center justify-center rounded-md p-2 text-gray-50 hover:bg-accent hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
                           <span className="sr-only">Open menu</span>
                           {open ? (
                             <XMarkIcon className="block h-6 w-6" aria-hidden="true" />
@@ -105,83 +107,25 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
                       </div>
                       <div className="hidden lg:ml-4 lg:flex lg:items-center">
                         {/* Profile dropdown */}
-                        <Menu as="div" className="relative ml-4 flex-shrink-0">
-                          <div>
-                            <Menu.Button className="flex rounded-full bg-sky-500 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-sky-500">
-                              <span className="sr-only">Open user menu</span>
-                              <WalletMultiButton />
-                              {/* <Jdenticon size="32px" /> */}
-                            </Menu.Button>
-                          </div>
-                          <Transition
-                            as={Fragment}
-                            enter="transition ease-out duration-100"
-                            enterFrom="transform opacity-0 scale-95"
-                            enterTo="transform opacity-100 scale-100"
-                            leave="transition ease-in duration-75"
-                            leaveFrom="transform opacity-100 scale-100"
-                            leaveTo="transform opacity-0 scale-95"
-                          >
-                            <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                              {userNavigation.map((item) => (
-                                <Menu.Item key={item.name}>
-                                  {({ active }) => (
-                                    <a
-                                      href={item.href}
-                                      className={classNames(
-                                        active ? "bg-gray-100" : "",
-                                        "block px-4 py-2 text-sm text-gray-700"
-                                      )}
-                                    >
-                                      {item.name}
-                                    </a>
-                                  )}
-                                </Menu.Item>
-                              ))}
-                            </Menu.Items>
-                          </Transition>
-                        </Menu>
+                        <DesktopWallet />
+
                       </div>
                     </div>
                   </div>
 
                   <Disclosure.Panel className="lg:hidden">
-                    <div className="space-y-1 px-2 pt-2 pb-3">
+                    <div className="flex w-full flex-col items-start gap-y-1 px-2 pt-2 pb-3">
                       {navigation.map((item) => (
-                        <Disclosure.Button
-                          key={item.name}
-                          as="a"
-                          href={item.href}
-                          className="block rounded-md py-2 px-3 text-base font-medium text-white hover:bg-sky-400 hover:text-white"
-                        >
-                          {item.name}
+                        <Disclosure.Button key={item.name}>
+                          <Link key={item.name} href={item.href}>
+                            <a className="block w-full rounded-md py-2 px-3 text-base font-medium text-white hover:bg-primary-focus hover:text-white">
+                              {item.name}
+                            </a>
+                          </Link>
                         </Disclosure.Button>
                       ))}
                     </div>
-                    <div className="border-t border-sky-500 pt-4 pb-3">
-                      <div className="flex items-center px-4">
-                        <WalletMultiButton />
-                        {/* <div className="flex-shrink-0">
-                          <img className="h-10 w-10 rounded-full" src={user.imageUrl} alt="" />
-                        </div>
-                        <div className="ml-3">
-                          <div className="text-base font-medium text-white">{user.name}</div>
-                          <div className="text-sm font-medium text-sky-200">{user.email}</div>
-                        </div> */}
-                      </div>
-                      <div className="mt-3 px-2">
-                        {userNavigation.map((item) => (
-                          <Disclosure.Button
-                            key={item.name}
-                            as="a"
-                            href={item.href}
-                            className="block rounded-md py-2 px-3 text-base font-medium text-sky-200 hover:bg-sky-400 hover:text-white"
-                          >
-                            {item.name}
-                          </Disclosure.Button>
-                        ))}
-                      </div>
-                    </div>
+                    <MobileWallet />
                   </Disclosure.Panel>
                 </>
               )}

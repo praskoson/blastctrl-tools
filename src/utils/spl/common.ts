@@ -40,3 +40,7 @@ export function isPublicKey(value: any) {
 export function assertPublicKey(value: any): asserts value is PublicKey {
   assert(isPublicKey(value), "Not valid public key");
 }
+
+export function compress(str: string, chars: number) {
+  return str.slice(0, chars) + "..." + str.slice(-chars);
+}
