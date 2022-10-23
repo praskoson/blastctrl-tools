@@ -2,7 +2,8 @@ import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { TransactionSignature, PublicKey, Transaction } from "@solana/web3.js";
 import { FormEvent, useCallback, useState } from "react";
 import { notify } from "utils/notifications";
-import { addNftToCollection, unverifyCollectionNft } from "utils/spl/collections";
+import { unverifyCollectionNft } from "utils/spl/collections";
+import toast from "react-hot-toast";
 
 export const RemoveFrom = () => {
   const { connection } = useConnection();
@@ -41,18 +42,20 @@ export const RemoveFrom = () => {
           { blockhash, lastValidBlockHeight, signature },
           "confirmed"
         );
-        notify({
-          type: "success",
-          message: "Remove from collection successful!",
-          txid: signature,
-        });
+        // notify({
+        //   type: "success",
+        //   message: "Remove from collection successful!",
+        //   txid: signature,
+        // });
+        toast.success("Remove from collection success");
       } catch (error: any) {
-        notify({
-          type: "error",
-          message: `Remove from collection failed!`,
-          description: error?.message,
-          txid: signature,
-        });
+        toast.error("Remove from collection failed!");
+        // notify({
+        //   type: "error",
+        //   message: `Remove from collection failed!`,
+        //   description: error?.message,
+        //   txid: signature,
+        // });
         console.log("error", `Remove from collection failed! ${error?.message}`, signature);
       }
     },
@@ -60,7 +63,7 @@ export const RemoveFrom = () => {
   );
 
   return (
-    <form>
+    <form onSubmit={onClick}>
       <h3>Remove from collection</h3>
       <div className="form-control">
         <label className="label">
@@ -68,7 +71,11 @@ export const RemoveFrom = () => {
         </label>
         <label className="input-group">
           <span>NFT</span>
-          <input type="text" className="input-bordered input" />
+          <input
+            onChange={(e) => setNftStr(e.target.value)}
+            type="text"
+            className="input-bordered input"
+          />
         </label>
       </div>
       <button type="submit" className="btn btn-secondary mt-4">

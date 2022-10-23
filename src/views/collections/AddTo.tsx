@@ -2,6 +2,7 @@ import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { TransactionSignature, PublicKey, Transaction } from "@solana/web3.js";
 import { FormEvent, useCallback, useState } from "react";
 import { notify } from "utils/notifications";
+import toast from "react-hot-toast";
 import { addNftToCollection } from "utils/spl/collections";
 
 export const AddTo = () => {
@@ -43,18 +44,21 @@ export const AddTo = () => {
           { blockhash, lastValidBlockHeight, signature },
           "confirmed"
         );
-        notify({
-          type: "success",
-          message: "Add to collection success.",
-          txid: signature,
-        });
+        toast.success("Add to collection success.");
+        console.log(signature);
+        // notify({
+        //   type: "success",
+        //   message: "Add to collection success.",
+        //   txid: signature,
+        // });
       } catch (error: any) {
-        notify({
-          type: "error",
-          message: `Add to collection failed.`,
-          description: error?.message,
-          txid: signature,
-        });
+        toast.error("Add to collection failed.");
+        // notify({
+        //   type: "error",
+        //   message: `Add to collection failed.`,
+        //   description: error?.message,
+        //   txid: signature,
+        // });
         console.log("error", `Add to collection failed. ${error?.message}`, signature);
       }
     },
