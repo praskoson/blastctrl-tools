@@ -9,7 +9,12 @@ module.exports = {
       display: ['"Roboto Slab"'],
     },
   },
-  plugins: [require("daisyui"), require("@tailwindcss/typography"), require("@tailwindcss/forms")],
+  plugins: [
+    require("daisyui"),
+    require("@tailwindcss/typography"),
+    require("@tailwindcss/forms"),
+    require("@tailwindcss/line-clamp"),
+  ],
   daisyui: {
     styled: true,
     // TODO: Theme needs works
