@@ -1,6 +1,6 @@
 import {
   Metadata,
-  createUnverifyCollectionInstruction,
+  createUnverifySizedCollectionItemInstruction,
   createSetAndVerifySizedCollectionItemInstruction,
 } from "@metaplex-foundation/mpl-token-metadata";
 import { Connection, PublicKey, TransactionInstruction } from "@solana/web3.js";
@@ -21,7 +21,8 @@ export const unverifyCollectionNft = async (
     const collection = getMetadata(collectionMint);
     const collectionMasterEditionAccount = getMasterEdition(collectionMint);
 
-    return createUnverifyCollectionInstruction({
+    return createUnverifySizedCollectionItemInstruction({
+      payer: wallet,
       metadata,
       collectionMint,
       collection,

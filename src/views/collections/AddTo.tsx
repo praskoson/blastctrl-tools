@@ -45,20 +45,20 @@ export const AddTo = () => {
         );
         notify({
           type: "success",
-          message: "Airdrop successful!",
+          message: "Add to collection success.",
           txid: signature,
         });
       } catch (error: any) {
         notify({
           type: "error",
-          message: `Airdrop failed!`,
+          message: `Add to collection failed.`,
           description: error?.message,
           txid: signature,
         });
-        console.log("error", `Airdrop failed! ${error?.message}`, signature);
+        console.log("error", `Add to collection failed. ${error?.message}`, signature);
       }
     },
-    [publicKey, connection]
+    [publicKey, connection, collectionStr, nftStr, sendTransaction]
   );
 
   return (

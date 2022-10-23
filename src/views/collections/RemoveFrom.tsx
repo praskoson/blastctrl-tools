@@ -43,20 +43,20 @@ export const RemoveFrom = () => {
         );
         notify({
           type: "success",
-          message: "Airdrop successful!",
+          message: "Remove from collection successful!",
           txid: signature,
         });
       } catch (error: any) {
         notify({
           type: "error",
-          message: `Airdrop failed!`,
+          message: `Remove from collection failed!`,
           description: error?.message,
           txid: signature,
         });
-        console.log("error", `Airdrop failed! ${error?.message}`, signature);
+        console.log("error", `Remove from collection failed! ${error?.message}`, signature);
       }
     },
-    [publicKey, connection]
+    [publicKey, connection, nftStr, sendTransaction]
   );
 
   return (
