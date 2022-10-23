@@ -29,7 +29,7 @@ const FileUpload: NextPage = (props) => {
   return (
     <div>
       <Head>
-        <title>BlastCtrl Tools - Arweave File Uploader</title>
+        <title>Tools | Blast Ctrl - File upload</title>
         <meta name="Metaplex Collections" content="Basic Functionality" />
       </Head>
       <UploaderView storage={storage} />

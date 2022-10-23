@@ -6,7 +6,7 @@ const Home: NextPage = (props) => {
   return (
     <div>
       <Head>
-        <title>BlastCtrl Tools - Home</title>
+        <title>Tools | Blast Ctrl - Home</title>
         <meta name="description" content="Home Navigation" />
       </Head>
       <HomeView />

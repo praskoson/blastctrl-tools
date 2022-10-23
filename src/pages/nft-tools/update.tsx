@@ -229,7 +229,7 @@ const Update: NextPage = () => {
   return (
     <>
       <Head>
-        <title>BlastCtrl Tools - Update NFT</title>
+        <title>Tools | Blast Ctrl - Update</title>
         <meta name="Metaplex NFT" content="Basic Functionality" />
       </Head>
       <div className="mx-auto max-w-xl overflow-visible bg-white px-4 pb-5 sm:mb-6 sm:rounded-lg sm:p-6 sm:shadow">

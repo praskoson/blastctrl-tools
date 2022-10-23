@@ -37,7 +37,7 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
   return (
     <>
       <Head>
-        <title>BlastCtrl Tools</title>
+        <title>Tools | Blast Ctrl</title>
       </Head>
       <Toaster position="bottom-left" />
       <ContextProvider>
