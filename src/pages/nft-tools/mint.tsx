@@ -95,6 +95,7 @@ const Update: NextPage = () => {
     if (query?.isCollection) {
       setValue("isCollection", true);
       setFocus("isCollection");
+      window.scrollBy(0, 200);
     }
     if (query?.collectionIsSized) {
       setValue("collectionIsSized", true);
@@ -417,7 +418,6 @@ const Update: NextPage = () => {
                   </span>
                   <Switch
                     defaultChecked={true}
-                    
                     name={name}
                     className={classNames(
                       //   value2 ? "bg-indigo-600" : "bg-gray-200",

@@ -9,7 +9,7 @@ class MyDocument extends Document {
 
   render() {
     return (
-      <Html>
+      <Html className="scroll-smooth">
         <Head>
           <link rel="shortcut icon" href="/favicon.ico" />
           <link
