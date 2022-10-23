@@ -38,7 +38,7 @@ export const DesktopWallet = () => {
   if (!wallet) {
     return (
       <WalletModalButton
-        startIcon={<Image src={SolanaLogo} height={20} width={20} alt="" />}
+        startIcon={<Image loader={({ src }) => src} src={SolanaLogo} height={20} width={20} alt="" />}
         style={{ height: 36, lineHeight: 36 }}
       >
         Select Wallet
@@ -80,7 +80,7 @@ export const DesktopWallet = () => {
                 )}
               </button>
               <div className="ml-auto max-h-fit flex-shrink-0 rounded-lg px-3 py-1 hover:bg-gray-50">
-                <Image src={wallet.adapter.icon} height={24} width={24} alt="wallet icon" />
+                <Image loader={({ src }) => src} src={wallet.adapter.icon} height={24} width={24} alt="wallet icon" />
               </div>
             </div>
           </div>
