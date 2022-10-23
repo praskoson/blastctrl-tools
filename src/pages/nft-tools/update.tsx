@@ -26,11 +26,10 @@ import { useConnection, useLocalStorage, useWallet } from "@solana/wallet-adapte
 import { notify } from "utils/notifications";
 import { PublicKey } from "@solana/web3.js";
 import { classNames } from "utils";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import AbortController from "abort-controller";
 import { useUserNfts } from "hooks";
 import { Switch } from "@headlessui/react";
-import { IsMutableCanOnlyBeFlippedToFalseError } from "@metaplex-foundation/mpl-token-metadata";
 
 export type FormToken = {
   name: string;
@@ -72,7 +71,6 @@ const Update: NextPage = () => {
     setValue,
     formState: { errors, dirtyFields },
     reset,
-    resetField,
     control,
   } = useForm<FormInputs>({
     mode: "onSubmit",
@@ -111,7 +109,6 @@ const Update: NextPage = () => {
   );
 
   useEffect(() => {
-    console.log("Fired useffect");
     const controller = new AbortController();
 
     async function loadValues() {
@@ -154,10 +151,8 @@ const Update: NextPage = () => {
       }
     }
 
-    if (watchedMint?.address) {
-      if (isShowingCurrentValues) {
-        loadValues();
-      }
+    if (watchedMint?.address && isShowingCurrentValues) {
+      loadValues();
     }
 
     return () => {
@@ -273,7 +268,22 @@ const Update: NextPage = () => {
               <Switch.Group as="div" className="flex items-center sm:col-span-3">
                 <Switch
                   checked={isShowingCurrentValues}
-                  onChange={setIsShowingCurrentValues}
+                  onChange={(value) => {
+                    setIsShowingCurrentValues(value);
+                    if (!value) {
+                      reset((formValues) => ({
+                        mint: formValues.mint,
+                        name: "",
+                        symbol: "",
+                        isMutable: true,
+                        uri: "",
+                        primarySaleHappened: false,
+                        updateAuthority: "",
+                        sellerFeeBasisPoints: null,
+                        creators: [],
+                      }));
+                    }
+                  }}
                   className={classNames(
                     isShowingCurrentValues ? "bg-indigo-600" : "bg-gray-200",
                     "relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
