@@ -28,7 +28,7 @@ export const AddTo = () => {
       try {
         const nftMint = new PublicKey(nftStr);
         const collectionMint = new PublicKey(collectionStr);
-        const ix = addNftToCollection(publicKey, nftMint, collectionMint);
+        const ix = await addNftToCollection(connection, publicKey, nftMint, collectionMint);
         const tx = new Transaction().add(ix);
         const {
           context: { slot: minContextSlot },
