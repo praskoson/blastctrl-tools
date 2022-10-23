@@ -28,7 +28,7 @@ class MyDocument extends Document {
 
           <meta name="twitter:card" content="summary_large_image" />
           <meta property="twitter:url" content="https://tools.blastctrl.com/" />
-          <meta name="twitter:title" content="Blockchain Consulting | Blast Ctrl" />
+          <meta name="twitter:title" content="Tools | Blast Ctrl" />
           <meta
             name="twitter:description"
             content="A set of tools for easier token and NFT manipulation on Solana."
@@ -36,11 +36,11 @@ class MyDocument extends Document {
           <meta name="twitter:image" content="https://cdn.blastctrl.com/bc/img/WebsiteTagPic.png" />
 
           <meta property="og:type" content="website" />
-          <meta property="og:url" content="https://blastctrl.com/" />
-          <meta property="og:title" content="Blockchain Consulting | Blast Ctrl" />
+          <meta property="og:url" content="https://tools.blastctrl.com/" />
+          <meta property="og:title" content="Tools | Blast Ctrl" />
           <meta
             property="og:description"
-            content="Blast Ctrl specializes in providing full support in launching and running crypto projects on Solana. From product strategy and tokenomics to fundraising and partnerships, don't wait to get the perfect advice."
+            content="A set of tools for easier token and NFT manipulation on Solana."
           />
           <meta property="og:image" content="https://cdn.blastctrl.com/bc/img/WebsiteTagPic.png" />
         </Head>
