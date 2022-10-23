@@ -54,7 +54,7 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
                           <Link href="/">
                             <a>
                               <Image
-                                loader={({ src }) => src}
+                                unoptimized={true}
                                 height={38}
                                 width={38}
                                 src={BlastCtrlIcon}
