@@ -2,15 +2,17 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: [
-      "www.arweave.net",
-      "arweave.net",
-      "ipfs.io",
-      "cdn.blastctrl.com",
-      "s3.eu-central-1.amazonaws.com",
-      "dweb.link",
-      "images.unsplash.com",
-    ],
+    loader: "cloudinary",
+    path: "https://res.cloudinary.com/doz0obwb0/image/fetch/",
+    // domains: [
+    //   "www.arweave.net",
+    //   "arweave.net",
+    //   "ipfs.io",
+    //   "cdn.blastctrl.com",
+    //   "s3.eu-central-1.amazonaws.com",
+    //   "dweb.link",
+    //   "images.unsplash.com",
+    // ],
   },
 };
 

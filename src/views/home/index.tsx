@@ -81,6 +81,7 @@ export const HomeView: FC = ({}) => {
             </div>
             <div className="hidden h-auto flex-shrink-0 sm:block sm:w-72 md:w-80 lg:w-96">
               <Image
+                loader={({ src }) => src}
                 src={BlastCtrlTag}
                 width={650}
                 height={675}

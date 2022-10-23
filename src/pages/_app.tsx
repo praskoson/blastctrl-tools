@@ -53,7 +53,13 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
                         <div className="flex flex-shrink-0 items-center">
                           <Link href="/">
                             <a>
-                              <Image height={38} width={38} src={BlastCtrlIcon} alt="BlastCtrl" />
+                              <Image
+                                loader={({ src }) => src}
+                                height={38}
+                                width={38}
+                                src={BlastCtrlIcon}
+                                alt="BlastCtrl"
+                              />
                             </a>
                           </Link>
                         </div>
@@ -96,7 +102,7 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
                             >
                               Search
                             </button>
-                            <div className="hidden absolute inset-y-0 right-0 sm:flex py-1.5 pr-1.5">
+                            <div className="absolute inset-y-0 right-0 hidden py-1.5 pr-1.5 sm:flex">
                               <kbd className="inline-flex items-center rounded border border-transparent px-2 font-sans text-sm font-medium text-gray-200 shadow-sm">
                                 ⌘K
                               </kbd>

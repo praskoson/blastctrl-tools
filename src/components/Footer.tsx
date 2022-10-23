@@ -103,10 +103,10 @@ export const Footer = () => {
           className="group hover:cursor-pointer"
         >
           <div className="block group-hover:hidden">
-            <Image src={BlastCtrlIconWhite} height="24" width="24" alt="BlastCtrl" />
+            <Image loader={({ src }) => src} src={BlastCtrlIconWhite} height="24" width="24" alt="BlastCtrl" />
           </div>
           <div className="hidden group-hover:block">
-            <Image src={BlastCtrlIconRed} height="24" width="24" alt="BlastCtrl" />
+            <Image loader={({ src }) => src} src={BlastCtrlIconRed} height="24" width="24" alt="BlastCtrl" />
           </div>
         </a>
         <a
