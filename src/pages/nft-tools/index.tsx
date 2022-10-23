@@ -12,9 +12,9 @@ const Nfts: NextPage = (props) => {
     },
     {
       name: "Mint an NFT",
-      href: "/nft-tools",
+      href: "/nft-tools/mint",
       description: "Manually enter the on-chain stored information to mint an NFT.",
-      active: false,
+      active: true,
     },
     {
       name: "Burn NFT",
@@ -24,10 +24,14 @@ const Nfts: NextPage = (props) => {
     },
     {
       name: "Create a collection",
-      href: "/nft-tools",
+      href: "/nft-tools/mint",
+      query: {
+        isCollection: true,
+        collectionIsSized: true,
+      },
       description:
         "Create a collection mint. This process is the same as creating a regular NFT, but you need to set the collection field.",
-      active: false,
+      active: true,
     },
     {
       name: "Add or remove from a collection",
@@ -47,7 +51,7 @@ const Nfts: NextPage = (props) => {
       <h3 className="pb-4">Tools for interacting with Metaplex smart contracts</h3>
       <div className="grid grid-cols-1 gap-y-6 sm:grid-cols-3 sm:gap-x-4">
         {navigation.map((navItem) => (
-          <Link key={navItem.name} href={navItem.active ? navItem.href : "#"}>
+          <Link key={navItem.name} href={{ pathname: navItem.href, query: navItem.query }}>
             <a
               className={classNames(
                 "block cursor-pointer rounded-md border border-gray-300 bg-white p-4 transition-all duration-75",
