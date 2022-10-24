@@ -6,17 +6,28 @@ import {
 } from "@heroicons/react/20/solid";
 import type { NextPage } from "next";
 import Head from "next/head";
-import { useController, useFieldArray, useForm } from "react-hook-form";
+import {
+  Controller,
+  ControllerRenderProps,
+  useController,
+  useFieldArray,
+  useForm,
+} from "react-hook-form";
 import { InputGroup } from "components/InputGroup";
 import { isPublicKey } from "utils/spl/common";
-import { CreateNftInput, Metaplex, walletAdapterIdentity } from "@metaplex-foundation/js";
+import {
+  CreateNftInput,
+  Metaplex,
+  toBigNumber,
+  walletAdapterIdentity,
+} from "@metaplex-foundation/js";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { notify } from "utils/notifications";
 import { PublicKey } from "@solana/web3.js";
 import { classNames } from "utils";
 import { Switch } from "@headlessui/react";
 import { MAX_CREATORS } from "./update";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { useRouter } from "next/router";
 
 export type CreateFormInputs = {
@@ -33,9 +44,10 @@ export type CreateFormInputs = {
   sellerFeeBasisPoints: number;
   isCollection: boolean;
   collectionIsSized: boolean;
+  maxSupply: number;
 };
 
-const Update: NextPage = () => {
+const Mint: NextPage = () => {
   const { connection } = useConnection();
   const wallet = useWallet();
   const router = useRouter();
@@ -47,6 +59,7 @@ const Update: NextPage = () => {
     reset,
     formState: { errors, dirtyFields },
     setValue,
+    watch,
     setFocus,
   } = useForm<CreateFormInputs>({
     mode: "onSubmit",
@@ -60,32 +73,18 @@ const Update: NextPage = () => {
       sellerFeeBasisPoints: null,
       isCollection: false,
       collectionIsSized: false,
+      maxSupply: 0,
     },
   });
+  const watchedIsCollection = watch("isCollection");
 
-  const { fields, append, remove, update } = useFieldArray({
+  const { fields, append, remove } = useFieldArray({
     control,
     name: "creators",
     rules: {
       maxLength: MAX_CREATORS,
       minLength: 0,
     },
-  });
-  const {
-    field: { onBlur: onBlur1, onChange: onChange1, value: value1, ref: ref1 },
-    fieldState: {},
-  } = useController<CreateFormInputs>({ name: "isMutable", control, defaultValue: true });
-  const {
-    field: { onBlur: onBlur2, onChange: onChange2, value: value2, ref: ref2 },
-    fieldState: {},
-  } = useController<CreateFormInputs>({ name: "isCollection", control, defaultValue: false });
-  const {
-    field: { onBlur: onBlur3, onChange: onChange3, value: value3, ref: ref3 },
-    fieldState: {},
-  } = useController<CreateFormInputs>({ name: "collectionIsSized", control, defaultValue: false });
-
-  const { name, onBlur, onChange, ref } = register("collectionIsSized", {
-    setValueAs: (value) => Boolean(value),
   });
 
   const isCreatorAddable = fields.length < MAX_CREATORS;
@@ -126,6 +125,7 @@ const Update: NextPage = () => {
         : undefined,
       isCollection: data.isCollection,
       collectionIsSized: data.collectionIsSized,
+      maxSupply: data.maxSupply ? toBigNumber(data.maxSupply) : undefined,
     };
 
     try {
@@ -149,7 +149,7 @@ const Update: NextPage = () => {
   return (
     <>
       <Head>
-        <title>BlastCtrl Tools - Update NFT</title>
+        <title>BlastCtrl Tools - Mint NFT</title>
         <meta name="Metaplex NFT" content="Basic Functionality" />
       </Head>
       <div className="mx-auto max-w-xl overflow-visible bg-white px-4 pb-5 sm:mb-6 sm:rounded-lg sm:p-6 sm:shadow">
@@ -176,6 +176,7 @@ const Update: NextPage = () => {
                       value: 32,
                       message: "Max name length is 32",
                     },
+                    required: true,
                   })}
                   error={errors?.name}
                 />
@@ -205,6 +206,31 @@ const Update: NextPage = () => {
                   })}
                   error={errors?.uri}
                 />
+              </div>
+
+              <div className="sm:col-span-6">
+                <label htmlFor="maxSUpply" className="flex items-end gap-x-2 text-sm">
+                  <span className="font-medium text-gray-700">Max supply</span>
+                  <span className="text-xs font-normal text-gray-500">
+                    Used for printing editions
+                  </span>
+                </label>
+                <div className="mt-1">
+                  <input
+                    type="text"
+                    id="maxSupply"
+                    className={classNames(
+                      "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm",
+                      !!errors.maxSupply &&
+                        "border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:outline-none focus:ring-red-500"
+                    )}
+                    aria-invalid={errors.maxSupply ? "true" : "false"}
+                    {...register("maxSupply", { min: { value: 0, message: "Minimum is 0" } })}
+                  />
+                </div>
+                {errors.maxSupply && (
+                  <p className="mt-2 text-sm text-red-600">{errors.maxSupply.message}</p>
+                )}
               </div>
             </div>
           </div>
@@ -311,6 +337,7 @@ const Update: NextPage = () => {
                       min: 0,
                       max: 1000,
                       valueAsNumber: true,
+                      required: true,
                     })}
                     className={classNames(
                       "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm",
@@ -354,24 +381,27 @@ const Update: NextPage = () => {
                       anymore.
                     </Switch.Description>
                   </span>
-                  <Switch
-                    ref={ref1}
-                    checked={!!value1}
-                    onChange={onChange1}
-                    onBlur={onBlur1}
-                    className={classNames(
-                      value1 ? "bg-indigo-600" : "bg-gray-200",
-                      "relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                  <Controller
+                    control={control}
+                    name="isMutable"
+                    render={({ field: { value, ...rest } }) => (
+                      <Switch
+                        {...rest}
+                        className={classNames(
+                          value ? "bg-indigo-600" : "bg-gray-200",
+                          "relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                        )}
+                      >
+                        <span
+                          aria-hidden="true"
+                          className={classNames(
+                            value ? "translate-x-5" : "translate-x-0",
+                            "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+                          )}
+                        />
+                      </Switch>
                     )}
-                  >
-                    <span
-                      aria-hidden="true"
-                      className={classNames(
-                        value1 ? "translate-x-5" : "translate-x-0",
-                        "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
-                      )}
-                    />
-                  </Switch>
+                  />
                 </Switch.Group>
               </div>
 
@@ -385,24 +415,30 @@ const Update: NextPage = () => {
                       Does this token represent a collection NFT?
                     </Switch.Description>
                   </span>
-                  <Switch
-                    ref={ref2}
-                    checked={!!value2}
-                    onChange={onChange2}
-                    onBlur={onBlur2}
-                    className={classNames(
-                      value2 ? "bg-indigo-600" : "bg-gray-200",
-                      "relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                  <Controller
+                    control={control}
+                    name="isCollection"
+                    rules={{
+                      onChange: (e) => !e.target.value && setValue("collectionIsSized", false),
+                    }}
+                    render={({ field: { value, ...rest } }) => (
+                      <Switch
+                        {...rest}
+                        className={classNames(
+                          value ? "bg-indigo-600" : "bg-gray-200",
+                          "relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                        )}
+                      >
+                        <span
+                          aria-hidden="true"
+                          className={classNames(
+                            value ? "translate-x-5" : "translate-x-0",
+                            "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+                          )}
+                        />
+                      </Switch>
                     )}
-                  >
-                    <span
-                      aria-hidden="true"
-                      className={classNames(
-                        value2 ? "translate-x-5" : "translate-x-0",
-                        "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
-                      )}
-                    />
-                  </Switch>
+                  />
                 </Switch.Group>
               </div>
 
@@ -410,31 +446,35 @@ const Update: NextPage = () => {
                 <Switch.Group as="div" className="flex items-center justify-between">
                   <span className="flex flex-grow flex-col">
                     <Switch.Label as="span" className="text-sm font-medium text-gray-900" passive>
-                      Collection is sized
+                      Is a sized collection
                     </Switch.Label>
                     <Switch.Description as="span" className="text-sm text-gray-500">
                       Is this a &quot;sized&quot; collection NFT?
                     </Switch.Description>
                   </span>
-                  <Switch
-                    defaultChecked={true}
-                    name={name}
-                    className={classNames(
-                      //   value2 ? "bg-indigo-600" : "bg-gray-200",
-                      "bg-indigo-600",
-                      "relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                    )}
-                  >
-                    {({ checked }) => (
-                      <span
-                        aria-hidden="true"
+
+                  <Controller
+                    control={control}
+                    name="collectionIsSized"
+                    render={({ field: { value, ...rest } }) => (
+                      <Switch
+                        {...rest}
+                        disabled={!watchedIsCollection}
                         className={classNames(
-                          checked ? "translate-x-5" : "translate-x-0",
-                          "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+                          value ? "bg-indigo-600" : "bg-gray-200",
+                          "relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                         )}
-                      />
+                      >
+                        <span
+                          aria-hidden="true"
+                          className={classNames(
+                            value ? "translate-x-5" : "translate-x-0",
+                            "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+                          )}
+                        />
+                      </Switch>
                     )}
-                  </Switch>
+                  />
                 </Switch.Group>
               </div>
             </div>
@@ -464,4 +504,4 @@ const Update: NextPage = () => {
   );
 };
 
-export default Update;
+export default Mint;
