@@ -30,6 +30,7 @@ import { useEffect } from "react";
 import AbortController from "abort-controller";
 import { useUserNfts } from "hooks";
 import { Switch } from "@headlessui/react";
+import toast from "react-hot-toast";
 
 export type FormToken = {
   name: string;
@@ -162,7 +163,7 @@ const Update: NextPage = () => {
 
   const submit = async (data: FormInputs) => {
     if (!wallet.connected) {
-      notify({ type: "error", message: "Connect your wallet" });
+      toast.error("Connect your wallet");
       return;
     }
 
@@ -178,11 +179,9 @@ const Update: NextPage = () => {
     }
 
     if (!token.updateAuthorityAddress.equals(wallet.publicKey)) {
-      notify({
-        type: "error",
-        message: "Invalid authority",
-        description: `This wallet is not the correct update authority. Update authority is: ${token.updateAuthorityAddress.toBase58()}`,
-      });
+      toast.error(
+        `This wallet is not the correct update authority. Update authority is: ${token.updateAuthorityAddress.toBase58()}`
+      );
       return;
     }
 
