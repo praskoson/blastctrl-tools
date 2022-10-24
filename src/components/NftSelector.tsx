@@ -7,7 +7,9 @@ import { UseControllerProps, useController } from "react-hook-form";
 import { classNames } from "utils";
 import type { FormInputs, FormToken } from "pages/nft-tools/update";
 
-export const NftSelector = (props: UseControllerProps<FormInputs>) => {
+export const NftSelector = (
+  props: UseControllerProps<FormInputs> & { onSelectCallback: (props: any) => void }
+) => {
   const [query, setQuery] = useState("");
   const { isError, isLoading, nfts } = useUserNfts();
 
@@ -40,7 +42,15 @@ export const NftSelector = (props: UseControllerProps<FormInputs>) => {
 
   return (
     <>
-      <Combobox as="div" value={value} onChange={onChange} nullable>
+      <Combobox
+        as="div"
+        value={value}
+        onChange={(token: FormToken) => {
+          onChange(token);
+          props.onSelectCallback(token);
+        }}
+        nullable
+      >
         <Combobox.Label className="sr-only">Mint address</Combobox.Label>
 
         <div className="relative mt-1">

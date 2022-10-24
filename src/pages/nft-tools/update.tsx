@@ -1,36 +1,32 @@
-import { NftSelector } from "components/NftSelector";
+import { Switch } from "@headlessui/react";
 import {
   ChevronDoubleRightIcon,
   ExclamationCircleIcon,
   PlusCircleIcon,
-  XMarkIcon,
+  XMarkIcon
 } from "@heroicons/react/20/solid";
-import type { NextPage } from "next";
-import Head from "next/head";
-import { SwitchButton } from "components/Switch";
-import { useFieldArray, useForm } from "react-hook-form";
-import { InputGroup } from "components/InputGroup";
-import { isPublicKey } from "utils/spl/common";
 import {
-  JsonMetadata,
-  Metadata,
-  Metaplex,
+  JsonMetadata, Metadata, Metaplex,
   Nft,
   NftWithToken,
   Sft,
   SftWithToken,
   UpdateNftInput,
-  walletAdapterIdentity,
+  walletAdapterIdentity
 } from "@metaplex-foundation/js";
 import { useConnection, useLocalStorage, useWallet } from "@solana/wallet-adapter-react";
-import { notify } from "utils/notifications";
 import { PublicKey } from "@solana/web3.js";
-import { classNames } from "utils";
-import { useEffect, useState } from "react";
-import AbortController from "abort-controller";
+import { InputGroup } from "components/InputGroup";
+import { NftSelector } from "components/NftSelector";
+import { SwitchButton } from "components/Switch";
 import { useUserNfts } from "hooks";
-import { Switch } from "@headlessui/react";
-import { IsMutableCanOnlyBeFlippedToFalseError } from "@metaplex-foundation/mpl-token-metadata";
+import type { NextPage } from "next";
+import Head from "next/head";
+import { useState } from "react";
+import { useFieldArray, useForm } from "react-hook-form";
+import { classNames } from "utils";
+import { notify } from "utils/notifications";
+import { getMetadata, isPublicKey } from "utils/spl/common";
 
 export type FormToken = {
   name: string;
@@ -56,36 +52,39 @@ export type FormInputs = {
   sellerFeeBasisPoints: number;
 };
 
+const defaultValues = {
+  name: "",
+  symbol: "",
+  uri: "",
+  updateAuthority: "",
+  mint: null,
+  isMutable: true,
+  primarySaleHappened: false,
+  creators: [],
+  sellerFeeBasisPoints: null,
+};
+
 const Update: NextPage = () => {
   const { connection } = useConnection();
-  const { nfts } = useUserNfts();
   const wallet = useWallet();
+  const { nfts } = useUserNfts();
+  const [current, setCurrent] = useState<Metadata<JsonMetadata<string>> | Nft | Sft>(null);
 
   const [isShowingCurrentValues, setIsShowingCurrentValues] = useLocalStorage(
     "showCurrentValues",
     true
   );
+
   const {
     register,
     handleSubmit,
-    watch,
     setValue,
     formState: { errors, dirtyFields },
     reset,
     control,
   } = useForm<FormInputs>({
     mode: "onSubmit",
-    defaultValues: {
-      name: "",
-      symbol: "",
-      uri: "",
-      updateAuthority: "",
-      mint: null,
-      isMutable: true,
-      primarySaleHappened: false,
-      creators: [],
-      sellerFeeBasisPoints: null,
-    },
+    defaultValues,
   });
   const { fields, append, remove, update } = useFieldArray({
     control,
@@ -97,72 +96,45 @@ const Update: NextPage = () => {
   });
 
   const isCreatorAddable = fields.length < MAX_CREATORS;
-  const watchedMint = watch("mint");
-  const PlusButton = (
-    <button
-      onClick={() => append({ address: "", share: 0 })}
-      type="button"
-      className="inline-flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-    >
-      Add Creator
-      <PlusCircleIcon className="ml-3 -mr-1 h-5 w-5" aria-hidden="true" />
-    </button>
-  );
 
-  useEffect(() => {
-    console.log("Fired useffect");
-    const controller = new AbortController();
+  const onSelectCallback = async (selectedToken: FormToken) => {
+    let nft: Metadata<JsonMetadata<string>> | Nft | Sft;
+    if (!nfts) {
+      // Wait 1 second
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
 
-    async function loadValues() {
-      // let token: Sft | SftWithToken | Nft | NftWithToken;
-      let token: Metadata<JsonMetadata<string>> | Sft | Nft;
-
-      if (nfts) {
-        // Try to find it in user's wallet
-        token = nfts.find((metadata) => metadata.address.toBase58() === watchedMint?.address);
-      }
-
-      if (!token) {
-        // Try to load it
-        const metaplex = Metaplex.make(connection);
-        if (watchedMint.model === "metadata") {
-          const metadata = new PublicKey(watchedMint?.address);
-          token = await metaplex
-            .nfts()
-            .findByMetadata({ metadata, commitment: "confirmed" })
-            .run({ signal: controller.signal });
-        } else {
-          const mintAddress = new PublicKey(watchedMint?.address);
-          token = await metaplex
-            .nfts()
-            .findByMint({ mintAddress, commitment: "confirmed" })
-            .run({ signal: controller.signal });
-        }
-      }
-      if (token) {
-        setValue("name", token.name);
-        setValue("symbol", token.symbol);
-        setValue("uri", token.uri);
-        setValue("updateAuthority", token.updateAuthorityAddress.toBase58());
-        setValue("isMutable", token.isMutable);
-        setValue("primarySaleHappened", token.primarySaleHappened);
-        setValue("sellerFeeBasisPoints", token.sellerFeeBasisPoints);
-        token.creators.forEach((creator, idx) => {
-          update(idx, { address: creator.address.toBase58(), share: creator.share });
-        });
+    nft = nfts?.find((nft) => nft.address.toBase58() === selectedToken?.address);
+    if (!nft) {
+      try {
+        const address = new PublicKey(selectedToken.address);
+        const metadata = selectedToken.model === "metadata" ? address : getMetadata(address);
+        nft = await Metaplex.make(connection).nfts().findByMetadata({ metadata }).run();
+      } catch (err) {
+        console.log("Error loading selected token information");
       }
     }
 
-    if (watchedMint?.address) {
-      if (isShowingCurrentValues) {
-        loadValues();
-      }
+    setCurrent(nft);
+    if (isShowingCurrentValues) {
+      setFormValues(nft);
     }
+  };
 
-    return () => {
-      controller.abort();
-    };
-  }, [watchedMint, connection, setValue, nfts, update, isShowingCurrentValues, reset]);
+  const setFormValues = (nft: Metadata<JsonMetadata<string>> | Nft | Sft) => {
+    if (nft) {
+      setValue("name", nft.name);
+      setValue("symbol", nft.symbol);
+      setValue("uri", nft.uri);
+      setValue("updateAuthority", nft.updateAuthorityAddress.toBase58());
+      setValue("isMutable", nft.isMutable);
+      setValue("primarySaleHappened", nft.primarySaleHappened);
+      setValue("sellerFeeBasisPoints", nft.sellerFeeBasisPoints);
+      nft.creators.forEach((creator, idx) => {
+        update(idx, { address: creator.address.toBase58(), share: creator.share });
+      });
+    }
+  };
 
   const submit = async (data: FormInputs) => {
     if (!wallet.connected) {
@@ -259,6 +231,7 @@ const Update: NextPage = () => {
                 <NftSelector
                   control={control}
                   name="mint"
+                  onSelectCallback={onSelectCallback}
                   rules={{
                     required: { value: true, message: "Select a token or enter an address." },
                     validate: {
@@ -272,7 +245,12 @@ const Update: NextPage = () => {
               <Switch.Group as="div" className="flex items-center sm:col-span-3">
                 <Switch
                   checked={isShowingCurrentValues}
-                  onChange={setIsShowingCurrentValues}
+                  onChange={(state) => {
+                    setIsShowingCurrentValues(state);
+                    !state
+                      ? reset((formValues) => ({ ...defaultValues, mint: formValues.mint }))
+                      : setFormValues(current);
+                  }}
                   className={classNames(
                     isShowingCurrentValues ? "bg-indigo-600" : "bg-gray-200",
                     "relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
@@ -288,7 +266,6 @@ const Update: NextPage = () => {
                 </Switch>
                 <Switch.Label as="span" className="ml-3">
                   <span className="text-sm font-medium text-gray-900">Load current values</span>
-                  {/* <span className="text-sm text-gray-500">Load current values</span> */}
                 </Switch.Label>
               </Switch.Group>
             </div>
@@ -408,7 +385,18 @@ const Update: NextPage = () => {
                       </div>
                     </fieldset>
                   ))}
-                  <div className="mt-2">{isCreatorAddable && PlusButton}</div>
+                  <div className="mt-2">
+                    {isCreatorAddable && (
+                      <button
+                        onClick={() => append({ address: "", share: 0 })}
+                        type="button"
+                        className="inline-flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                      >
+                        Add Creator
+                        <PlusCircleIcon className="ml-3 -mr-1 h-5 w-5" aria-hidden="true" />
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
