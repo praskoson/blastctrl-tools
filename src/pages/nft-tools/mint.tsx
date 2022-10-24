@@ -154,7 +154,7 @@ const Mint: NextPage = () => {
       </Head>
       <div className="mx-auto max-w-xl overflow-visible bg-white px-4 pb-5 sm:mb-6 sm:rounded-lg sm:p-6 sm:shadow">
         <div className="border-b border-gray-200 pb-4">
-          <h1 className="mb-4 font-display text-3xl font-semibold">Manual NFT minting</h1>
+          <h1 className="mb-4 font-display text-3xl font-semibold">NFT minting</h1>
           <p className="text-sm text-gray-500">
             Enter the on-chain values you wish your NFT to have. It will be minted to your wallet,
             with your address as its update authority.
