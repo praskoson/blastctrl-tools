@@ -6,13 +6,7 @@ import {
 } from "@heroicons/react/20/solid";
 import type { NextPage } from "next";
 import Head from "next/head";
-import {
-  Controller,
-  ControllerRenderProps,
-  useController,
-  useFieldArray,
-  useForm,
-} from "react-hook-form";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { InputGroup } from "components/InputGroup";
 import { isPublicKey } from "utils/spl/common";
 import {
@@ -29,6 +23,7 @@ import { Switch } from "@headlessui/react";
 import { MAX_CREATORS } from "./update";
 import React, { useEffect } from "react";
 import { useRouter } from "next/router";
+import toast from "react-hot-toast";
 
 export type CreateFormInputs = {
   name: string;
@@ -108,11 +103,15 @@ const Mint: NextPage = () => {
     }
 
     const metaplex = Metaplex.make(connection).use(walletAdapterIdentity(wallet));
+    const { name, symbol, uri, isMutable, maxSupply, isCollection, collectionIsSized } = data;
     const createNftInput: CreateNftInput = {
-      name: dirtyFields.name ? data.name : undefined,
-      symbol: dirtyFields.symbol ? data.symbol : undefined,
-      uri: dirtyFields.uri ? data.uri : undefined,
-      isMutable: dirtyFields.isMutable ? data.isMutable : undefined,
+      name,
+      symbol,
+      uri,
+      isMutable,
+      isCollection,
+      collectionIsSized,
+      maxSupply: toBigNumber(maxSupply),
       creators: dirtyFields.creators
         ? data.creators.map(({ address, share }) => ({
             address: new PublicKey(address),
@@ -123,26 +122,15 @@ const Mint: NextPage = () => {
       sellerFeeBasisPoints: dirtyFields.sellerFeeBasisPoints
         ? data.sellerFeeBasisPoints
         : undefined,
-      isCollection: data.isCollection,
-      collectionIsSized: data.collectionIsSized,
-      maxSupply: data.maxSupply ? toBigNumber(data.maxSupply) : undefined,
     };
 
     try {
       const { response } = await metaplex.nfts().create(createNftInput).run();
-      notify({
-        type: "success",
-        message: "Update succesful",
-        description: "View the transaction here",
-        txid: response.signature,
-      });
+      console.log(response);
+      toast.success("Mint successful!");
     } catch (err) {
       console.log(err);
-      notify({
-        type: "error",
-        message: "Error updating",
-        description: "Check the console for more information",
-      });
+      toast.error("Error minting, check the console for more information.");
     }
   };
 

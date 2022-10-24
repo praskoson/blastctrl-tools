@@ -3,16 +3,18 @@ import {
   ChevronDoubleRightIcon,
   ExclamationCircleIcon,
   PlusCircleIcon,
-  XMarkIcon
+  XMarkIcon,
 } from "@heroicons/react/20/solid";
 import {
-  JsonMetadata, Metadata, Metaplex,
+  JsonMetadata,
+  Metadata,
+  Metaplex,
   Nft,
   NftWithToken,
   Sft,
   SftWithToken,
   UpdateNftInput,
-  walletAdapterIdentity
+  walletAdapterIdentity,
 } from "@metaplex-foundation/js";
 import { useConnection, useLocalStorage, useWallet } from "@solana/wallet-adapter-react";
 import { PublicKey } from "@solana/web3.js";
@@ -27,6 +29,7 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { classNames } from "utils";
 import { notify } from "utils/notifications";
 import { getMetadata, isPublicKey } from "utils/spl/common";
+import toast from "react-hot-toast";
 
 export type FormToken = {
   name: string;
