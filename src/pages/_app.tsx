@@ -16,6 +16,7 @@ import { MobileWallet } from "components/MobileWallet";
 import { DesktopWallet } from "components/DesktopWallet";
 import { CommandPalette } from "components/CommandPalette";
 import { classNames } from "utils";
+import { Toaster } from "react-hot-toast";
 
 dayjs.extend(relativeTime);
 require("@solana/wallet-adapter-react-ui/styles.css");
@@ -36,9 +37,9 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
   return (
     <>
       <Head>
-        <title>BlastCtrl Tools</title>
+        <title>Tools | Blast Ctrl</title>
       </Head>
-
+      <Toaster position="bottom-left" />
       <ContextProvider>
         <CommandPalette isOpen={isOpen} navigation={navigation} setIsOpen={setIsOpen} />
 

@@ -1084,6 +1084,13 @@
   dependencies:
     eventemitter3 "^4.0.0"
 
+"@solana/wallet-adapter-base@^0.9.18":
+  version "0.9.18"
+  resolved "https://registry.yarnpkg.com/@solana/wallet-adapter-base/-/wallet-adapter-base-0.9.18.tgz#9365304a76977b4446a1167b240d588f2c5448d5"
+  integrity sha512-5HQFytLmb64j1Nzc6dwddZx+IUePN/PYqVMyf/ok7fN3z8Vw3EIFS8b+RFfBpj4HWbc2kqv5fpnLlaAH7q67pA==
+  dependencies:
+    eventemitter3 "^4.0.0"
+
 "@solana/wallet-adapter-base@^0.9.2":
   version "0.9.17"
   resolved "https://registry.yarnpkg.com/@solana/wallet-adapter-base/-/wallet-adapter-base-0.9.17.tgz#b388fea0ec6da40e23342068a4cfa9be65dc8f63"
@@ -1208,6 +1215,17 @@
     "@ledgerhq/hw-transport" "6.27.1"
     "@ledgerhq/hw-transport-webhid" "6.27.1"
     "@solana/wallet-adapter-base" "^0.9.16"
+    buffer "^6.0.3"
+
+"@solana/wallet-adapter-ledger@^0.9.20":
+  version "0.9.20"
+  resolved "https://registry.yarnpkg.com/@solana/wallet-adapter-ledger/-/wallet-adapter-ledger-0.9.20.tgz#717642d72b731239d37cb191ee36d34217d98a47"
+  integrity sha512-puPGyVxf1z0oPxCdXhifzKhIiHUCwnUGC8rrQhoUGnyIDWN8lu/vuKA/m39z0kvA1Jw9NUcksVSTfAImUqUTiA==
+  dependencies:
+    "@ledgerhq/devices" "6.27.1"
+    "@ledgerhq/hw-transport" "6.27.1"
+    "@ledgerhq/hw-transport-webhid" "6.27.1"
+    "@solana/wallet-adapter-base" "^0.9.18"
     buffer "^6.0.3"
 
 "@solana/wallet-adapter-magiceden@^0.1.5":
@@ -4278,6 +4296,11 @@ globby@^11.0.4:
     merge2 "^1.4.1"
     slash "^3.0.0"
 
+goober@^2.1.10:
+  version "2.1.11"
+  resolved "https://registry.yarnpkg.com/goober/-/goober-2.1.11.tgz#bbd71f90d2df725397340f808dbe7acc3118e610"
+  integrity sha512-5SS2lmxbhqH0u9ABEWq7WPU69a4i2pYcHeCxqaNq6Cw3mnrF0ghWNM4tEGid4dKy8XNIAUbuThuozDHHKJVh3A==
+
 graceful-fs@^4.2.4:
   version "4.2.9"
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.2.9.tgz#041b05df45755e587a24942279b9d113146e1c96"
@@ -5801,6 +5824,13 @@ react-hook-form@^7.36.1:
   version "7.36.1"
   resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-7.36.1.tgz#82a311fe8cbe75e689fd4529f083b7c983da6520"
   integrity sha512-EbYYkCG2p8ywe7ikOH2l02lAFMrrrslZi1I8fqd8ifDGNAkhomHZQzQsP6ksvzrWBKntRe8b5L5L7Zsd+Gm02Q==
+
+react-hot-toast@^2.4.0:
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/react-hot-toast/-/react-hot-toast-2.4.0.tgz#b91e7a4c1b6e3068fc599d3d83b4fb48668ae51d"
+  integrity sha512-qnnVbXropKuwUpriVVosgo8QrB+IaPJCpL8oBI6Ov84uvHZ5QQcTp2qg6ku2wNfgJl6rlQXJIQU5q+5lmPOutA==
+  dependencies:
+    goober "^2.1.10"
 
 react-icons@^4.4.0:
   version "4.4.0"

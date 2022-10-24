@@ -5,9 +5,9 @@ import {
   PhantomWalletAdapter,
   SolflareWalletAdapter,
   SolletWalletAdapter,
-  LedgerWalletAdapter,
   GlowWalletAdapter,
 } from "@solana/wallet-adapter-wallets";
+import { LedgerWalletAdapter } from "@solana/wallet-adapter-ledger";
 import { FC, ReactNode, useCallback, useMemo } from "react";
 import { AutoConnectProvider, useAutoConnect } from "./AutoConnectProvider";
 import { notify } from "../utils/notifications";

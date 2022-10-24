@@ -6,7 +6,7 @@ const Collections: NextPage = (props) => {
   return (
     <div>
       <Head>
-        <title>BlastCtrl Tools - Collections</title>
+        <title>Tools | Blast Ctrl - Collections</title>
         <meta name="Metaplex Collections" content="Basic Functionality" />
       </Head>
       <CollectionsView />

@@ -138,7 +138,7 @@ const Update: NextPage = () => {
 
   const submit = async (data: FormInputs) => {
     if (!wallet.connected) {
-      notify({ type: "error", message: "Connect your wallet" });
+      toast.error("Connect your wallet");
       return;
     }
 
@@ -154,11 +154,9 @@ const Update: NextPage = () => {
     }
 
     if (!token.updateAuthorityAddress.equals(wallet.publicKey)) {
-      notify({
-        type: "error",
-        message: "Invalid authority",
-        description: `This wallet is not the correct update authority. Update authority is: ${token.updateAuthorityAddress.toBase58()}`,
-      });
+      toast.error(
+        `This wallet is not the correct update authority. Update authority is: ${token.updateAuthorityAddress.toBase58()}`
+      );
       return;
     }
 
@@ -205,7 +203,7 @@ const Update: NextPage = () => {
   return (
     <>
       <Head>
-        <title>BlastCtrl Tools - Update NFT</title>
+        <title>Tools | Blast Ctrl - Update</title>
         <meta name="Metaplex NFT" content="Basic Functionality" />
       </Head>
       <div className="mx-auto max-w-xl overflow-visible bg-white px-4 pb-5 sm:mb-6 sm:rounded-lg sm:p-6 sm:shadow">

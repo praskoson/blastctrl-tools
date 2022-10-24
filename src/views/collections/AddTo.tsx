@@ -2,6 +2,7 @@ import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { TransactionSignature, PublicKey, Transaction } from "@solana/web3.js";
 import { FormEvent, useCallback, useState } from "react";
 import { notify } from "utils/notifications";
+import toast from "react-hot-toast";
 import { addNftToCollection } from "utils/spl/collections";
 
 export const AddTo = () => {
@@ -28,7 +29,7 @@ export const AddTo = () => {
       try {
         const nftMint = new PublicKey(nftStr);
         const collectionMint = new PublicKey(collectionStr);
-        const ix = addNftToCollection(publicKey, nftMint, collectionMint);
+        const ix = await addNftToCollection(connection, publicKey, nftMint, collectionMint);
         const tx = new Transaction().add(ix);
         const {
           context: { slot: minContextSlot },
@@ -43,22 +44,25 @@ export const AddTo = () => {
           { blockhash, lastValidBlockHeight, signature },
           "confirmed"
         );
-        notify({
-          type: "success",
-          message: "Airdrop successful!",
-          txid: signature,
-        });
+        toast.success("Add to collection success.");
+        console.log(signature);
+        // notify({
+        //   type: "success",
+        //   message: "Add to collection success.",
+        //   txid: signature,
+        // });
       } catch (error: any) {
-        notify({
-          type: "error",
-          message: `Airdrop failed!`,
-          description: error?.message,
-          txid: signature,
-        });
-        console.log("error", `Airdrop failed! ${error?.message}`, signature);
+        toast.error("Add to collection failed.");
+        // notify({
+        //   type: "error",
+        //   message: `Add to collection failed.`,
+        //   description: error?.message,
+        //   txid: signature,
+        // });
+        console.log("error", `Add to collection failed. ${error?.message}`, signature);
       }
     },
-    [publicKey, connection]
+    [publicKey, connection, collectionStr, nftStr, sendTransaction]
   );
 
   return (

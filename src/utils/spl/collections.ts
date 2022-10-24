@@ -1,7 +1,8 @@
 import {
   Metadata,
-  createUnverifyCollectionInstruction,
+  createUnverifySizedCollectionItemInstruction,
   createSetAndVerifySizedCollectionItemInstruction,
+  createSetAndVerifyCollectionInstruction,
 } from "@metaplex-foundation/mpl-token-metadata";
 import { Connection, PublicKey, TransactionInstruction } from "@solana/web3.js";
 import { getMasterEdition, getMetadata } from "./common";
@@ -21,7 +22,8 @@ export const unverifyCollectionNft = async (
     const collection = getMetadata(collectionMint);
     const collectionMasterEditionAccount = getMasterEdition(collectionMint);
 
-    return createUnverifyCollectionInstruction({
+    return createUnverifySizedCollectionItemInstruction({
+      payer: wallet,
       metadata,
       collectionMint,
       collection,
@@ -29,30 +31,46 @@ export const unverifyCollectionNft = async (
       collectionAuthority: wallet,
     });
   } catch (err) {
-    throw Error("Error creating unverifyCollectionInstruction");
+    throw Error("Error creating unverifySizedCollectionInstruction");
   }
 };
 
-export const addNftToCollection = (
+export const addNftToCollection = async (
+  connection: Connection,
   wallet: PublicKey,
   nftMint: PublicKey,
   collectionMint: PublicKey
-): TransactionInstruction => {
+): Promise<TransactionInstruction> => {
   try {
     const metadata = getMetadata(nftMint);
     const collection = getMetadata(collectionMint);
     const collectionMasterEditionAccount = getMasterEdition(collectionMint);
+    const collectionMetadata = await Metadata.fromAccountAddress(connection, collection);
 
-    return createSetAndVerifySizedCollectionItemInstruction({
-      payer: wallet,
-      updateAuthority: wallet,
-      collectionMint,
-      collection,
-      collectionMasterEditionAccount,
-      collectionAuthority: wallet,
-      metadata,
-    });
+    if (collectionMetadata.collectionDetails && collectionMetadata.collectionDetails.size) {
+      // This is a sized collection
+      return createSetAndVerifySizedCollectionItemInstruction({
+        payer: wallet,
+        updateAuthority: wallet,
+        collectionMint,
+        collection,
+        collectionMasterEditionAccount,
+        collectionAuthority: wallet,
+        metadata,
+      });
+    } else {
+      // This is an unsized collection
+      return createSetAndVerifyCollectionInstruction({
+        payer: wallet,
+        updateAuthority: wallet,
+        collectionMint,
+        collection,
+        collectionMasterEditionAccount,
+        collectionAuthority: wallet,
+        metadata,
+      });
+    }
   } catch (err) {
-    throw Error("Error creating unverifyCollectionInstruction");
+    throw Error("Error creating setAndVerifySizedCollectionItemInstruction", err);
   }
 };
