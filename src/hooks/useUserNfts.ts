@@ -2,8 +2,8 @@ import { Connection, PublicKey } from "@solana/web3.js";
 import { Metaplex, Cluster, guestIdentity } from "@metaplex-foundation/js";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import useSWR from "swr";
-import { useNetworkConfiguration } from "contexts/NetworkConfigurationProvider";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
+import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
 
 const fetchWalletNfts = (connection: Connection, cluster: Cluster) => async (wallet58: string) => {
   let wallet: PublicKey;
@@ -24,18 +24,19 @@ const fetchWalletNfts = (connection: Connection, cluster: Cluster) => async (wal
 export const useUserNfts = () => {
   const { connection } = useConnection();
   const { publicKey } = useWallet();
-  const { networkConfiguration } = useNetworkConfiguration();
+  const { network } = useNetworkConfigurationStore();
 
-  const fetcher = useMemo(
-    () => fetchWalletNfts(connection, networkConfiguration),
-    [connection, networkConfiguration]
-  );
+  const fetcher = useMemo(() => fetchWalletNfts(connection, network), [connection, network]);
 
-  const { data, error } = useSWR(() => publicKey?.toBase58(), fetcher, {
+  const { data, error, mutate } = useSWR(() => publicKey?.toBase58(), fetcher, {
     refreshInterval: 60000,
     errorRetryCount: 5,
     errorRetryInterval: 10000,
   });
+
+  useEffect(() => {
+    mutate();
+  }, [network, mutate]);
 
   return { isError: error, isLoading: !error && !data, nfts: data };
 };

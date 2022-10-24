@@ -6,15 +6,15 @@ import {
   WalletConnectButton,
   WalletModalButton,
 } from "@solana/wallet-adapter-react-ui";
-import { useNetworkConfiguration } from "contexts/NetworkConfigurationProvider";
 import Image from "next/image";
 import { useCallback, useMemo, useState } from "react";
+import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
 import { classNames } from "utils";
 import { compress } from "utils/spl";
 import { Jdenticon } from "./Jdenticon";
 
 export const MobileWallet = () => {
-  const { networkConfiguration, setNetworkConfiguration } = useNetworkConfiguration();
+  const { network, setNetwork } = useNetworkConfigurationStore();
   const { publicKey, wallet, disconnect } = useWallet();
   const { setVisible } = useWalletModal();
   const [copied, setCopied] = useState(false);
@@ -75,8 +75,8 @@ export const MobileWallet = () => {
         <div>
           <RadioGroup
             className="my-2 flex items-center gap-x-4 px-3 text-white"
-            value={networkConfiguration}
-            onChange={setNetworkConfiguration}
+            value={network}
+            onChange={setNetwork}
           >
             <RadioGroup.Option value="mainnet-beta">
               {({ checked }) => (

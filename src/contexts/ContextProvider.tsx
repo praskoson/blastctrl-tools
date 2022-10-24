@@ -11,27 +11,27 @@ import { LedgerWalletAdapter } from "@solana/wallet-adapter-ledger";
 import { FC, ReactNode, useCallback, useMemo } from "react";
 import { AutoConnectProvider, useAutoConnect } from "./AutoConnectProvider";
 import { notify } from "../utils/notifications";
-import {
-  NetworkConfigurationProvider,
-  useNetworkConfiguration,
-} from "./NetworkConfigurationProvider";
 import { mergeClusterApiUrl } from "utils/spl/common";
+import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
 
 const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const { autoConnect } = useAutoConnect();
-  const { networkConfiguration } = useNetworkConfiguration();
-  const endpoint = useMemo(() => mergeClusterApiUrl(networkConfiguration), [networkConfiguration]);
+  const { network } = useNetworkConfigurationStore();
+  // const { networkConfiguration } = useNetworkConfiguration();
+  // endpo
+  // const endpoint = useMemo(() => mergeClusterApiUrl(networkConfiguration), [networkConfiguration]);
+  const endpoint = useMemo(() => mergeClusterApiUrl(network), [network]);
 
   const wallets = useMemo(
     () => [
       new PhantomWalletAdapter(),
       new SolflareWalletAdapter(),
-      new SolletWalletAdapter({ network: networkConfiguration }),
+      new SolletWalletAdapter(),
       new GlowWalletAdapter(),
       new LedgerWalletAdapter(),
       // new SlopeWalletAdapter(),
     ],
-    [networkConfiguration]
+    []
   );
 
   const onError = useCallback((error: WalletError) => {
@@ -55,11 +55,11 @@ const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
 export const ContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
   return (
     <>
-      <NetworkConfigurationProvider>
-        <AutoConnectProvider>
-          <WalletContextProvider>{children}</WalletContextProvider>
-        </AutoConnectProvider>
-      </NetworkConfigurationProvider>
+      {/* <NetworkConfigurationProvider> */}
+      <AutoConnectProvider>
+        <WalletContextProvider>{children}</WalletContextProvider>
+      </AutoConnectProvider>
+      {/* </NetworkConfigurationProvider> */}
     </>
   );
 };

@@ -1,13 +1,13 @@
+import { Transition } from "@headlessui/react";
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
-import { useWallet, useLocalStorage } from "@solana/wallet-adapter-react";
-import { ChangeEvent, useState, DragEvent, useEffect } from "react";
+import { useLocalStorage, useWallet } from "@solana/wallet-adapter-react";
+import dayjs from "dayjs";
+import { ChangeEvent, DragEvent, useEffect, useState } from "react";
+import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
+import { Amount, Currency, formatAmount } from "types";
 import { BundlrStorageDriver } from "utils/bundlr-storage";
 import { notify } from "utils/notifications";
-import { Transition } from "@headlessui/react";
-import dayjs from "dayjs";
-import { Amount, Currency, formatAmount } from "types";
 import { Uploads } from "./Uploads";
-import { useNetworkConfiguration } from "contexts/NetworkConfigurationProvider";
 
 export type UploadedFile = {
   name: string;
@@ -24,13 +24,13 @@ function pascalify(text: string) {
 
 export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
   const { connected } = useWallet();
-  const { networkConfiguration } = useNetworkConfiguration();
+  const { network } = useNetworkConfigurationStore();
   const [dragActive, setDragActive] = useState(false);
   const [file, setFile] = useState<File>();
   const [filePrice, setFilePrice] = useState<Amount<Currency>>();
   const [isUploading, setIsUploading] = useState(false);
   const [uploads, setUploads] = useLocalStorage<UploadedFile[]>(
-    `previousUploads${pascalify(networkConfiguration)}`,
+    `previousUploads${pascalify(network)}`,
     []
   );
 
@@ -222,15 +222,13 @@ export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
                       </dd>
                     </div>
 
-                    <div className='py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5 sm:px-6'>
-                      <dt className='text-sm font-medium text-gray-500'>
-                        Size
-                      </dt>
-                      <dd className='mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0'>
-                        {(file.size / (10 ** 3)).toFixed(2)} KB
+                    <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5 sm:px-6">
+                      <dt className="text-sm font-medium text-gray-500">Size</dt>
+                      <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                        {(file.size / 10 ** 3).toFixed(2)} KB
                       </dd>
                     </div>
-                    
+
                     <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5 sm:px-6">
                       <dt className="text-sm font-medium text-gray-500">Last modified</dt>
                       <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">

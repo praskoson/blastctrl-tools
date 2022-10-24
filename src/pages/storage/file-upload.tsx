@@ -1,14 +1,15 @@
+import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { useNetworkConfiguration } from "contexts/NetworkConfigurationProvider";
 import { NextPage } from "next";
 import Head from "next/head";
 import { useMemo } from "react";
+import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
 import { BundlrStorageDriver } from "utils/bundlr-storage";
 import { UploaderView } from "views";
 
 const FileUpload: NextPage = (props) => {
   const { connection } = useConnection();
-  const { networkConfiguration } = useNetworkConfiguration();
+  const { network } = useNetworkConfigurationStore();
   const wallet = useWallet();
 
   const storage = useMemo(
@@ -19,11 +20,11 @@ const FileUpload: NextPage = (props) => {
         providerUrl: connection.rpcEndpoint,
         identity: wallet,
         address:
-          networkConfiguration === "mainnet-beta"
+          network === WalletAdapterNetwork.Mainnet
             ? "https://node1.bundlr.network"
             : "https://devnet.bundlr.network",
       }),
-    [connection, wallet, networkConfiguration]
+    [connection, wallet, network]
   );
 
   return (

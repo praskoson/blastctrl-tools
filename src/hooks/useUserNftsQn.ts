@@ -1,7 +1,6 @@
 import { useWallet } from "@solana/wallet-adapter-react";
-import { PublicKey } from "@solana/web3.js";
-import { useNetworkConfiguration } from "contexts/NetworkConfigurationProvider";
 import { useMemo } from "react";
+import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
 import useSWR from "swr";
 import { notify } from "utils/notifications";
 import { mergeClusterApiUrl } from "utils/spl/common";
@@ -46,8 +45,8 @@ const fetcher = async (url: string, body: BodyInit) => {
 
 export const useUserNftsQn = () => {
   const { publicKey } = useWallet();
-  const { networkConfiguration } = useNetworkConfiguration();
-  const endpoint = mergeClusterApiUrl(networkConfiguration);
+  const { network } = useNetworkConfigurationStore();
+  const endpoint = mergeClusterApiUrl(network);
 
   const wallet58 = useMemo(() => publicKey?.toBase58(), [publicKey]);
 
