@@ -227,7 +227,7 @@ const Update: NextPage = () => {
               </p>
             </div>
 
-            <div className="mt-4 grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-8">
+            <div className="mt-4 grid grid-cols-1 items-start gap-x-4 gap-y-4 sm:grid-cols-8">
               <div className="sm:col-span-5">
                 <NftSelector
                   control={control}
@@ -243,7 +243,7 @@ const Update: NextPage = () => {
                 />
               </div>
 
-              <Switch.Group as="div" className="flex items-center sm:col-span-3">
+              <Switch.Group as="div" className="flex items-center sm:col-span-3 sm:py-2">
                 <Switch
                   checked={isShowingCurrentValues}
                   onChange={(state) => {
