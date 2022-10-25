@@ -1,35 +1,58 @@
-import { ChevronRightIcon, ExclamationCircleIcon, XMarkIcon } from "@heroicons/react/24/solid";
-import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
+import { ChevronRightIcon } from "@heroicons/react/24/solid";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { PublicKey } from "@solana/web3.js";
+import { PublicKey, Transaction } from "@solana/web3.js";
 import { NextPage } from "next";
 import Head from "next/head";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import { assert, classNames } from "utils";
-import { isPublicKey } from "utils/spl/common";
+import { assert, classNames, zipMap } from "utils";
+import {
+  compress,
+  isPublicKey,
+  lamportsToSol,
+  lamportsToSolString,
+  normalizeTokenAmount,
+} from "utils/spl/common";
 import { createRecoverNestedTokenAccountInstruction } from "utils/spl/token";
 import {
-  Account,
-  getMultipleAccounts,
+  AccountLayout,
   getAssociatedTokenAddressSync,
+  RawAccount,
+  Mint,
+  getMint,
 } from "@solana/spl-token-next";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { ArrowPathIcon, CheckCircleIcon } from "@heroicons/react/20/solid";
+import useUserSOLBalanceStore from "stores/useUserSOLBalanceStore";
 
 type FormValues = {
   parentAta: string;
   nestedAta: string;
+  destinationAta: string;
+};
+
+type AccountInfo = {
+  address: PublicKey;
+  data: RawAccount;
+  executable: boolean;
+  owner: PublicKey;
+  lamports: number;
+  rentEpoch?: number;
 };
 
 const RecoverNested: NextPage = () => {
   const { connection } = useConnection();
-  const { publicKey: wallet, connected } = useWallet();
+  const { balance, getUserSOLBalance } = useUserSOLBalanceStore();
+  const { publicKey: wallet, connected, sendTransaction } = useWallet();
   const [openDialog, setOpenDialog] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [parentInfo, setParentInfo] = useState<Account>(null);
-  const [nestedInfo, setNestedInfo] = useState<Account>(null);
+  const [confirming, setConfirming] = useState(false);
+
+  const [parentInfo, setParentInfo] = useState<AccountInfo>(null);
+  const [nestedInfo, setNestedInfo] = useState<AccountInfo>(null);
+  const [destinationInfo, setDestinationInfo] = useState<AccountInfo>(null);
+  const [mintInfo, setMintInfo] = useState<Mint>(null);
 
   const {
     register,
@@ -39,12 +62,16 @@ const RecoverNested: NextPage = () => {
     formState: { errors },
   } = useForm<FormValues>({
     defaultValues: {
-      parentAta: "",
-      nestedAta: "",
+      parentAta: "CoUxPBEBh5UaLXMTMFy5FANBckPXe51kGFTTnoAU6W8K",
+      nestedAta: "BbjpXy8CUxjcovP67G7edG2cKTmpNMyMsGj33efeBnTX",
     },
   });
 
-  const onRecover = async (data: FormValues) => {
+  useEffect(() => {
+    getUserSOLBalance(wallet, connection);
+  }, [connection, wallet, getUserSOLBalance]);
+
+  const onSubmit = async (data: FormValues) => {
     if (!connected) {
       toast.error("Connect your wallet");
       return;
@@ -53,17 +80,35 @@ const RecoverNested: NextPage = () => {
     setIsProcessing(true);
     const parentAta = new PublicKey(data.parentAta);
     const nestedAta = new PublicKey(data.nestedAta);
+    let destinationAta: PublicKey;
     setParentInfo(null);
     setNestedInfo(null);
-    let parentAtaInfo: Account;
-    let nestedAtaInfo: Account;
+    setDestinationInfo(null);
+    let parentAtaInfo: AccountInfo;
+    let nestedAtaInfo: AccountInfo;
+    let destinationInfo: AccountInfo;
+    let mintInfo: Mint;
 
     try {
-      [parentAtaInfo, nestedAtaInfo] = await getMultipleAccounts(
-        connection,
-        [parentAta, nestedAta],
-        "confirmed"
-      );
+      const infos = await connection.getMultipleAccountsInfo([parentAta, nestedAta]);
+      const accounts = zipMap([parentAta, nestedAta], infos, (address, info) => ({
+        ...info,
+        address,
+      }));
+
+      [parentAtaInfo, nestedAtaInfo] = accounts.map(({ data, ...rest }) => ({
+        ...rest,
+        data: AccountLayout.decode(data, 0),
+      }));
+
+      destinationAta = getAssociatedTokenAddressSync(nestedAtaInfo.data.mint, wallet, true);
+      const { data, ...rest } = await connection.getAccountInfo(destinationAta);
+      destinationInfo = {
+        address: destinationAta,
+        ...rest,
+        data: AccountLayout.decode(data, 0),
+      };
+      mintInfo = await getMint(connection, nestedAtaInfo.data.mint);
     } catch (err) {
       toast.error("Error loading token account info. Are these valid token accounts?");
       setIsProcessing(false);
@@ -73,8 +118,9 @@ const RecoverNested: NextPage = () => {
     // Assertions
     try {
       const actualParentAta = getAssociatedTokenAddressSync(
-        parentAtaInfo.mint,
-        parentAtaInfo.owner
+        parentAtaInfo.data.mint,
+        parentAtaInfo.data.owner,
+        true
       );
       assert(
         parentAta.equals(actualParentAta),
@@ -82,8 +128,9 @@ const RecoverNested: NextPage = () => {
       );
 
       const actualNestedAta = getAssociatedTokenAddressSync(
-        nestedAtaInfo.mint,
-        nestedAtaInfo.owner
+        nestedAtaInfo.data.mint,
+        nestedAtaInfo.data.owner,
+        true
       );
       assert(
         actualNestedAta.equals(nestedAta),
@@ -91,19 +138,74 @@ const RecoverNested: NextPage = () => {
       );
 
       assert(
-        nestedAtaInfo.owner.equals(parentAta),
-        `Nested ATA is not owned by parent. Expected: ${nestedAtaInfo.owner.toBase58()}, actual: ${parentAta.toBase58()}`
+        nestedAtaInfo.data.owner.equals(parentAta),
+        `Nested ATA is not owned by parent. Expected: ${nestedAtaInfo.data.owner.toBase58()}, actual: ${parentAta.toBase58()}`
+      );
+
+      assert(
+        destinationInfo.data.mint.equals(nestedAtaInfo.data.mint),
+        `Destination and nested account's mint addresses do not match. Nested: ${nestedAtaInfo.data.mint.toBase58()}, destination: ${
+          destinationInfo.data.mint.toBase58
+        }`
       );
 
       setParentInfo(parentAtaInfo);
       setNestedInfo(nestedAtaInfo);
+      setDestinationInfo(destinationInfo);
+      setMintInfo(mintInfo);
     } catch (err) {
+      console.log(err);
       toast.error(err?.message);
       setIsProcessing(false);
       return;
     }
 
     setOpenDialog(true);
+    setIsProcessing(false);
+  };
+
+  const handleRecover = async () => {
+    if (!connected) {
+      toast.error("Connect your wallet");
+      return;
+    }
+
+    try {
+      const {
+        context: { slot: minContextSlot },
+        value: { blockhash, lastValidBlockHeight },
+      } = await connection.getLatestBlockhashAndContext();
+      const tx = new Transaction().add(
+        createRecoverNestedTokenAccountInstruction(
+          wallet,
+          nestedInfo.address,
+          nestedInfo.data.mint,
+          destinationInfo.address,
+          parentInfo.address,
+          parentInfo.data.mint
+        )
+      );
+      setConfirming(true);
+      const signature = await sendTransaction(tx, connection, { minContextSlot });
+      console.log(signature);
+      await connection.confirmTransaction({ blockhash, lastValidBlockHeight, signature });
+      toast.success(
+        `Transaction success, recovered ${normalizeTokenAmount(
+          Number(nestedInfo.data.amount),
+          mintInfo.decimals
+        )} tokens.`
+      );
+    } catch (err) {
+      console.log(err);
+      toast.error("Error confirming Recover nested, check the console for more details.");
+    } finally {
+      setNestedInfo(null);
+      setDestinationInfo(null);
+      setParentInfo(null);
+      setMintInfo(null);
+      setConfirming(false);
+      setOpenDialog(false);
+    }
   };
 
   return (
@@ -118,16 +220,18 @@ const RecoverNested: NextPage = () => {
             Recover Nested Token Accounts
           </h1>
           <p className="text-sm text-gray-500">
-            Enter the addresses of both the &quot;parent&quot; ATA and the nested ATA to recover
-            funds. The nested account will be deleted and tokens transferred to the parent ATA.
+            Enter the addresses of both the &quot;parent&quot;{" "}
+            <abbr title="Associated Token Account">ATA</abbr> and the nested ATA to recover funds.
+            The nested account will be deleted and its tokens will be transferred to your ATA of the
+            same mint as the nested account, while the rent will be transferred to your wallet.
           </p>
         </div>
 
         <div className="my-6">
-          <form onSubmit={handleSubmit(onRecover)}>
-            <div className="grid gap-y-6 border-b border-gray-200 pb-6 sm:grid-cols-6 ">
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <div className="grid gap-y-6 gap-x-2 border-b border-gray-200 pb-6 sm:grid-cols-6 ">
               <div className="relative mt-1 sm:col-span-6">
-                <label className="mb-1 block text-sm font-medium text-gray-500" htmlFor="parentAta">
+                <label className="mb-1 block text-sm font-medium text-gray-600" htmlFor="parentAta">
                   Parent associated token account
                 </label>
                 <input
@@ -152,9 +256,10 @@ const RecoverNested: NextPage = () => {
               </div>
 
               <div className="relative mt-1 sm:col-span-6">
-                <label className="mb-1 block text-sm font-medium text-gray-500" htmlFor="nestedAta">
+                <label className="mb-1 block text-sm font-medium text-gray-600" htmlFor="nestedAta">
                   Nested associated token account
                 </label>
+
                 <input
                   id="nestedAta"
                   className={classNames(
@@ -237,43 +342,139 @@ const RecoverNested: NextPage = () => {
                 leaveFrom="opacity-100 translate-y-0 sm:scale-100"
                 leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
               >
-                <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
-                  <div className="absolute top-0 right-0 hidden pt-4 pr-4 sm:block">
-                    <button
-                      type="button"
-                      className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                      onClick={() => setOpenDialog(false)}
-                    >
-                      <span className="sr-only">Close</span>
-                      <XMarkIcon className="h-6 w-6" aria-hidden="true" />
-                    </button>
-                  </div>
+                <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-xl sm:p-6">
                   <div className="sm:flex sm:items-start">
-                    <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
-                      <CheckCircleIcon
-                        className="h-6 w-6 text-indigo-600"
-                        aria-hidden="true"
-                      />
+                    <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-indigo-100 sm:mx-0 sm:h-10 sm:w-10">
+                      <CheckCircleIcon className="h-6 w-6 text-indigo-600" aria-hidden="true" />
                     </div>
                     <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                       <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
-                        Deactivate account
+                        Recover nested account available
                       </Dialog.Title>
-                      <div className="mt-2">
-                        <p className="text-sm text-gray-500">
-                          Are you sure you want to deactivate your account? All of your data will be
-                          permanently removed from our servers forever. This action cannot be
-                          undone.
-                        </p>
-                      </div>
+                      {wallet && nestedInfo && parentInfo && mintInfo && destinationInfo && (
+                        <div className="flex flex-col gap-y-6">
+
+                          <div className="my-3">
+                            <p className="text-left text-sm text-gray-600">
+                              Balance changes after recovering
+                            </p>
+                            <div className="mt-4 flex-col">
+                              <div className="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                                <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
+                                  <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+                                    <table className="min-w-full divide-y divide-gray-300">
+                                      <thead className="bg-gray-50">
+                                        <tr>
+                                          {["Address", "Token", "Change", "Post Balance"].map(
+                                            (col) => (
+                                              <th
+                                                key={col}
+                                                className="whitespace-nowrap px-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900"
+                                                scope="col"
+                                              >
+                                                {col}
+                                              </th>
+                                            )
+                                          )}
+                                        </tr>
+                                      </thead>
+                                      <tbody className="divide-y divide-gray-200 bg-white">
+                                        <tr>
+                                          <td className="whitespace-nowrap py-2 pl-4 pr-3 text-sm text-gray-500 sm:pl-6">
+                                            {compress(wallet?.toBase58(), 4)}
+                                          </td>
+                                          <td className="whitespace-nowrap py-2 pl-4 pr-3 text-sm text-gray-500 sm:pl-6">
+                                            ◎ SOL
+                                          </td>
+                                          <td>
+                                            <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+                                              +{lamportsToSolString(nestedInfo.lamports - 5000)}
+                                            </span>
+                                          </td>
+                                          <td className="whitespace-nowrap py-2 pl-4 pr-3 text-sm text-gray-500 sm:pl-6">
+                                            {balance + lamportsToSol(nestedInfo.lamports)}
+                                          </td>
+                                        </tr>
+                                        <tr>
+                                          <td className="whitespace-nowrap py-2 pl-4 pr-3 text-sm text-gray-500 sm:pl-6">
+                                            {compress(destinationInfo.address.toBase58(), 4)}
+                                          </td>
+                                          <td className="whitespace-nowrap py-2 pl-4 pr-3 text-sm text-gray-500 sm:pl-6">
+                                            {compress(destinationInfo.data.mint.toBase58(), 4)}
+                                          </td>
+                                          <td>
+                                            <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+                                              +
+                                              {normalizeTokenAmount(
+                                                Number(nestedInfo.data.amount),
+                                                mintInfo.decimals
+                                              )}
+                                            </span>
+                                          </td>
+                                          <td className="whitespace-nowrap py-2 pl-4 pr-3 text-sm text-gray-500 sm:pl-6">
+                                            {normalizeTokenAmount(
+                                              (
+                                                destinationInfo.data.amount + nestedInfo.data.amount
+                                              ).toString(),
+                                              mintInfo.decimals
+                                            )}
+                                          </td>
+                                        </tr>
+                                        <tr>
+                                          <td className="whitespace-nowrap py-2 pl-4 pr-3 text-sm text-gray-500 sm:pl-6">
+                                            {compress(nestedInfo.address.toBase58(), 4)}
+                                          </td>
+                                          <td className="whitespace-nowrap py-2 pl-4 pr-3 text-sm text-gray-500 sm:pl-6">
+                                            ◎ SOL
+                                          </td>
+                                          <td>
+                                            <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
+                                              -{lamportsToSol(nestedInfo.lamports)}
+                                            </span>
+                                          </td>
+                                          <td className="whitespace-nowrap py-2 pl-4 pr-3 text-sm text-gray-500 sm:pl-6">
+                                            0
+                                          </td>
+                                        </tr>
+                                        <tr>
+                                          <td className="whitespace-nowrap py-2 pl-4 pr-3 text-sm text-gray-500 sm:pl-6">
+                                            {compress(nestedInfo.address.toBase58(), 4)}
+                                          </td>
+                                          <td className="whitespace-nowrap py-2 pl-4 pr-3 text-sm text-gray-500 sm:pl-6">
+                                            {compress(nestedInfo.data.mint.toBase58(), 4)}
+                                          </td>
+                                          <td>
+                                            <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
+                                              -
+                                              {normalizeTokenAmount(
+                                                nestedInfo.data.amount.toString(),
+                                                mintInfo.decimals
+                                              )}
+                                            </span>
+                                          </td>
+                                          <td className="whitespace-nowrap py-2 pl-4 pr-3 text-sm text-gray-500 sm:pl-6">
+                                            0
+                                          </td>
+                                        </tr>
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                   <div className="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
                     <button
                       type="button"
-                      className="inline-flex w-full justify-center rounded-md border border-transparent bg-green-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
-                      onClick={() => setOpenDialog(false)}
+                      disabled={confirming}
+                      className="inline-flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
+                      onClick={handleRecover}
                     >
+                      {confirming && <ArrowPathIcon className="-ml-2 mr-1 h-5 w-5 animate-spin" />}
                       Recover
                     </button>
                     <button
