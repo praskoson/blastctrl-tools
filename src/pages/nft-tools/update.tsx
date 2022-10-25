@@ -403,13 +403,13 @@ const Update: NextPage = () => {
             </div>
 
             <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-              <div className="sm:col-span-3">
+              <div className="sm:col-span-4">
                 <label
                   htmlFor="sellerFeeBasisPoints"
                   className="block text-sm font-medium text-gray-700"
                 >
                   Royalties{" "}
-                  <code className="prose text-sm tracking-tighter">(sellerFeeBasisPoints)</code>
+                  <code className="prose text-sm tracking-tighter">(sellerFeeBasisPoints [0-1000])</code>
                 </label>
                 <div className="relative mt-1">
                   <input
