@@ -62,8 +62,8 @@ const RecoverNested: NextPage = () => {
     formState: { errors },
   } = useForm<FormValues>({
     defaultValues: {
-      parentAta: "CoUxPBEBh5UaLXMTMFy5FANBckPXe51kGFTTnoAU6W8K",
-      nestedAta: "BbjpXy8CUxjcovP67G7edG2cKTmpNMyMsGj33efeBnTX",
+      parentAta: "",
+      nestedAta: "",
     },
   });
 
@@ -295,21 +295,26 @@ const RecoverNested: NextPage = () => {
                 <button
                   type="button"
                   onClick={() => reset()}
-                  className="inline-flex items-center rounded-md bg-secondary/20 px-4 py-2 text-base text-secondary shadow-sm hover:bg-secondary/30 focus:outline-none focus:ring-2 focus:ring-secondary-focus focus:ring-offset-2"
+                  className="inline-flex items-center rounded-md border border-gray-300 bg-transparent px-4 py-2 text-base text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2"
                 >
                   Clear
                 </button>
                 <button
                   type="submit"
                   disabled={isProcessing}
-                  className="inline-flex items-center rounded-md bg-secondary px-4 py-2 text-base text-gray-50 shadow-sm hover:bg-secondary-focus focus:outline-none focus:ring-2 focus:ring-secondary-focus focus:ring-offset-2"
+                  className="inline-flex items-center rounded-md border border-transparent bg-secondary px-4 py-2 text-base text-gray-50 shadow-sm hover:bg-secondary-focus focus:outline-none focus:ring-2 focus:ring-secondary-focus focus:ring-offset-2"
                 >
                   {isProcessing ? (
-                    <ArrowPathIcon className="-ml-2 mr-1 h-5 w-5 animate-spin" />
+                    <>
+                      <ArrowPathIcon className="-ml-2 mr-1 h-5 w-5 animate-spin" />
+                      Confirming
+                    </>
                   ) : (
-                    <ChevronRightIcon className="-ml-2 mr-1 h-5 w-5" aria-hidden={true} />
+                    <>
+                      <ChevronRightIcon className="-ml-2 mr-1 h-5 w-5" aria-hidden={true} />
+                      Recover
+                    </>
                   )}
-                  Recover
                 </button>
               </div>
             </div>
@@ -318,7 +323,7 @@ const RecoverNested: NextPage = () => {
       </div>
 
       <Transition.Root show={openDialog} as={Fragment}>
-        <Dialog as="div" className="relative z-10" onClose={setOpenDialog}>
+        <Dialog as="div" className="relative z-10" onClose={confirming ? () => {} : setOpenDialog}>
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
@@ -353,7 +358,6 @@ const RecoverNested: NextPage = () => {
                       </Dialog.Title>
                       {wallet && nestedInfo && parentInfo && mintInfo && destinationInfo && (
                         <div className="flex flex-col gap-y-6">
-
                           <div className="my-3">
                             <p className="text-left text-sm text-gray-600">
                               Balance changes after recovering
@@ -475,10 +479,11 @@ const RecoverNested: NextPage = () => {
                       onClick={handleRecover}
                     >
                       {confirming && <ArrowPathIcon className="-ml-2 mr-1 h-5 w-5 animate-spin" />}
-                      Recover
+                      {confirming ? "Confirming" : "Recover"}
                     </button>
                     <button
                       type="button"
+                      disabled={confirming}
                       className="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:mt-0 sm:w-auto sm:text-sm"
                       onClick={() => setOpenDialog(false)}
                     >
