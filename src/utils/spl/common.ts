@@ -1,7 +1,9 @@
 import { clusterApiUrl, PublicKey } from "@solana/web3.js";
-import { PROGRAM_ID as METADATA_PROGRAM_ID } from "@metaplex-foundation/mpl-token-metadata";
 import { assert } from "../../utils";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
+
+export const PROGRAM_ADDRESS = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s";
+export const METADATA_PROGRAM_ID = new PublicKey(PROGRAM_ADDRESS);
 
 export const getMasterEdition = (mint: PublicKey): PublicKey => {
   return PublicKey.findProgramAddressSync(

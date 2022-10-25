@@ -125,7 +125,7 @@ const Mint: NextPage = () => {
     };
 
     try {
-      const { response } = await metaplex.nfts().create(createNftInput).run();
+      const { response } = await metaplex.nfts().create(createNftInput);
       console.log(response);
       toast.success("Mint successful!");
     } catch (err) {
