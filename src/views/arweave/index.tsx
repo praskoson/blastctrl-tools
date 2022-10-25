@@ -3,10 +3,10 @@ import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import { useLocalStorage, useWallet } from "@solana/wallet-adapter-react";
 import dayjs from "dayjs";
 import { ChangeEvent, DragEvent, useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
 import { Amount, Currency, formatAmount } from "types";
 import { BundlrStorageDriver } from "utils/bundlr-storage";
-import { notify } from "utils/notifications";
 import { Uploads } from "./Uploads";
 
 export type UploadedFile = {
@@ -78,7 +78,7 @@ export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
 
   const handleUpload = async () => {
     if (!connected) {
-      notify({ type: "error", message: "Connect your wallet" });
+      toast.error("Connect your wallet");
       return;
     }
 
@@ -94,19 +94,11 @@ export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
         },
         ...uploads,
       ]);
-      notify({
-        type: "success",
-        message: "Upload succesful!",
-        description: `The file is available at ${uri}`,
-      });
+      toast.success(`Upload succesful, the file is available at ${uri}`);
       setFile(null);
     } catch (err) {
       console.log(err);
-      notify({
-        type: "error",
-        message: "Error uploading",
-        description: err.message,
-      });
+      toast.error("Error uploading: ", err?.message);
     } finally {
       setIsUploading(false);
     }
