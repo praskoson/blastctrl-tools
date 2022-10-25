@@ -66,14 +66,24 @@ export const HomeView: FC = ({}) => {
                     Update NFT Metadata
                   </a>
                 </Link>
+                <Link href="/storage/file-upload">
+                  <a className="inline-flex items-center justify-center rounded-lg border-2 border-orange-600 px-3 py-1.5 text-orange-900 shadow hover:bg-orange-50">
+                    Upload files to Arweave
+                  </a>
+                </Link>
                 <Link href="/nft-tools/collections">
                   <a className="inline-flex items-center justify-center rounded-lg border-2 border-cyan-600 px-3 py-1.5 text-cyan-900 shadow hover:bg-cyan-50">
                     Add/Remove NFT from collection
                   </a>
                 </Link>
-                <Link href="/storage/file-upload">
-                  <a className="inline-flex items-center justify-center rounded-lg border-2 border-orange-600 px-3 py-1.5 text-orange-900 shadow hover:bg-orange-50">
-                    Upload files to Arweave
+                <Link href="/nft-tools/mint">
+                  <a className="inline-flex items-center justify-center rounded-lg border-2 border-sky-600 px-3 py-1.5 text-sky-900 shadow hover:bg-sky-50">
+                    Mint NFTs
+                  </a>
+                </Link>
+                <Link href="/tokens/recover-nested">
+                  <a className="inline-flex items-center justify-center rounded-lg border-2 border-violet-600 px-3 py-1.5 text-violet-900 shadow hover:bg-violet-50">
+                    Recover nested accounts
                   </a>
                 </Link>
               </div>
