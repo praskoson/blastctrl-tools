@@ -409,7 +409,7 @@ const Update: NextPage = () => {
                   className="block text-sm font-medium text-gray-700"
                 >
                   Royalties{" "}
-                  <code className="prose text-sm tracking-tighter">(sellerFeeBasisPoints [0-1000])</code>
+                  <code className="prose text-sm tracking-tighter">(sellerFeeBasisPoints [0-10000])</code>
                 </label>
                 <div className="relative mt-1">
                   <input
