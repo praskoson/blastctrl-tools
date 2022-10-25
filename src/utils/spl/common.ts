@@ -1,7 +1,9 @@
-import { clusterApiUrl, PublicKey } from "@solana/web3.js";
-import { PROGRAM_ID as METADATA_PROGRAM_ID } from "@metaplex-foundation/mpl-token-metadata";
+import { clusterApiUrl, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import { assert } from "../../utils";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
+
+export const PROGRAM_ADDRESS = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s";
+export const METADATA_PROGRAM_ID = new PublicKey(PROGRAM_ADDRESS);
 
 export const getMasterEdition = (mint: PublicKey): PublicKey => {
   return PublicKey.findProgramAddressSync(
@@ -43,4 +45,39 @@ export function assertPublicKey(value: any): asserts value is PublicKey {
 
 export function compress(str: string, chars: number) {
   return str.slice(0, chars) + "..." + str.slice(-chars);
+}
+
+////////////////
+// Converting //
+////////////////
+export function normalizeTokenAmount(raw: string | number, decimals: number): number {
+  let rawTokens: number;
+  if (typeof raw === "string") rawTokens = parseInt(raw);
+  else rawTokens = raw;
+  return rawTokens / Math.pow(10, decimals);
+}
+
+export function lamportsToSol(lamports: number | bigint): number {
+  if (typeof lamports === "number") {
+    return lamports / LAMPORTS_PER_SOL;
+  }
+
+  let signMultiplier = 1;
+  if (lamports < 0) {
+    signMultiplier = -1;
+  }
+
+  const absLamports = lamports < 0 ? -lamports : lamports;
+  const lamportsString = absLamports.toString(10).padStart(10, "0");
+  const splitIndex = lamportsString.length - 9;
+  const solString = lamportsString.slice(0, splitIndex) + "." + lamportsString.slice(splitIndex);
+  return signMultiplier * parseFloat(solString);
+}
+
+export function lamportsToSolString(
+  lamports: number | bigint,
+  maximumFractionDigits: number = 9
+): string {
+  const sol = lamportsToSol(lamports);
+  return new Intl.NumberFormat("en-US", { maximumFractionDigits }).format(sol);
 }

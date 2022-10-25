@@ -2,13 +2,13 @@ import { NextPage } from "next";
 import Link from "next/link";
 import { classNames } from "utils";
 
-const Tokens: NextPage = (props) => {
+const Tokens: NextPage = () => {
   const navigation = [
     {
       name: "Recover nested token accounts",
-      href: "/storage/file-upload",
+      href: "/tokens/recover-nested",
       description: "Recover tokens stuck in nested associated token accounts.",
-      active: false,
+      active: true,
     },
     {
       name: "Close empty token accounts",

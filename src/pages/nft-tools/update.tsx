@@ -112,7 +112,7 @@ const Update: NextPage = () => {
       try {
         const address = new PublicKey(selectedToken.address);
         const metadata = selectedToken.model === "metadata" ? address : getMetadata(address);
-        nft = await Metaplex.make(connection).nfts().findByMetadata({ metadata }).run();
+        nft = await Metaplex.make(connection).nfts().findByMetadata({ metadata });
       } catch (err) {
         console.log("Error loading selected token information");
       }
@@ -150,10 +150,10 @@ const Update: NextPage = () => {
     let token: Sft | SftWithToken | Nft | NftWithToken;
     if (data.mint.model === "metadata") {
       const metadata = new PublicKey(data.mint.address);
-      token = await metaplex.nfts().findByMetadata({ metadata, commitment: "confirmed" }).run();
+      token = await metaplex.nfts().findByMetadata({ metadata }, { commitment: "confirmed" });
     } else {
       const mintAddress = new PublicKey(data.mint.address);
-      token = await metaplex.nfts().findByMint({ mintAddress, commitment: "confirmed" }).run();
+      token = await metaplex.nfts().findByMint({ mintAddress }, { commitment: "confirmed" });
     }
 
     if (!token.updateAuthorityAddress.equals(wallet.publicKey)) {
@@ -186,7 +186,7 @@ const Update: NextPage = () => {
     };
 
     try {
-      const { response } = await metaplex.nfts().update(updateNftInput).run();
+      const { response } = await metaplex.nfts().update(updateNftInput);
       notify({
         type: "success",
         message: "Update succesful",
@@ -403,13 +403,13 @@ const Update: NextPage = () => {
             </div>
 
             <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-              <div className="sm:col-span-3">
+              <div className="sm:col-span-4">
                 <label
                   htmlFor="sellerFeeBasisPoints"
                   className="block text-sm font-medium text-gray-700"
                 >
                   Royalties{" "}
-                  <code className="prose text-sm tracking-tighter">(sellerFeeBasisPoints)</code>
+                  <code className="prose text-sm tracking-tighter">(sellerFeeBasisPoints [0-1000])</code>
                 </label>
                 <div className="relative mt-1">
                   <input

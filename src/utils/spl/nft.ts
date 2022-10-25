@@ -1,6 +1,5 @@
 import {
   createUpdateMetadataAccountV2Instruction,
-  DataV2,
 } from "@metaplex-foundation/mpl-token-metadata";
 import { PublicKey } from "@solana/web3.js";
 import { getMetadata } from "./common";

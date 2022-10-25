@@ -27,6 +27,9 @@ const navigation = [
   { name: "Tokens", href: "/tokens", description: "Manage token accounts" },
   { name: "Storage", href: "/storage", description: "Decentralized file hosting" },
   { name: "Add or remove from collection", href: "/nft-tools/collections", in: "NFT Tools" },
+  { name: "Mint NFT", href: "/nft-tools/mint", in: "NFT Tools" },
+  { name: "Create collection", href: "/nft-tools/mint", in: "NFT Tools" },
+  { name: "Recover nested", href: "/tokens/recover-nested", in: "Tokens" },
   { name: "Update NFT", href: "/nft-tools/update", in: "NFT Tools" },
   { name: "Upload to Arweave", href: "/storage/file-upload", in: "Storage" },
 ];
