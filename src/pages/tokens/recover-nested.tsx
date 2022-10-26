@@ -25,6 +25,7 @@ import { Fragment, useEffect, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { ArrowPathIcon, CheckCircleIcon } from "@heroicons/react/20/solid";
 import useUserSOLBalanceStore from "stores/useUserSOLBalanceStore";
+import { notify } from "components/Notification";
 
 type FormValues = {
   parentAta: string;
@@ -73,7 +74,7 @@ const RecoverNested: NextPage = () => {
 
   const onSubmit = async (data: FormValues) => {
     if (!connected) {
-      toast.error("Connect your wallet");
+      notify({ type: "error", description: "Connect your wallet" });
       return;
     }
 
@@ -110,7 +111,10 @@ const RecoverNested: NextPage = () => {
       };
       mintInfo = await getMint(connection, nestedAtaInfo.data.mint);
     } catch (err) {
-      toast.error("Error loading token account info. Are these valid token accounts?");
+      notify({
+        title: "Error loading account info",
+        description: "Have you entered valid token accounts?",
+      });
       setIsProcessing(false);
       return;
     }
@@ -154,8 +158,12 @@ const RecoverNested: NextPage = () => {
       setDestinationInfo(destinationInfo);
       setMintInfo(mintInfo);
     } catch (err) {
-      console.log(err);
-      toast.error(err?.message);
+      console.log({ err });
+      notify({
+        type: "error",
+        title: "Error while asserting account validity",
+        description: err?.message,
+      });
       setIsProcessing(false);
       return;
     }
@@ -166,7 +174,7 @@ const RecoverNested: NextPage = () => {
 
   const handleRecover = async () => {
     if (!connected) {
-      toast.error("Connect your wallet");
+      notify({ type: "error", description: "Connect your wallet" });
       return;
     }
 
@@ -189,15 +197,31 @@ const RecoverNested: NextPage = () => {
       const signature = await sendTransaction(tx, connection, { minContextSlot });
       console.log(signature);
       await connection.confirmTransaction({ blockhash, lastValidBlockHeight, signature });
-      toast.success(
-        `Transaction success, recovered ${normalizeTokenAmount(
-          Number(nestedInfo.data.amount),
-          mintInfo.decimals
-        )} tokens.`
-      );
+      notify({
+        type: "success",
+        title: "Recover nested success",
+        description: (
+          <>
+            Transaction success, recovered{" "}
+            <span className="font-medium text-blue-300">
+              {normalizeTokenAmount(Number(nestedInfo.data.amount), mintInfo.decimals)}
+            </span>{" "}
+            tokens.
+          </>
+        ),
+        txid: signature,
+      });
     } catch (err) {
-      console.log(err);
-      toast.error("Error confirming Recover nested, check the console for more details.");
+      console.log({ err });
+      notify({
+        type: "error",
+        title: "Error confirming recover nested",
+        description: err?.message ? (
+          <span className="break-all">{err.message}</span>
+        ) : (
+          "Unknown error, check the console for more details"
+        ),
+      });
     } finally {
       setNestedInfo(null);
       setDestinationInfo(null);
@@ -347,7 +371,7 @@ const RecoverNested: NextPage = () => {
                 leaveFrom="opacity-100 translate-y-0 sm:scale-100"
                 leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
               >
-                <Dialog.Panel className="absolute top-[20vh] sm:top-auto sm:relative transform overflow-hidden rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-xl sm:p-6">
+                <Dialog.Panel className="absolute top-[20vh] transform overflow-hidden rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all sm:relative sm:top-auto sm:my-8 sm:w-full sm:max-w-xl sm:p-6">
                   <div className="sm:flex sm:items-start">
                     <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-indigo-100 sm:mx-0 sm:h-10 sm:w-10">
                       <CheckCircleIcon className="h-6 w-6 text-indigo-600" aria-hidden="true" />
