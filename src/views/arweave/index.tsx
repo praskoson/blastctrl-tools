@@ -1,9 +1,9 @@
 import { Transition } from "@headlessui/react";
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import { useLocalStorage, useWallet } from "@solana/wallet-adapter-react";
+import { notify } from "components/Notification";
 import dayjs from "dayjs";
 import { ChangeEvent, DragEvent, useEffect, useState } from "react";
-import toast from "react-hot-toast";
 import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
 import { Amount, Currency, formatAmount } from "types";
 import { BundlrStorageDriver } from "utils/bundlr-storage";
@@ -78,7 +78,7 @@ export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
 
   const handleUpload = async () => {
     if (!connected) {
-      toast.error("Connect your wallet");
+      notify({ type: "error", description: "Connect your wallet" });
       return;
     }
 
@@ -94,11 +94,33 @@ export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
         },
         ...uploads,
       ]);
-      toast.success(`Upload succesful, the file is available at ${uri}`);
+      notify({
+        title: "Upload success",
+        type: "success",
+        description: (
+          <>
+            Your file is available at{" "}
+            <a
+              href={uri}
+              rel="noreferrer"
+              target="_blank"
+              className="break-all font-medium text-blue-300 underline"
+            >
+              {uri}
+            </a>
+          </>
+        ),
+      });
       setFile(null);
     } catch (err) {
-      console.log(err);
-      toast.error("Error uploading: ", err?.message);
+      console.log({ err });
+      notify({
+        title: "Error uploading",
+        type: "error",
+        description: (
+          <>{err.message ? err.message : "Unknown error, check the console for more details"}</>
+        ),
+      });
     } finally {
       setIsUploading(false);
     }

@@ -10,9 +10,12 @@ import toast from "react-hot-toast";
 import { classNames } from "utils";
 
 export const notify = (props: NotifyProps) => {
-  return toast.custom((t) => (
-    <NotificationWindow {...props} visible={t.visible} onClose={() => toast.dismiss(t.id)} />
-  ));
+  return toast.custom(
+    (t) => (
+      <NotificationWindow {...props} visible={t.visible} onClose={() => toast.dismiss(t.id)} />
+    ),
+    { duration: props.type === "error" ? Infinity : 30000 }
+  );
 };
 
 export type NotifyProps = {
