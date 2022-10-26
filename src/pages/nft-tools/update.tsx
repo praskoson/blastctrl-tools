@@ -29,7 +29,6 @@ import { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { classNames } from "utils";
 import { getMetadata, isPublicKey } from "utils/spl/common";
-import toast from "react-hot-toast";
 import { notify } from "components/Notification";
 import { WalletError } from "@solana/wallet-adapter-base";
 

@@ -4,7 +4,6 @@ import { PublicKey, Transaction } from "@solana/web3.js";
 import { NextPage } from "next";
 import Head from "next/head";
 import { useForm } from "react-hook-form";
-import toast from "react-hot-toast";
 import { assert, classNames, zipMap } from "utils";
 import {
   compress,

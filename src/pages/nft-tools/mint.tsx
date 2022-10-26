@@ -24,7 +24,6 @@ import { PublicKey } from "@solana/web3.js";
 import { notify } from "components/Notification";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
 import { classNames } from "utils";
 import { MAX_CREATORS } from "./update";
 import { WalletError } from "@solana/wallet-adapter-base";
