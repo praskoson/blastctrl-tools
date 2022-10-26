@@ -1,15 +1,11 @@
 import {
-  ChevronDoubleRightIcon,
+  ArrowPathIcon,
+  ChevronRightIcon,
   ExclamationCircleIcon,
   PlusCircleIcon,
   QuestionMarkCircleIcon,
   XMarkIcon,
 } from "@heroicons/react/20/solid";
-import type { NextPage } from "next";
-import Head from "next/head";
-import { Controller, useFieldArray, useForm } from "react-hook-form";
-import { InputGroup } from "components/InputGroup";
-import { isPublicKey } from "utils/spl/common";
 import {
   CreateNftInput,
   Metaplex,
@@ -17,14 +13,20 @@ import {
   walletAdapterIdentity,
 } from "@metaplex-foundation/js";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { notify } from "utils/notifications";
-import { PublicKey } from "@solana/web3.js";
-import { classNames } from "utils";
+import { InputGroup } from "components/InputGroup";
+import type { NextPage } from "next";
+import Head from "next/head";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
+import { isPublicKey } from "utils/spl/common";
+
 import { Switch } from "@headlessui/react";
-import { MAX_CREATORS } from "./update";
-import React, { useEffect } from "react";
+import { PublicKey } from "@solana/web3.js";
+import { notify } from "components/Notification";
 import { useRouter } from "next/router";
-import toast from "react-hot-toast";
+import { useEffect, useState } from "react";
+import { classNames } from "utils";
+import { MAX_CREATORS } from "./update";
+import { WalletError } from "@solana/wallet-adapter-base";
 
 export type CreateFormInputs = {
   name: string;
@@ -47,6 +49,7 @@ const Mint: NextPage = () => {
   const { connection } = useConnection();
   const wallet = useWallet();
   const router = useRouter();
+  const [isConfirming, setIsConfirming] = useState(false);
 
   const {
     register,
@@ -99,10 +102,11 @@ const Mint: NextPage = () => {
 
   const submit = async (data: CreateFormInputs) => {
     if (!wallet.connected) {
-      notify({ type: "error", message: "Connect your wallet" });
+      notify({ type: "error", description: "Connect your wallet", title: "Connect your wallet" });
       return;
     }
 
+    setIsConfirming(true);
     const metaplex = Metaplex.make(connection).use(walletAdapterIdentity(wallet));
     const { name, symbol, uri, isMutable, maxSupply, isCollection, collectionIsSized } = data;
     const createNftInput: CreateNftInput = {
@@ -128,10 +132,26 @@ const Mint: NextPage = () => {
     try {
       const { response } = await metaplex.nfts().create(createNftInput);
       console.log(response);
-      toast.success("Mint successful!");
+      notify({
+        title: "NFT mint successful",
+        description: (
+          <>
+            The <span className="font-medium text-blue-300">{name}</span> NFT has been minted to
+            your wallet.
+          </>
+        ),
+        type: "success",
+        txid: response.signature,
+      });
     } catch (err) {
-      console.log(err);
-      toast.error("Error minting, check the console for more information.");
+      if (err instanceof WalletError) {
+        // The onError callback in the walletconnect context will handle it
+        return;
+      }
+      console.log({ err });
+      notify({ type: "error", title: "Error minting", description: err?.problem });
+    } finally {
+      setIsConfirming(false);
     }
   };
 
@@ -316,7 +336,10 @@ const Mint: NextPage = () => {
                   htmlFor="sellerFeeBasisPoints"
                   className="block text-sm font-medium text-gray-700"
                 >
-                  Royalties <code className="prose text-sm tracking-tighter">(sellerFeeBasisPoints [0-10000])</code>
+                  Royalties{" "}
+                  <code className="prose text-sm tracking-tighter">
+                    (sellerFeeBasisPoints [0-10000])
+                  </code>
                 </label>
                 <div className="relative mt-1">
                   <input
@@ -324,7 +347,7 @@ const Mint: NextPage = () => {
                     type="number"
                     {...register("sellerFeeBasisPoints", {
                       min: 0,
-                      max: 1000,
+                      max: 10000,
                       valueAsNumber: true,
                       required: true,
                     })}
@@ -502,8 +525,17 @@ const Mint: NextPage = () => {
                 type="submit"
                 className="inline-flex items-center rounded-md bg-secondary px-4 py-2 text-base text-gray-50 shadow-sm hover:bg-secondary-focus focus:outline-none focus:ring-2 focus:ring-secondary-focus focus:ring-offset-2"
               >
-                Mint
-                <ChevronDoubleRightIcon className="ml-2 -mr-1 h-5 w-5" aria-hidden={true} />
+                {isConfirming ? (
+                  <>
+                    <ArrowPathIcon className="-ml-1 mr-2 h-5 w-5 animate-spin" />
+                    Confirming
+                  </>
+                ) : (
+                  <>
+                    <ChevronRightIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden={true} />
+                    Mint
+                  </>
+                )}
               </button>
             </div>
           </div>

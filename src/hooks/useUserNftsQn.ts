@@ -1,8 +1,9 @@
 import { useWallet } from "@solana/wallet-adapter-react";
+import { notify } from "components/Notification";
 import { useMemo } from "react";
 import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
 import useSWR from "swr";
-import { notify } from "utils/notifications";
+
 import { mergeClusterApiUrl } from "utils/spl/common";
 
 export type NftResponseObject = {
@@ -70,7 +71,7 @@ export const useUserNftsQn = () => {
         error?.cause?.status === 404 ||
         error?.cause?.status === 429
       ) {
-        notify({ type: "error", message: "Error fetching user NFTs" });
+        notify({ type: "error", title: "Error fetching user NFTs" });
       }
 
       if (retryCount >= 3) return;

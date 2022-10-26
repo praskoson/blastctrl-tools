@@ -1,119 +1,92 @@
-import { useEffect } from "react";
-import { CheckCircleIcon, InformationCircleIcon, XCircleIcon } from "@heroicons/react/24/outline";
+import { ReactNode, useMemo } from "react";
+import {
+  CheckCircleIcon,
+  ExclamationTriangleIcon,
+  InformationCircleIcon,
+} from "@heroicons/react/24/outline";
 import { XMarkIcon } from "@heroicons/react/20/solid";
-import useNotificationStore from "../stores/useNotificationStore";
-import { useConnection } from "@solana/wallet-adapter-react";
-import { getExplorerUrl } from "../utils/explorer";
-import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
+import useQueryContext from "hooks/useQueryContext";
+import toast from "react-hot-toast";
+import { classNames } from "utils";
 
-const NotificationList = () => {
-  const { notifications, set: setNotificationStore } = useNotificationStore((s) => s);
-
-  const reversedNotifications = [...notifications].reverse();
-
-  return (
-    <div className={`pointer-events-none fixed inset-0 z-20 flex items-end px-4 py-6 sm:p-6`}>
-      <div className={`flex w-full flex-col`}>
-        {reversedNotifications.map((n, idx) => (
-          <Notification
-            key={`${n.message}${idx}`}
-            type={n.type}
-            message={n.message}
-            description={n.description}
-            txid={n.txid}
-            onHide={() => {
-              setNotificationStore((state: any) => {
-                const reversedIndex = reversedNotifications.length - 1 - idx;
-                state.notifications = [
-                  ...notifications.slice(0, reversedIndex),
-                  ...notifications.slice(reversedIndex + 1),
-                ];
-              });
-            }}
-          />
-        ))}
-      </div>
-    </div>
+export const notify = (props: NotifyProps) => {
+  return toast.custom(
+    (t) => (
+      <NotificationWindow {...props} visible={t.visible} onClose={() => toast.dismiss(t.id)} />
+    ),
+    { duration: props.type === "error" ? Infinity : 30000 }
   );
 };
 
-const Notification = ({ type, message, description, txid, onHide }) => {
-  const { connection } = useConnection();
-  const { network } = useNetworkConfigurationStore();
+export type NotifyProps = {
+  type?: "error" | "success";
+  title?: string | ReactNode;
+  description?: string | ReactNode;
+  txid?: string;
+};
 
-  // TODO: we dont have access to the network or endpoint here..
-  // getExplorerUrl(connection., txid, 'tx')
-  // Either a provider, context, and or wallet adapter related pro/contx need updated
+export function NotificationWindow({
+  type,
+  title,
+  description,
+  txid,
+  visible,
+  onClose,
+}: NotifyProps & { visible: boolean; onClose: () => void }) {
+  const { fmtUrlWithCluster } = useQueryContext();
 
-  useEffect(() => {
-    const id = setTimeout(() => {
-      onHide();
-    }, 8000);
+  const iconMemo = useMemo(() => {
+    switch (type) {
+      case "success":
+        return <CheckCircleIcon className="h-7 w-7 text-emerald-500" aria-hidden="true" />;
+      case "error":
+        return <ExclamationTriangleIcon className="h-7 w-7 text-amber-600" aria-hidden="true" />;
+      default:
+        return <InformationCircleIcon className="h-7 w-7 text-cyan-400" aria-hidden="true" />;
+    }
+  }, [type]);
 
-    return () => {
-      clearInterval(id);
-    };
-  }, [onHide]);
+  const linkMemo = useMemo(
+    () => (
+      <a
+        rel="noreferrer"
+        target="_blank"
+        className="rounded-md text-gray-200 underline underline-offset-2 hover:text-gray-50"
+        href={fmtUrlWithCluster(`https://explorer.solana.com/tx/${txid}`)}
+      >
+        View transaction
+      </a>
+    ),
+    [txid, fmtUrlWithCluster]
+  );
 
   return (
     <div
-      className={`pointer-events-auto mx-4 mt-2 mb-12 w-full max-w-sm overflow-hidden rounded-md bg-secondary p-2 text-secondary-content shadow-lg ring-1 ring-black ring-opacity-5`}
+      className={classNames(
+        visible ? "animate-enter" : "animate-leave",
+        "pointer-events-auto mb-4 w-full max-w-sm overflow-hidden rounded-lg bg-zinc-800 shadow-lg ring-1 ring-black ring-opacity-5 sm:max-w-lg"
+      )}
     >
-      <div className={`p-4`}>
-        <div className={`flex items-center`}>
-          <div className={`flex-shrink-0`}>
-            {type === "success" ? <CheckCircleIcon className={`text-green mr-1 h-8 w-8`} /> : null}
-            {type === "info" && <InformationCircleIcon className={`text-red mr-1 h-8 w-8`} />}
-            {type === "error" && <XCircleIcon className={`mr-1 h-8 w-8`} />}
+      <div className="p-4">
+        <div className="flex items-start">
+          <div className="mt-1 flex-shrink-0">{iconMemo}</div>
+          <div className="ml-3 w-0 flex-1 pt-0.5">
+            <p className="text-xl font-semibold tracking-wide text-gray-50">{title}</p>
+            <p className="mt-1 text-sm text-gray-300">{description}</p>
+            {txid && <div className="pt-4 pb-3 text-gray-200">{linkMemo}</div>}
           </div>
-          <div className={`ml-2 w-0 flex-1`}>
-            <div className={`text-fgd-1 font-bold`}>{message}</div>
-            {description ? <p className={`text-fgd-2 mt-0.5 text-sm`}>{description}</p> : null}
-            {txid ? (
-              <div className="flex flex-row">
-                <a
-                  href={
-                    "https://explorer.solana.com/tx/" + txid + `?cluster=${network}`
-                  }
-                  target="_blank"
-                  rel="noreferrer"
-                  className="link-accent link flex flex-row"
-                >
-                  <svg
-                    className="text-primary-light ml-2 mt-0.5 h-4 w-4 flex-shrink-0"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                    ></path>
-                  </svg>
-                  <div className="mx-4 flex">
-                    {txid.slice(0, 8)}...
-                    {txid.slice(txid.length - 8)}
-                  </div>
-                </a>
-              </div>
-            ) : null}
-          </div>
-          <div className={`ml-4 flex flex-shrink-0 self-start`}>
+          <div className="ml-4 flex flex-shrink-0">
             <button
-              onClick={() => onHide()}
-              className={`bg-bkg-2 default-transition text-fgd-3 hover:text-fgd-4 inline-flex rounded-md focus:outline-none`}
+              type="button"
+              className="inline-flex rounded-md bg-transparent text-gray-300 hover:text-gray-400 focus:outline-none focus:ring focus:ring-white focus:ring-offset-0"
+              onClick={() => onClose()}
             >
-              <span className={`sr-only`}>Close</span>
-              <XMarkIcon className="h-5 w-5" />
+              <span className="sr-only">Close</span>
+              <XMarkIcon className="h-5 w-5" aria-hidden="true" />
             </button>
           </div>
         </div>
       </div>
     </div>
   );
-};
-
-export default NotificationList;
+}

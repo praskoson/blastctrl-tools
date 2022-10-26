@@ -1,4 +1,8 @@
-import { WalletAdapterNetwork, WalletError } from "@solana/wallet-adapter-base";
+import {
+  WalletAdapterNetwork,
+  WalletError,
+  WalletSendTransactionError,
+} from "@solana/wallet-adapter-base";
 import { ConnectionProvider, WalletProvider } from "@solana/wallet-adapter-react";
 import { WalletModalProvider as ReactUIWalletModalProvider } from "@solana/wallet-adapter-react-ui";
 import {
@@ -10,9 +14,9 @@ import {
 import { LedgerWalletAdapter } from "@solana/wallet-adapter-ledger";
 import { FC, ReactNode, useCallback, useMemo } from "react";
 import { AutoConnectProvider, useAutoConnect } from "./AutoConnectProvider";
-import { notify } from "../utils/notifications";
 import { mergeClusterApiUrl } from "utils/spl/common";
 import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
+import { notify } from "components/Notification";
 
 const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const { autoConnect } = useAutoConnect();
@@ -35,15 +39,18 @@ const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
   );
 
   const onError = useCallback((error: WalletError) => {
+    if (error instanceof WalletSendTransactionError) {
+      // The caller should be handling this
+      return;
+    }
     notify({
       type: "error",
-      message: error.message ? `${error.name}: ${error.message}` : error.name,
+      title: error.name,
+      description: error.message ? error.message : error.name,
     });
-    console.error(error);
   }, []);
 
   return (
-    // TODO: updates needed for updating and referencing endpoint: wallet adapter rework
     <ConnectionProvider endpoint={endpoint}>
       <WalletProvider wallets={wallets} onError={onError} autoConnect={autoConnect}>
         <ReactUIWalletModalProvider>{children}</ReactUIWalletModalProvider>
