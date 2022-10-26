@@ -6,7 +6,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import dayjs from "dayjs";
 import Link from "next/link";
 import { Disclosure } from "@headlessui/react";
-import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 import { MagnifyingGlassIcon } from "@heroicons/react/20/solid";
 import Image from "next/image";
 import { Breadcrumbs } from "components/Breadcrumbs";
@@ -126,7 +126,32 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
                           {open ? (
                             <XMarkIcon className="block h-6 w-6" aria-hidden="true" />
                           ) : (
-                            <Bars3Icon className="block h-6 w-6" aria-hidden="true" />
+                            <svg
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              strokeWidth="1.5"
+                              stroke="currentColor"
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="block h-6 w-6"
+                              aria-hidden="true"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M 20.25 17.25 L 12.849 17.25"
+                              />
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M 20.25 7.415 L 3.75 7.415"
+                              />
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M 20.25 12.333 L 7.98 12.333"
+                              />
+                            </svg>
+                            // <Bars3BottomRightIcon className="block h-6 w-6" aria-hidden="true" />
                           )}
                         </Disclosure.Button>
                       </div>
