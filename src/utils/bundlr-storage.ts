@@ -70,7 +70,7 @@ export class BundlrStorageDriver {
       wallet = undefined;
     }
 
-    const bundlr = new WebBundlr("https://node1.bundlr.network", "solana", wallet, this._options);
+    const bundlr = new WebBundlr(this._options.address, "solana", wallet, this._options);
 
     try {
       // Try to initiate bundlr.
@@ -142,7 +142,7 @@ export class BundlrStorageDriver {
 
     if (status >= 300) {
       //   throw new BundlrWithdrawError(status);
-      throw Error(`Error withdrawing from bundlr, returned status: ${300}`);
+      throw Error(`Error withdrawing from bundlr, returned status: ${status}`);
     }
   }
 

@@ -1,6 +1,7 @@
 import { Transition } from "@headlessui/react";
 import { QuestionMarkCircleIcon } from "@heroicons/react/20/solid";
 import { ArrowPathIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
+import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import { useLocalStorage, useWallet } from "@solana/wallet-adapter-react";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { notify } from "components/Notification";
@@ -43,14 +44,26 @@ export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
   }, [storage]);
 
   useEffect(() => {
-    (async () => {
-      if (file) {
-        storage.getUploadPrice(file.size).then((price) => setFilePrice(price));
-      } else {
-        setFilePrice(null);
-      }
-    })();
-  }, [storage, file]);
+    if (network !== WalletAdapterNetwork.Mainnet) {
+      notify({
+        title: `Network is set to ${network}`,
+        description: (
+          <>
+            Using Bundlr on non-mainnet networks will result in your uploads not being permanent.
+            All uploads are removed after a week.{" "}
+            <a
+              className="text-blue-300 underline"
+              rel="noreferrer"
+              target="_blank"
+              href="https://docs.bundlr.network/docs/devnet"
+            >
+              Docs
+            </a>
+          </>
+        ),
+      });
+    }
+  }, [network]);
 
   useEffect(() => {
     let subscribed = true;
@@ -60,7 +73,7 @@ export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
     return () => {
       subscribed = false;
     };
-  });
+  }, [network, refreshBalance]);
 
   const handleWithdraw = async () => {
     const memoBalance = balance;
@@ -114,20 +127,25 @@ export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
     event.stopPropagation();
     setDragActive(false);
     if (event.dataTransfer.files && event.dataTransfer.files[0]) {
-      setFile(event.dataTransfer.files[0]);
+      const droppedFile = event.dataTransfer.files[0];
+      setFile(droppedFile);
+      storage.getUploadPrice(droppedFile.size).then((price) => setFilePrice(price));
     }
   };
 
   const handleSetFile = (event: ChangeEvent<HTMLInputElement>) => {
     event.preventDefault();
     if (event.target?.files?.length === 1) {
-      setFile(event.target.files.item(0));
+      const selectedFile = event.target.files.item(0);
+      setFile(selectedFile);
+      storage.getUploadPrice(selectedFile.size).then((price) => setFilePrice(price));
     }
   };
 
   const handleCancel = (e: any) => {
     e.preventDefault();
     setFile(null);
+    setFilePrice(null);
     setIsUploading(false);
   };
 
@@ -332,9 +350,9 @@ export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
                       disabled={!file}
                       onClick={handleCancel}
                       className={classNames(
-                        "inline-flex items-center rounded-md border border-transparent bg-secondary/20 px-4 py-2 text-base font-medium text-secondary shadow-sm",
-                        "enabled:focus:outline-none enabled:focus:ring-2 enabled:focus:ring-secondary enabled:focus:ring-offset-2 hover:bg-secondary/30",
-                        "disabled:pointer-events-none disabled:bg-secondary/10 disabled:text-secondary/60"
+                        "inline-flex items-center rounded-md border border-gray-300 bg-transparent px-4 py-2 text-base font-medium text-gray-700 shadow-sm",
+                        "enabled:focus:outline-none enabled:focus:ring-2 enabled:focus:ring-secondary enabled:focus:ring-offset-2 hover:bg-gray-50",
+                        "disabled:pointer-events-none disabled:bg-gray-200 disabled:text-gray-500"
                       )}
                     >
                       Cancel
@@ -366,6 +384,9 @@ export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
 
         <div className="my-3 rounded-md border border-gray-300 px-3 py-2 shadow-sm">
           <div className="font-base text-sm text-gray-900">
+            <span className="mb-1 block text-xs uppercase tracking-wider text-gray-500">
+              {network}
+            </span>
             <span className="font-medium text-gray-500">Bundlr balance </span>
             <span className="mx-1 text-base font-semibold text-gray-700">
               {balance ? (
@@ -378,7 +399,7 @@ export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
             </span>
           </div>
           {balance && balance.basisPoints.gtn(0) && (
-            <div className="mb-2 w-full">
+            <div className="my-3 w-full">
               <button
                 disabled={isUploading}
                 onClick={handleWithdraw}
