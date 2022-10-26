@@ -101,6 +101,18 @@ const RecoverNested: NextPage = () => {
         data: AccountLayout.decode(data, 0),
       }));
 
+      mintInfo = await getMint(connection, nestedAtaInfo.data.mint);
+    } catch (err) {
+      console.log({ err });
+      notify({
+        title: "Error loading account info",
+        description: "Have you entered valid token accounts?",
+      });
+      setIsProcessing(false);
+      return;
+    }
+
+    try {
       destinationAta = getAssociatedTokenAddressSync(nestedAtaInfo.data.mint, wallet, true);
       const { data, ...rest } = await connection.getAccountInfo(destinationAta);
       destinationInfo = {
@@ -108,11 +120,22 @@ const RecoverNested: NextPage = () => {
         ...rest,
         data: AccountLayout.decode(data, 0),
       };
-      mintInfo = await getMint(connection, nestedAtaInfo.data.mint);
     } catch (err) {
+      console.log({ err });
       notify({
         title: "Error loading account info",
-        description: "Have you entered valid token accounts?",
+        description: (
+          <>
+            <span className="block break-all">
+              Associated token account of mint{" "}
+              <span className="font-medium text-blue-300">
+                {nestedAtaInfo.data.mint.toBase58()}
+              </span>{" "}
+              not found.
+            </span>
+            <span>You can create it within your wallet or with CLI tools.</span>
+          </>
+        ),
       });
       setIsProcessing(false);
       return;
@@ -325,7 +348,7 @@ const RecoverNested: NextPage = () => {
                 <button
                   type="submit"
                   disabled={isProcessing}
-                  className="inline-flex items-center rounded-md border border-transparent bg-secondary px-4 py-2 text-base text-gray-50 shadow-sm hover:bg-secondary-focus focus:outline-none focus:ring-2 focus:ring-secondary-focus focus:ring-offset-2"
+                  className="inline-flex items-center rounded-md border border-transparent bg-secondary px-4 py-2 text-base text-gray-50 shadow-sm hover:bg-secondary-focus focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2"
                 >
                   {isProcessing ? (
                     <>
