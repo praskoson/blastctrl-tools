@@ -348,7 +348,7 @@ const Mint: NextPage = () => {
                     type="number"
                     {...register("sellerFeeBasisPoints", {
                       min: 0,
-                      max: 1000,
+                      max: 10000,
                       valueAsNumber: true,
                       required: true,
                     })}
