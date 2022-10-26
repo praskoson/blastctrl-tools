@@ -6,10 +6,12 @@ import { NftSelectorOption } from "./NftSelectorOption";
 import { UseControllerProps, useController } from "react-hook-form";
 import { classNames } from "utils";
 import type { FormInputs, FormToken } from "pages/nft-tools/update";
+import { useWallet } from "@solana/wallet-adapter-react";
 
 export const NftSelector = (
   props: UseControllerProps<FormInputs> & { onSelectCallback: (props: any) => void }
 ) => {
+  const { publicKey } = useWallet();
   const [query, setQuery] = useState("");
   const { isError, isLoading, nfts } = useUserNfts();
 
@@ -22,13 +24,15 @@ export const NftSelector = (
     () =>
       isLoading || isError
         ? []
-        : nfts.map((nft) => ({
-            name: nft.name,
-            address: nft.address.toBase58(),
-            uri: nft.uri,
-            model: nft.model,
-          })),
-    [isError, isLoading, nfts]
+        : nfts
+            .filter((nft) => (publicKey ? publicKey.equals(nft.updateAuthorityAddress) : true))
+            .map((nft) => ({
+              name: nft.name,
+              address: nft.address.toBase58(),
+              uri: nft.uri,
+              model: nft.model,
+            })),
+    [isError, isLoading, nfts, publicKey]
   );
 
   const filteredTokens =
