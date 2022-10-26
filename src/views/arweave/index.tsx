@@ -1,9 +1,10 @@
 import { Transition } from "@headlessui/react";
-import { ArrowPathIcon } from "@heroicons/react/24/outline";
+import { ArrowPathIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { useLocalStorage, useWallet } from "@solana/wallet-adapter-react";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { notify } from "components/Notification";
 import dayjs from "dayjs";
-import { ChangeEvent, DragEvent, useEffect, useState } from "react";
+import { ChangeEvent, DragEvent, useCallback, useEffect, useState } from "react";
 import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
 import { Amount, Currency, formatAmount } from "types";
 import { BundlrStorageDriver } from "utils/bundlr-storage";
@@ -33,6 +34,12 @@ export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
     `previousUploads${pascalify(network)}`,
     []
   );
+  const [balance, setBalance] = useState<Amount<Currency>>(null);
+
+  const refreshBalance = useCallback(async () => {
+    const balance = await storage.getBalance();
+    setBalance(balance);
+  }, [storage]);
 
   useEffect(() => {
     (async () => {
@@ -43,6 +50,47 @@ export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
       }
     })();
   }, [storage, file]);
+
+  useEffect(() => {
+    refreshBalance();
+  });
+
+  const handleWithdraw = async () => {
+    const memoBalance = balance;
+    try {
+      await storage.withdrawAll();
+      notify({
+        title: "Withdraw succesful",
+        type: "success",
+        description: (
+          <>
+            Withdrawed{" "}
+            <span className="font-medium text-blue-300">
+              {memoBalance.basisPoints.toNumber() / LAMPORTS_PER_SOL}
+            </span>{" "}
+            SOL.
+          </>
+        ),
+      });
+    } catch (err) {
+      console.log({ err });
+      notify({
+        title: "Error withdrawing",
+        type: "error",
+        description: (
+          <>
+            {err.message ? (
+              <span className="break-words">{err.message}</span>
+            ) : (
+              "Unknown error, check the console for more information."
+            )}
+          </>
+        ),
+      });
+    } finally {
+      await refreshBalance();
+    }
+  };
 
   const handleDrag = (event: DragEvent<HTMLFormElement | HTMLDivElement>) => {
     event.preventDefault();
@@ -122,6 +170,7 @@ export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
         ),
       });
     } finally {
+      refreshBalance();
       setIsUploading(false);
     }
   };
@@ -297,6 +346,37 @@ export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
               </div>
             )}
           </Transition>
+        </div>
+
+        <div className="my-3 rounded-md border border-gray-300 px-3 py-2 shadow-sm">
+          <div className="font-base mb-2 text-sm text-gray-900">
+            <span className="font-medium text-gray-500">Bundlr balance </span>
+            <span className="mx-1 text-base font-semibold text-gray-700">
+              {balance ? (
+                <>
+                  {balance.basisPoints.toNumber() / LAMPORTS_PER_SOL} {balance.currency.symbol}
+                </>
+              ) : (
+                "0 SOL"
+              )}
+            </span>
+          </div>
+          {balance && balance.basisPoints.gtn(0) && (
+            <div className="mb-2 w-full">
+              <button
+                disabled={isUploading}
+                onClick={handleWithdraw}
+                className={classNames(
+                  "inline-flex w-full items-center justify-center rounded-md border border-transparent bg-secondary px-4 py-1.5 text-base font-medium text-gray-50",
+                  "hover:bg-secondary-focus focus:outline-none focus:ring-2 focus:ring-secondary-focus focus:ring-offset-2",
+                  "disabled:pointer-events-none disabled:bg-gray-400"
+                )}
+              >
+                <ChevronRightIcon className="-ml-1 mr-1 h-5 w-5" />
+                Withdraw all
+              </button>
+            </div>
+          )}
         </div>
 
         {uploads?.length > 0 && (
