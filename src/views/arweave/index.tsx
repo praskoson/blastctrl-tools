@@ -365,7 +365,7 @@ export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
         </div>
 
         <div className="my-3 rounded-md border border-gray-300 px-3 py-2 shadow-sm">
-          <div className="font-base mb-2 text-sm text-gray-900">
+          <div className="font-base text-sm text-gray-900">
             <span className="font-medium text-gray-500">Bundlr balance </span>
             <span className="mx-1 text-base font-semibold text-gray-700">
               {balance ? (
