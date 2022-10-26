@@ -1,10 +1,13 @@
+import { WalletSignTransactionError } from "@solana/wallet-adapter-base";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { TransactionSignature, PublicKey, Transaction } from "@solana/web3.js";
 import { notify } from "components/Notification";
 import { FormEvent, useCallback, useState } from "react";
+import { errorFromCode } from "@metaplex-foundation/mpl-token-metadata";
 
 import toast from "react-hot-toast";
 import { addNftToCollection } from "utils/spl/collections";
+import { tryGetErrorCodeFromMessage } from "utils/spl";
 
 export const AddTo = () => {
   const { connection } = useConnection();
@@ -20,7 +23,6 @@ export const AddTo = () => {
         console.log("error", "Wallet not connected!");
         notify({
           type: "error",
-          title: "",
           description: "Connect your wallet",
         });
         return;
@@ -45,22 +47,36 @@ export const AddTo = () => {
           { blockhash, lastValidBlockHeight, signature },
           "confirmed"
         );
-        toast.success("Add to collection success.");
         console.log(signature);
-        // notify({
-        //   type: "success",
-        //   message: "Add to collection success.",
-        //   txid: signature,
-        // });
+        notify({ type: "success", title: "Add to collection success" });
       } catch (error: any) {
-        toast.error("Add to collection failed.");
-        // notify({
-        //   type: "error",
-        //   message: `Add to collection failed.`,
-        //   description: error?.message,
-        //   txid: signature,
-        // });
-        console.log("error", `Add to collection failed. ${error?.message}`, signature);
+        if (error instanceof WalletSignTransactionError) {
+          return;
+        }
+        console.log({ error });
+
+        const code = tryGetErrorCodeFromMessage(error?.message);
+        const decodedError = code ? errorFromCode(code) : undefined;
+
+        notify({
+          type: "error",
+          title: "Add to collection failed",
+          description: (
+            <span className="break-words">
+              {decodedError ? (
+                <>
+                  <span className="block">
+                    Decoded error:{" "}
+                    <span className="font-medium text-orange-300">{decodedError.name}</span>
+                  </span>
+                  <span className="block">{decodedError.message}</span>
+                </>
+              ) : (
+                "Unknown error, check the console for more details"
+              )}
+            </span>
+          ),
+        });
       }
     },
     [publicKey, connection, collectionStr, nftStr, sendTransaction]

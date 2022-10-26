@@ -1,4 +1,8 @@
-import { WalletAdapterNetwork, WalletError } from "@solana/wallet-adapter-base";
+import {
+  WalletAdapterNetwork,
+  WalletError,
+  WalletSendTransactionError,
+} from "@solana/wallet-adapter-base";
 import { ConnectionProvider, WalletProvider } from "@solana/wallet-adapter-react";
 import { WalletModalProvider as ReactUIWalletModalProvider } from "@solana/wallet-adapter-react-ui";
 import {
@@ -35,12 +39,15 @@ const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
   );
 
   const onError = useCallback((error: WalletError) => {
+    if (error instanceof WalletSendTransactionError) {
+      // The caller should be handling this
+      return;
+    }
     notify({
       type: "error",
       title: error.name,
       description: error.message ? error.message : error.name,
     });
-    console.error({ error });
   }, []);
 
   return (
