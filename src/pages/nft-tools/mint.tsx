@@ -17,7 +17,7 @@ import {
   walletAdapterIdentity,
 } from "@metaplex-foundation/js";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { notify } from "utils/notifications";
+
 import { PublicKey } from "@solana/web3.js";
 import { classNames } from "utils";
 import { Switch } from "@headlessui/react";
@@ -25,6 +25,7 @@ import { MAX_CREATORS } from "./update";
 import React, { useEffect } from "react";
 import { useRouter } from "next/router";
 import toast from "react-hot-toast";
+import { notify } from "components/Notification";
 
 export type CreateFormInputs = {
   name: string;
@@ -99,7 +100,7 @@ const Mint: NextPage = () => {
 
   const submit = async (data: CreateFormInputs) => {
     if (!wallet.connected) {
-      notify({ type: "error", message: "Connect your wallet" });
+      notify({ type: "error", description: "Connect your wallet", title: "Connect your wallet" });
       return;
     }
 
@@ -316,7 +317,10 @@ const Mint: NextPage = () => {
                   htmlFor="sellerFeeBasisPoints"
                   className="block text-sm font-medium text-gray-700"
                 >
-                  Royalties <code className="prose text-sm tracking-tighter">(sellerFeeBasisPoints [0-10000])</code>
+                  Royalties{" "}
+                  <code className="prose text-sm tracking-tighter">
+                    (sellerFeeBasisPoints [0-10000])
+                  </code>
                 </label>
                 <div className="relative mt-1">
                   <input

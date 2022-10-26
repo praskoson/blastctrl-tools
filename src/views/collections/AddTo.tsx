@@ -1,7 +1,8 @@
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { TransactionSignature, PublicKey, Transaction } from "@solana/web3.js";
+import { notify } from "components/Notification";
 import { FormEvent, useCallback, useState } from "react";
-import { notify } from "utils/notifications";
+
 import toast from "react-hot-toast";
 import { addNftToCollection } from "utils/spl/collections";
 
@@ -19,8 +20,8 @@ export const AddTo = () => {
         console.log("error", "Wallet not connected!");
         notify({
           type: "error",
-          message: "error",
-          description: "Wallet not connected!",
+          title: "",
+          description: "Connect your wallet",
         });
         return;
       }

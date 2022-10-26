@@ -10,9 +10,9 @@ import {
 import { LedgerWalletAdapter } from "@solana/wallet-adapter-ledger";
 import { FC, ReactNode, useCallback, useMemo } from "react";
 import { AutoConnectProvider, useAutoConnect } from "./AutoConnectProvider";
-import { notify } from "../utils/notifications";
 import { mergeClusterApiUrl } from "utils/spl/common";
 import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
+import { notify } from "components/Notification";
 
 const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const { autoConnect } = useAutoConnect();
@@ -37,7 +37,8 @@ const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const onError = useCallback((error: WalletError) => {
     notify({
       type: "error",
-      message: error.message ? `${error.name}: ${error.message}` : error.name,
+      title: error.name,
+      description: error.message ? error.message : error.name,
     });
     console.error(error);
   }, []);

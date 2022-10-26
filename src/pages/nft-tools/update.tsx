@@ -27,9 +27,10 @@ import Head from "next/head";
 import { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { classNames } from "utils";
-import { notify } from "utils/notifications";
+// 
 import { getMetadata, isPublicKey } from "utils/spl/common";
 import toast from "react-hot-toast";
+import { notify } from "components/Notification";
 
 export type FormToken = {
   name: string;
@@ -187,19 +188,11 @@ const Update: NextPage = () => {
 
     try {
       const { response } = await metaplex.nfts().update(updateNftInput);
-      notify({
-        type: "success",
-        message: "Update succesful",
-        description: "View the transaction here",
-        txid: response.signature,
-      });
+      console.log(response.signature);
+      notify({ title: "Update success", type: "success", txid: response.signature });
     } catch (err) {
       console.log(err);
-      notify({
-        type: "error",
-        message: "Error updating",
-        description: "Check the console for more information",
-      });
+      notify({ type: "error", title: "Error updating", description: err });
     }
   };
 
@@ -409,7 +402,9 @@ const Update: NextPage = () => {
                   className="block text-sm font-medium text-gray-700"
                 >
                   Royalties{" "}
-                  <code className="prose text-sm tracking-tighter">(sellerFeeBasisPoints [0-10000])</code>
+                  <code className="prose text-sm tracking-tighter">
+                    (sellerFeeBasisPoints [0-10000])
+                  </code>
                 </label>
                 <div className="relative mt-1">
                   <input

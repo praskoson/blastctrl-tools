@@ -17,7 +17,6 @@ import { DesktopWallet } from "components/DesktopWallet";
 import { CommandPalette } from "components/CommandPalette";
 import { classNames } from "utils";
 import { Toaster } from "react-hot-toast";
-import ExampleNotify from "components/ExampleNotify";
 
 dayjs.extend(relativeTime);
 require("@solana/wallet-adapter-react-ui/styles.css");
@@ -43,8 +42,7 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
       <Head>
         <title>Tools | Blast Ctrl</title>
       </Head>
-      <Toaster position="bottom-left" />
-      <ExampleNotify title="Upload success" type="success" />
+      <Toaster position="bottom-left" toastOptions={{ duration: 20000 }} />
       <ContextProvider>
         <CommandPalette isOpen={isOpen} navigation={navigation} setIsOpen={setIsOpen} />
 

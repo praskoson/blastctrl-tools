@@ -1,9 +1,10 @@
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { TransactionSignature, PublicKey, Transaction } from "@solana/web3.js";
 import { FormEvent, useCallback, useState } from "react";
-import { notify } from "utils/notifications";
+
 import { unverifyCollectionNft } from "utils/spl/collections";
 import toast from "react-hot-toast";
+import { notify } from "components/Notification";
 
 export const RemoveFrom = () => {
   const { connection } = useConnection();
@@ -15,11 +16,10 @@ export const RemoveFrom = () => {
       e.preventDefault();
 
       if (!publicKey) {
-        console.log("error", "Wallet not connected!");
         notify({
           type: "error",
-          message: "error",
-          description: "Wallet not connected!",
+          title: "",
+          description: "Connect your wallet",
         });
         return;
       }
