@@ -4,16 +4,11 @@ const nextConfig = {
   images: {
     loader: "cloudinary",
     path: "https://res.cloudinary.com/doz0obwb0/image/fetch/",
-    // domains: [
-    //   "www.arweave.net",
-    //   "arweave.net",
-    //   "ipfs.io",
-    //   "cdn.blastctrl.com",
-    //   "s3.eu-central-1.amazonaws.com",
-    //   "dweb.link",
-    //   "images.unsplash.com",
-    // ],
   },
 };
 
-module.exports = nextConfig;
+const withBundleAnalyzer = require("@next/bundle-analyzer")({
+  enabled: process.env.ANALYZE === "true",
+});
+
+module.exports = withBundleAnalyzer(nextConfig);

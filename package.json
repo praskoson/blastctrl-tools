@@ -7,7 +7,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "analyze": "cross-env ANALYZE=true yarn build"
   },
   "dependencies": {
     "@bundlr-network/client": "^0.8.8",
@@ -16,6 +17,7 @@
     "@heroicons/react": "^2.0.11",
     "@metaplex-foundation/js": "^0.17.2",
     "@metaplex-foundation/mpl-token-metadata": "^2.3.0",
+    "@next/bundle-analyzer": "^13.0.0",
     "@solana/spl-token-next": "npm:@solana/spl-token@0.3.5",
     "@solana/wallet-adapter-base": "^0.9.18",
     "@solana/wallet-adapter-ledger": "^0.9.20",
@@ -50,6 +52,7 @@
     "@types/react": "17.0.38",
     "@types/uuid": "^8.3.4",
     "autoprefixer": "^10.4.2",
+    "cross-env": "^7.0.3",
     "eslint": "8.7.0",
     "eslint-config-next": "12.0.8",
     "postcss": "^8.4.5",
