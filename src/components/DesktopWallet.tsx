@@ -69,7 +69,7 @@ export const DesktopWallet = () => {
           <div className="border-b border-gray-300 px-3 py-2 text-sm text-gray-600">
             <div className="text-sm text-gray-600">Connected as</div>
             <div className="flex items-center">
-              <div className="mt-1 mr-2 text-lg font-bold text-secondary">
+              <div className="mt-1 mr-2 text-lg font-bold text-gray-700">
                 {compress(wallet58, 4)}
               </div>
               <button type="button" className="flex items-center" onClick={writeToClipboard}>
