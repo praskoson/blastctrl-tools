@@ -42,7 +42,7 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
       <Head>
         <title>Tools | Blast Ctrl</title>
       </Head>
-      <Toaster position="bottom-left" toastOptions={{ duration: 20000 }} />
+      <Toaster position="bottom-left" toastOptions={{ duration: 999999 }} />
       <ContextProvider>
         <CommandPalette isOpen={isOpen} navigation={navigation} setIsOpen={setIsOpen} />
 

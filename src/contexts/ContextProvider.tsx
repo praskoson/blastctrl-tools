@@ -40,11 +40,10 @@ const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
       title: error.name,
       description: error.message ? error.message : error.name,
     });
-    console.error(error);
+    console.error({ error });
   }, []);
 
   return (
-    // TODO: updates needed for updating and referencing endpoint: wallet adapter rework
     <ConnectionProvider endpoint={endpoint}>
       <WalletProvider wallets={wallets} onError={onError} autoConnect={autoConnect}>
         <ReactUIWalletModalProvider>{children}</ReactUIWalletModalProvider>

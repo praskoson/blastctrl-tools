@@ -17,7 +17,7 @@ export const notify = (props: NotifyProps) => {
 
 export type NotifyProps = {
   type?: "error" | "success";
-  title: string | ReactNode;
+  title?: string | ReactNode;
   description?: string | ReactNode;
   txid?: string;
 };
@@ -69,8 +69,8 @@ export function NotificationWindow({
           <div className="mt-1 flex-shrink-0">{iconMemo}</div>
           <div className="ml-3 w-0 flex-1 pt-0.5">
             <p className="text-xl font-semibold tracking-wide text-gray-50">{title}</p>
-            <p className="mt-1 text-sm text-gray-300 truncate">{description}</p>
-            <div className="pt-4 pb-3 text-gray-200">{linkMemo}</div>
+            <p className="mt-1 text-sm text-gray-300">{description}</p>
+            {txid && <div className="pt-4 pb-3 text-gray-200">{linkMemo}</div>}
           </div>
           <div className="ml-4 flex flex-shrink-0">
             <button

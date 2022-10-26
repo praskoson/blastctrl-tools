@@ -1,6 +1,7 @@
 import { Switch } from "@headlessui/react";
 import {
-  ChevronDoubleRightIcon,
+  ArrowPathIcon,
+  ChevronRightIcon,
   ExclamationCircleIcon,
   PlusCircleIcon,
   XMarkIcon,
@@ -27,10 +28,10 @@ import Head from "next/head";
 import { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { classNames } from "utils";
-// 
 import { getMetadata, isPublicKey } from "utils/spl/common";
 import toast from "react-hot-toast";
 import { notify } from "components/Notification";
+import { WalletError } from "@solana/wallet-adapter-base";
 
 export type FormToken = {
   name: string;
@@ -72,6 +73,7 @@ const Update: NextPage = () => {
   const { connection } = useConnection();
   const wallet = useWallet();
   const { nfts } = useUserNfts();
+  const [isConfirming, setIsConfirming] = useState(false);
   const [current, setCurrent] = useState<Metadata<JsonMetadata<string>> | Nft | Sft>(null);
 
   const [isShowingCurrentValues, setIsShowingCurrentValues] = useLocalStorage(
@@ -142,10 +144,11 @@ const Update: NextPage = () => {
 
   const submit = async (data: FormInputs) => {
     if (!wallet.connected) {
-      toast.error("Connect your wallet");
+      notify({ type: "error", description: "Connect your wallet" });
       return;
     }
 
+    setIsConfirming(true);
     const metaplex = Metaplex.make(connection).use(walletAdapterIdentity(wallet));
 
     let token: Sft | SftWithToken | Nft | NftWithToken;
@@ -158,9 +161,20 @@ const Update: NextPage = () => {
     }
 
     if (!token.updateAuthorityAddress.equals(wallet.publicKey)) {
-      toast.error(
-        `This wallet is not the correct update authority. Update authority is: ${token.updateAuthorityAddress.toBase58()}`
-      );
+      notify({
+        type: "error",
+        title: "Invalid update authority",
+        description: (
+          <>
+            Your wallet is not the valid update authority. Update authority is{" "}
+            <span className="font-medium text-blue-300">
+              {token.updateAuthorityAddress.toBase58()}
+            </span>
+          </>
+        ),
+      });
+
+      setIsConfirming(false);
       return;
     }
 
@@ -189,10 +203,16 @@ const Update: NextPage = () => {
     try {
       const { response } = await metaplex.nfts().update(updateNftInput);
       console.log(response.signature);
-      notify({ title: "Update success", type: "success", txid: response.signature });
+      notify({ title: "Metadata update success", type: "success", txid: response.signature });
     } catch (err) {
-      console.log(err);
-      notify({ type: "error", title: "Error updating", description: err });
+      if (err instanceof WalletError) {
+        // The onError callback in the walletconnect context will handle it
+        return;
+      }
+      console.log({ err });
+      notify({ type: "error", title: "Error updating", description: err?.problem });
+    } finally {
+      setIsConfirming(false);
     }
   };
 
@@ -490,8 +510,17 @@ const Update: NextPage = () => {
                 type="submit"
                 className="inline-flex items-center rounded-md bg-secondary px-4 py-2 text-base text-gray-50 shadow-sm hover:bg-secondary-focus focus:outline-none focus:ring-2 focus:ring-secondary-focus focus:ring-offset-2"
               >
-                Update
-                <ChevronDoubleRightIcon className="ml-2 -mr-1 h-5 w-5" aria-hidden={true} />
+                {isConfirming ? (
+                  <>
+                    <ArrowPathIcon className="-ml-1 mr-2 h-5 w-5 animate-spin" />
+                    Confirming
+                  </>
+                ) : (
+                  <>
+                    <ChevronRightIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden={true} />
+                    Update
+                  </>
+                )}
               </button>
             </div>
           </div>
