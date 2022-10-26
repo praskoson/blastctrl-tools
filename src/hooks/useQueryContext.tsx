@@ -1,13 +1,13 @@
 import { useRouter } from "next/router";
+import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
 import { EndpointTypes } from "../models/types";
 
 export default function useQueryContext() {
-  const router = useRouter();
-  const { cluster } = router.query;
+  const { network } = useNetworkConfigurationStore()
 
-  const endpoint = cluster ? (cluster as EndpointTypes) : "mainnet";
-  const hasClusterOption = endpoint !== "mainnet";
-  const fmtUrlWithCluster = (url) => {
+  const endpoint = network || "mainnet-beta";
+  const hasClusterOption = endpoint !== "mainnet-beta";
+  const fmtUrlWithCluster = (url: string) => {
     if (hasClusterOption) {
       const mark = url.includes("?") ? "&" : "?";
       return decodeURIComponent(`${url}${mark}cluster=${endpoint}`);
