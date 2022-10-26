@@ -3,13 +3,17 @@ import { TransactionSignature, PublicKey, Transaction } from "@solana/web3.js";
 import { FormEvent, useCallback, useState } from "react";
 
 import { unverifyCollectionNft } from "utils/spl/collections";
-import toast from "react-hot-toast";
 import { notify } from "components/Notification";
+import { WalletSignTransactionError } from "@solana/wallet-adapter-base";
+import { errorFromCode } from "@metaplex-foundation/mpl-token-metadata";
+import { tryGetErrorCodeFromMessage } from "utils/spl";
+import { ArrowPathIcon } from "@heroicons/react/20/solid";
 
 export const RemoveFrom = () => {
   const { connection } = useConnection();
   const { publicKey, sendTransaction } = useWallet();
   const [nftStr, setNftStr] = useState("");
+  const [isConfirming, setIsConfirming] = useState(false);
 
   const onClick = useCallback(
     async (e: FormEvent) => {
@@ -18,7 +22,6 @@ export const RemoveFrom = () => {
       if (!publicKey) {
         notify({
           type: "error",
-          title: "",
           description: "Connect your wallet",
         });
         return;
@@ -26,6 +29,7 @@ export const RemoveFrom = () => {
 
       let signature: TransactionSignature = "";
       try {
+        setIsConfirming(true);
         const nftMint = new PublicKey(nftStr);
         const ix = await unverifyCollectionNft(connection, nftMint, publicKey);
         const tx = new Transaction().add(ix);
@@ -42,21 +46,43 @@ export const RemoveFrom = () => {
           { blockhash, lastValidBlockHeight, signature },
           "confirmed"
         );
-        // notify({
-        //   type: "success",
-        //   message: "Remove from collection successful!",
-        //   txid: signature,
-        // });
-        toast.success("Remove from collection success");
+
+        notify({
+          type: "success",
+          title: "Remove from collection succesful",
+          txid: signature,
+        });
       } catch (error: any) {
-        toast.error("Remove from collection failed!");
-        // notify({
-        //   type: "error",
-        //   message: `Remove from collection failed!`,
-        //   description: error?.message,
-        //   txid: signature,
-        // });
-        console.log("error", `Remove from collection failed! ${error?.message}`, signature);
+        console.log({ error });
+        if (error instanceof WalletSignTransactionError) {
+          return;
+        }
+        const code = tryGetErrorCodeFromMessage(error?.message);
+        const decodedError = code ? errorFromCode(code) : undefined;
+
+        notify({
+          type: "error",
+          title: "Remove from collection failed",
+          description: (
+            <span className="break-words">
+              {decodedError ? (
+                <>
+                  <span className="block">
+                    Decoded error:{" "}
+                    <span className="font-medium text-orange-300">{decodedError.name}</span>
+                  </span>
+                  <span className="block">{decodedError.message}</span>
+                </>
+              ) : error?.message ? (
+                <span className="break-words">{error.message}</span>
+              ) : (
+                "Unknown error, check the console for more details"
+              )}
+            </span>
+          ),
+        });
+      } finally {
+        setIsConfirming(false);
       }
     },
     [publicKey, connection, nftStr, sendTransaction]
@@ -78,8 +104,9 @@ export const RemoveFrom = () => {
           />
         </label>
       </div>
-      <button type="submit" className="btn btn-secondary mt-4">
-        Submit
+      <button disabled={isConfirming} type="submit" className="btn btn-secondary mt-4">
+        {isConfirming && <ArrowPathIcon className="-ml-1 mr-1 h-5 w-5 animate-spin" />}
+        {isConfirming ? "Confirming" : "Submit"}
       </button>
     </form>
   );

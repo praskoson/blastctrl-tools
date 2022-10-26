@@ -5,7 +5,6 @@ import { notify } from "components/Notification";
 import { FormEvent, useCallback, useState } from "react";
 import { errorFromCode } from "@metaplex-foundation/mpl-token-metadata";
 
-import toast from "react-hot-toast";
 import { addNftToCollection } from "utils/spl/collections";
 import { tryGetErrorCodeFromMessage } from "utils/spl";
 
@@ -48,7 +47,7 @@ export const AddTo = () => {
           "confirmed"
         );
         console.log(signature);
-        notify({ type: "success", title: "Add to collection success" });
+        notify({ type: "success", title: "Add to collection success", txid: signature });
       } catch (error: any) {
         if (error instanceof WalletSignTransactionError) {
           return;
@@ -71,6 +70,8 @@ export const AddTo = () => {
                   </span>
                   <span className="block">{decodedError.message}</span>
                 </>
+              ) : error?.message ? (
+                <span className="break-words">{error.message}</span>
               ) : (
                 "Unknown error, check the console for more details"
               )}
