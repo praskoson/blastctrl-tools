@@ -248,12 +248,17 @@ const Mint: NextPage = () => {
             <div className="mt-4">
               <h3 className="text-lg font-medium leading-6 text-gray-900">Creators</h3>
               <p className="mt-1 text-sm text-gray-500">
-                There can be up to 5 creators. If any creators are added, one of them will need to
-                be your address.
+                There can be up to 5 creators. Creators other than yourself will be unverified.
+                <a
+                  href="https://docs.metaplex.com/programs/token-metadata/accounts#creators"
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  <QuestionMarkCircleIcon className="ml-1 inline h-4 w-4 text-gray-400" />
+                </a>
               </p>
             </div>
 
-            {/* TODO */}
             <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
               <div className="sm:col-span-6">
                 <div className="flex flex-col gap-y-2">
@@ -423,17 +428,14 @@ const Mint: NextPage = () => {
                     <Switch.Label as="span" className="text-sm font-medium text-gray-900" passive>
                       Is Collection
                     </Switch.Label>
-                    <Switch.Description
-                      as="span"
-                      className="flex items-center text-sm text-gray-500"
-                    >
+                    <Switch.Description as="span" className="text-sm text-gray-500">
                       Does this token represent a collection NFT?
                       <a
                         href="https://docs.metaplex.com/programs/token-metadata/certified-collections"
                         rel="noreferrer"
                         target="_blank"
                       >
-                        <QuestionMarkCircleIcon className="ml-2 h-4 w-4 text-gray-400" />
+                        <QuestionMarkCircleIcon className="mb-0.5 ml-2 inline h-4 w-4 text-gray-400" />
                       </a>
                     </Switch.Description>
                   </span>
@@ -470,17 +472,14 @@ const Mint: NextPage = () => {
                     <Switch.Label as="span" className="text-sm font-medium text-gray-900" passive>
                       Is a sized collection
                     </Switch.Label>
-                    <Switch.Description
-                      as="span"
-                      className="flex items-center text-sm text-gray-500"
-                    >
+                    <Switch.Description as="span" className="text-sm text-gray-500">
                       Is this a &quot;sized&quot; collection NFT?
                       <a
                         href="https://docs.metaplex.com/programs/token-metadata/certified-collections"
                         rel="noreferrer"
                         target="_blank"
                       >
-                        <QuestionMarkCircleIcon className="ml-2 h-4 w-4 text-gray-400" />
+                        <QuestionMarkCircleIcon className="ml-2 mb-0.5 inline h-4 w-4 text-gray-400" />
                       </a>
                     </Switch.Description>
                   </span>
