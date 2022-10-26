@@ -2,11 +2,11 @@ import { Transition } from "@headlessui/react";
 import { QuestionMarkCircleIcon } from "@heroicons/react/20/solid";
 import { ArrowPathIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
-import { useLocalStorage, useWallet } from "@solana/wallet-adapter-react";
+import { useConnection, useLocalStorage, useWallet } from "@solana/wallet-adapter-react";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { notify } from "components/Notification";
 import dayjs from "dayjs";
-import { ChangeEvent, DragEvent, useCallback, useEffect, useState } from "react";
+import { ChangeEvent, DragEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
 import { Amount, Currency, formatAmount } from "types";
 import { BundlrStorageDriver } from "utils/bundlr-storage";
@@ -25,9 +25,25 @@ function pascalify(text: string) {
   return text.substring(0, 1).toUpperCase() + text.substring(1);
 }
 
-export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
-  const { connected } = useWallet();
+export const UploaderView = () => {
+  const wallet = useWallet();
+  const { connection } = useConnection();
   const { network } = useNetworkConfigurationStore();
+
+  const storage = useMemo(
+    () =>
+      new BundlrStorageDriver(connection, wallet, {
+        priceMultiplier: 1.5,
+        timeout: 60000,
+        providerUrl: connection.rpcEndpoint,
+        identity: wallet,
+        address:
+          network === WalletAdapterNetwork.Mainnet
+            ? "https://node1.bundlr.network"
+            : "https://devnet.bundlr.network",
+      }),
+    [connection, wallet, network]
+  );
   const [dragActive, setDragActive] = useState(false);
   const [file, setFile] = useState<File>();
   const [filePrice, setFilePrice] = useState<Amount<Currency>>();
@@ -150,7 +166,7 @@ export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
   };
 
   const handleUpload = async () => {
-    if (!connected) {
+    if (!wallet?.connected) {
       notify({ type: "error", description: "Connect your wallet" });
       return;
     }
