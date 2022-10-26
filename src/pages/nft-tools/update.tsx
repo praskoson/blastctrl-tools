@@ -4,6 +4,7 @@ import {
   ChevronRightIcon,
   ExclamationCircleIcon,
   PlusCircleIcon,
+  QuestionMarkCircleIcon,
   XMarkIcon,
 } from "@heroicons/react/20/solid";
 import {
@@ -334,18 +335,36 @@ const Update: NextPage = () => {
           <div>
             <div className="mt-4">
               <h3 className="text-lg font-medium leading-6 text-gray-900">Creators</h3>
-              <p className="mt-1 text-sm text-gray-500">There can be up to 5 creators.</p>
+              <p className="mt-1 text-sm text-gray-500">
+                There can be up to 5 creators. The shares must add up to 100.
+                <a
+                  href="https://docs.metaplex.com/programs/token-metadata/accounts#creators"
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  <QuestionMarkCircleIcon className="ml-1 mb-0.5 inline h-4 w-4 text-gray-400" />
+                </a>
+              </p>
             </div>
 
             <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
               <div className="sm:col-span-6">
-                {/* <CreatorsInput control={control} register={register} errors={errors} /> */}
                 <div className="flex flex-col gap-y-2">
                   {fields.map((field, idx) => (
                     <fieldset key={field.id}>
                       <legend className="sr-only">Creator address and share</legend>
                       <div className="mt-1 -space-y-px rounded-md bg-white shadow-sm">
                         <div className="grid grid-cols-9 -space-x-px">
+                          {idx === 0 && (
+                            <>
+                              <label className="col-span-6 mb-1 pl-1 text-sm text-gray-600">
+                                Creator address
+                              </label>
+                              <label className="col-span-3 mb-1 pl-1 text-sm text-gray-600">
+                                Share
+                              </label>
+                            </>
+                          )}
                           <div className="col-span-6 flex-1">
                             <label className="sr-only">Creator</label>
                             <input

@@ -218,7 +218,7 @@ const Mint: NextPage = () => {
               </div>
 
               <div className="sm:col-span-6">
-                <label htmlFor="maxSUpply" className="flex items-end gap-x-2 text-sm">
+                <label htmlFor="maxSupply" className="flex items-end gap-x-2 text-sm">
                   <span className="font-medium text-gray-700">Max supply</span>
                   <span className="text-xs font-normal text-gray-500">
                     Used for printing editions
@@ -248,7 +248,8 @@ const Mint: NextPage = () => {
             <div className="mt-4">
               <h3 className="text-lg font-medium leading-6 text-gray-900">Creators</h3>
               <p className="mt-1 text-sm text-gray-500">
-                There can be up to 5 creators. Creators other than yourself will be unverified.
+                There can be up to 5 creators. The shares must add up to 100. Creators other than
+                yourself will be unverified.
                 <a
                   href="https://docs.metaplex.com/programs/token-metadata/accounts#creators"
                   rel="noreferrer"
@@ -267,6 +268,16 @@ const Mint: NextPage = () => {
                       <legend className="sr-only">Creator address and share</legend>
                       <div className="mt-1 -space-y-px rounded-md bg-white shadow-sm">
                         <div className="grid grid-cols-9 -space-x-px">
+                          {idx === 0 && (
+                            <>
+                              <label className="col-span-6 mb-1 pl-1 text-sm text-gray-600">
+                                Creator address
+                              </label>
+                              <label className="col-span-3 mb-1 pl-1 text-sm text-gray-600">
+                                Share
+                              </label>
+                            </>
+                          )}
                           <div className="col-span-6 flex-1">
                             <label className="sr-only">Creator</label>
                             <input
