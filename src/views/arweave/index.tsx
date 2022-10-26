@@ -1,4 +1,5 @@
 import { Transition } from "@headlessui/react";
+import { QuestionMarkCircleIcon } from "@heroicons/react/20/solid";
 import { ArrowPathIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { useLocalStorage, useWallet } from "@solana/wallet-adapter-react";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
@@ -52,7 +53,13 @@ export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
   }, [storage, file]);
 
   useEffect(() => {
-    refreshBalance();
+    let subscribed = true;
+    if (subscribed) {
+      refreshBalance();
+    }
+    return () => {
+      subscribed = false;
+    };
   });
 
   const handleWithdraw = async () => {
@@ -299,7 +306,16 @@ export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
                       </dd>
                     </div>
                     <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5 sm:px-6">
-                      <dt className="text-sm font-medium text-gray-500">Estimated cost</dt>
+                      <dt className="text-sm font-medium text-gray-500">
+                        Estimated cost
+                        <a
+                          href="https://docs.bundlr.network/docs/learn/fees"
+                          rel="noreferrer"
+                          target="_blank"
+                        >
+                          <QuestionMarkCircleIcon className="ml-1 mb-0.5 inline h-4 w-4 text-gray-400" />
+                        </a>
+                      </dt>
                       <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
                         {filePrice && formatAmount(filePrice)}
                       </dd>
