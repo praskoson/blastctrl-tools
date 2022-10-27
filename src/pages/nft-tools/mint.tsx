@@ -106,6 +106,7 @@ const Mint: NextPage = () => {
       return;
     }
 
+    console.log(data);
     setIsConfirming(true);
     const metaplex = Metaplex.make(connection).use(walletAdapterIdentity(wallet));
     const { name, symbol, uri, isMutable, maxSupply, isCollection, collectionIsSized } = data;

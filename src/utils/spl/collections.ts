@@ -1,6 +1,7 @@
 import {
   Metadata,
   createUnverifySizedCollectionItemInstruction,
+  createUnverifyCollectionInstruction,
   createSetAndVerifySizedCollectionItemInstruction,
   createSetAndVerifyCollectionInstruction,
 } from "@metaplex-foundation/mpl-token-metadata";
@@ -21,17 +22,30 @@ export const unverifyCollectionNft = async (
     const collectionMint = metadataInfo.collection?.key;
     const collection = getMetadata(collectionMint);
     const collectionMasterEditionAccount = getMasterEdition(collectionMint);
+    const collectionInfo = await Metadata.fromAccountAddress(connection, collection);
 
-    return createUnverifySizedCollectionItemInstruction({
-      payer: wallet,
-      metadata,
-      collectionMint,
-      collection,
-      collectionMasterEditionAccount,
-      collectionAuthority: wallet,
-    });
+    if (collectionInfo?.collectionDetails && collectionInfo?.collectionDetails?.size) {
+      // This is a sized collection
+      return createUnverifySizedCollectionItemInstruction({
+        payer: wallet,
+        metadata,
+        collectionMint,
+        collection,
+        collectionMasterEditionAccount,
+        collectionAuthority: wallet,
+      });
+    } else {
+      // This is an unsized collection
+      return createUnverifyCollectionInstruction({
+        metadata,
+        collectionMint,
+        collection,
+        collectionMasterEditionAccount,
+        collectionAuthority: wallet,
+      });
+    }
   } catch (err) {
-    throw Error("Error creating unverifySizedCollectionInstruction");
+    throw Error("Error creating unverifySizedCollectionInstruction", { cause: err });
   }
 };
 
@@ -71,6 +85,6 @@ export const addNftToCollection = async (
       });
     }
   } catch (err) {
-    throw Error("Error creating setAndVerifySizedCollectionItemInstruction", err);
+    throw Error("Error creating setAndVerifySizedCollectionItemInstruction", { cause: err });
   }
 };
