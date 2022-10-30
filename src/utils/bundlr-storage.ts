@@ -128,7 +128,7 @@ export class BundlrStorageDriver {
     const minimumBalance = new BigNumber(5000);
 
     if (balance.isLessThan(minimumBalance)) {
-      return;
+      throw Error(`Withdraw error: insufficient balance.`);
     }
 
     const balanceToWithdraw = balance.minus(minimumBalance);

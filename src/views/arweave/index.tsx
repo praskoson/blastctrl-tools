@@ -382,7 +382,7 @@ export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
           </Transition>
         </div>
 
-        <div className="my-3 rounded-md border border-gray-300 px-3 py-2 shadow-sm">
+        <div className="my-3 max-w-sm rounded-md border border-gray-300 px-3 py-2 shadow-sm">
           <div className="font-base text-sm text-gray-900">
             <span className="mb-1 block text-xs uppercase tracking-wider text-gray-500">
               {network}
@@ -412,6 +412,10 @@ export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
                 <ChevronRightIcon className="-ml-1 mr-1 h-5 w-5" />
                 Withdraw all
               </button>
+              <p className="pt-2 text-xs text-gray-500">
+                These are the leftovers due to how the pricing works. Minimum balance for
+                withdrawing is 5000 lamports.
+              </p>
             </div>
           )}
         </div>
