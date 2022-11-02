@@ -86,9 +86,9 @@ export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
           <>
             Withdrawed{" "}
             <span className="font-medium text-blue-300">
-              {memoBalance.basisPoints.toNumber() / LAMPORTS_PER_SOL}
-            </span>{" "}
-            SOL.
+              {formatAmount(memoBalance)}
+              {/* {memoBalance.basisPoints.toNumber() / LAMPORTS_PER_SOL} */}
+            </span>
           </>
         ),
       });
@@ -389,13 +389,7 @@ export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
             </span>
             <span className="font-medium text-gray-500">Bundlr balance </span>
             <span className="mx-1 text-base font-semibold text-gray-700">
-              {balance ? (
-                <>
-                  {balance.basisPoints.toNumber() / LAMPORTS_PER_SOL} {balance.currency.symbol}
-                </>
-              ) : (
-                "0 SOL"
-              )}
+              {balance ? <>{formatAmount(balance)}</> : "0 SOL"}
             </span>
           </div>
           {balance && balance.basisPoints.gtn(0) && (
