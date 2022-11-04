@@ -87,6 +87,7 @@ const Update: NextPage = () => {
     setValue,
     formState: { errors, dirtyFields },
     reset,
+    setFocus,
     control,
   } = useForm<FormInputs>({
     mode: "onSubmit",
@@ -106,7 +107,7 @@ const Update: NextPage = () => {
   const onSelectCallback = async (selectedToken: FormToken) => {
     let nft: Metadata<JsonMetadata<string>> | Nft | Sft;
     if (!nfts) {
-      // Wait 1 second
+      // Wait 1 second, maybe they load lol
       await new Promise((resolve) => setTimeout(resolve, 1000));
     }
 
@@ -117,7 +118,10 @@ const Update: NextPage = () => {
         const metadata = selectedToken.model === "metadata" ? address : getMetadata(address);
         nft = await Metaplex.make(connection).nfts().findByMetadata({ metadata });
       } catch (err) {
-        console.log("Error loading selected token information");
+        if (selectedToken?.address) {
+          console.log({ err });
+          notify({ description: "Couldn't load information on the selected token." });
+        }
       }
     }
 
@@ -175,6 +179,13 @@ const Update: NextPage = () => {
       });
 
       setIsConfirming(false);
+      return;
+    }
+
+    const shareTotal = data.creators.reduce((sum, { share }) => (sum += share), 0);
+    if (data.creators.length > 0 && shareTotal !== 100) {
+      setFocus(`creators.${"0"}.share`);
+      notify({ type: "error", description: "Creator total shares must equal 100." });
       return;
     }
 
