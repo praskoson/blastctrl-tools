@@ -18,7 +18,7 @@ const fetchWalletNfts = (connection: Connection, cluster: Cluster) => async (wal
   const metaplex = Metaplex.make(connection, { cluster }).use(guestIdentity());
 
   // Can be NFT | SFT | "token with metadata"
-  return await metaplex.nfts().findAllByOwner({ owner: wallet }, { });
+  return await metaplex.nfts().findAllByOwner({ owner: wallet }, {});
 };
 
 export const useUserNfts = () => {
@@ -30,7 +30,7 @@ export const useUserNfts = () => {
 
   const { data, error, mutate } = useSWR(() => publicKey?.toBase58(), fetcher, {
     refreshInterval: 60000,
-    errorRetryCount: 5,
+    errorRetryCount: 3,
     errorRetryInterval: 10000,
   });
 

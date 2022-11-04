@@ -25,9 +25,8 @@ export const getMetadata = (mint: PublicKey): PublicKey => {
 };
 
 export const mergeClusterApiUrl = (network: WalletAdapterNetwork) => {
-  return network === WalletAdapterNetwork.Mainnet
-    ? "https://radial-few-vineyard.solana-mainnet.discover.quiknode.pro/f4ee50b169a4ed2711b60b47cd20548787e555af/"
-    : clusterApiUrl(network);
+  const envRpc = process.env.NEXT_PUBLIC_RPC_ENDPOINT ?? clusterApiUrl("mainnet-beta");
+  return network === WalletAdapterNetwork.Mainnet ? envRpc : clusterApiUrl(network);
 };
 
 export function isPublicKey(value: any) {
