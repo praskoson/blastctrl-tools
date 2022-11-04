@@ -163,20 +163,27 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
                   </div>
 
                   <Disclosure.Panel className="lg:hidden">
-                    <div className="flex w-full flex-col items-start gap-y-1 px-2 pt-2 pb-3">
-                      {navigation
-                        .filter((nav) => !nav.in)
-                        .map((item) => (
-                          <Disclosure.Button key={item.name}>
-                            <Link key={item.name} href={item.href}>
-                              <a className="block w-full rounded-md py-2 px-3 text-base font-medium text-white hover:bg-primary-focus hover:text-white">
-                                {item.name}
-                              </a>
-                            </Link>
-                          </Disclosure.Button>
-                        ))}
-                    </div>
-                    <MobileWallet />
+                    {({ close }) => (
+                      <>
+                        <div className="flex w-full flex-col items-start gap-y-1 px-2 pt-2 pb-3">
+                          {navigation
+                            .filter((nav) => !nav.in)
+                            .map((item) => (
+                              <Disclosure.Button key={item.name}>
+                                <Link key={item.name} href={item.href}>
+                                  <a
+                                    onClick={() => close()}
+                                    className="block w-full rounded-md py-2 px-3 text-base font-medium text-white hover:bg-primary-focus hover:text-white"
+                                  >
+                                    {item.name}
+                                  </a>
+                                </Link>
+                              </Disclosure.Button>
+                            ))}
+                        </div>
+                        <MobileWallet />
+                      </>
+                    )}
                   </Disclosure.Panel>
                 </>
               )}
