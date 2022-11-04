@@ -68,6 +68,7 @@ const RecoverNested: NextPage = () => {
   });
 
   useEffect(() => {
+    // TODO: account change listener
     getUserSOLBalance(wallet, connection);
   }, [connection, wallet, getUserSOLBalance]);
 
