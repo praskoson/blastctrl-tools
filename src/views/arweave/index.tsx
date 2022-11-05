@@ -299,7 +299,7 @@ export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
                   <dl className="sm:divide-y sm:divide-gray-200">
                     <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5 sm:px-6">
                       <dt className="text-sm font-medium text-gray-500">File name</dt>
-                      <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                      <dd className="mt-1 break-all text-sm text-gray-900 sm:col-span-2 sm:mt-0">
                         {file.name}
                       </dd>
                     </div>

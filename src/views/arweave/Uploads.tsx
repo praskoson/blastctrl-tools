@@ -69,7 +69,9 @@ export const Uploads = memo(function Uploads({ files }: UploadsProps) {
               <div className="flex gap-x-4 self-start sm:self-auto">
                 <div className="flex-shrink-0">{getFilePreview(item)}</div>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-gray-900">{item.name}</p>
+                  <p className="break-all text-sm font-medium text-gray-900 sm:max-w-xs">
+                    {item.name}
+                  </p>
                   <p className="truncate text-sm text-gray-500">
                     {dayjs(item.uploadDate).fromNow()}
                   </p>
