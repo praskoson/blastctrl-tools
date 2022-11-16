@@ -17,6 +17,7 @@ import { DesktopWallet } from "components/DesktopWallet";
 import { CommandPalette } from "components/CommandPalette";
 import { classNames } from "utils";
 import { Toaster } from "react-hot-toast";
+import { Analytics } from "@vercel/analytics/react";
 
 dayjs.extend(relativeTime);
 require("@solana/wallet-adapter-react-ui/styles.css");
@@ -192,6 +193,7 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
           <Breadcrumbs />
           <main className="mx-auto max-w-7xl flex-grow px-4 pt-10 pb-12 lg:pb-16">
             <Component {...pageProps} />
+            <Analytics />
           </main>
           <Footer />
         </div>
