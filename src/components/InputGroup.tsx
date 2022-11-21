@@ -1,20 +1,21 @@
 import { ExclamationCircleIcon } from "@heroicons/react/20/solid";
-import { useEffect } from "react";
 import { UseFormRegisterReturn, FieldError } from "react-hook-form";
 
 type InputGroupProps = {
   label: string;
+  description?: string;
   register: UseFormRegisterReturn;
   error: FieldError;
 };
 
 const classNames = (...classes: any[]) => classes.filter(Boolean).join(" ");
 
-export const InputGroup = ({ label, register, error }: InputGroupProps) => {
+export const InputGroup = ({ label, register, error, description }: InputGroupProps) => {
   return (
-    <>
-      <label htmlFor={register.name} className="block text-sm font-medium text-gray-700">
-        {label}
+    <div>
+      <label htmlFor={register.name} className="block space-x-2">
+        <span className="text-sm font-medium text-gray-700">{label}</span>
+        {description && <span className="text-xs font-normal text-gray-500">{description}</span>}
       </label>
       <div className="relative mt-1">
         <input
@@ -39,6 +40,6 @@ export const InputGroup = ({ label, register, error }: InputGroupProps) => {
           {error?.message}
         </p>
       )}
-    </>
+    </div>
   );
 };

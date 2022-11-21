@@ -4,6 +4,7 @@ import {
   ExclamationCircleIcon,
   PlusCircleIcon,
   QuestionMarkCircleIcon,
+  XCircleIcon,
   XMarkIcon,
 } from "@heroicons/react/20/solid";
 import {
@@ -12,21 +13,28 @@ import {
   toBigNumber,
   walletAdapterIdentity,
 } from "@metaplex-foundation/js";
+import type { UploadMetadataInput } from "@metaplex-foundation/js";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { InputGroup } from "components/InputGroup";
 import type { NextPage } from "next";
 import Head from "next/head";
+import Link from "next/link";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { isPublicKey } from "utils/spl/common";
 
 import { Switch } from "@headlessui/react";
+import {
+  WalletError,
+  WalletSignMessageError,
+  WalletSignTransactionError,
+} from "@solana/wallet-adapter-base";
 import { PublicKey } from "@solana/web3.js";
 import { notify } from "components/Notification";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { classNames } from "utils";
+import { JsonPanel } from "views/nfts/JsonPanel";
 import { MAX_CREATORS } from "./update";
-import { WalletError } from "@solana/wallet-adapter-base";
 
 export type CreateFormInputs = {
   name: string;
@@ -50,6 +58,8 @@ const Mint: NextPage = () => {
   const wallet = useWallet();
   const router = useRouter();
   const [isConfirming, setIsConfirming] = useState(false);
+  const [showPanel, setShowPanel] = useState(false);
+  const [json, setJson] = useState<UploadMetadataInput | null>(null);
 
   const {
     register,
@@ -109,7 +119,51 @@ const Mint: NextPage = () => {
     console.log(data);
     setIsConfirming(true);
     const metaplex = Metaplex.make(connection).use(walletAdapterIdentity(wallet));
-    const { name, symbol, uri, isMutable, maxSupply, isCollection, collectionIsSized } = data;
+    const { name, symbol, isMutable, maxSupply, isCollection, collectionIsSized } = data;
+
+    let uri: string;
+    // Check if we are uploading a file
+    if (json) {
+      notify({
+        title: "Uploading external metadata",
+        description:
+          "The metadata JSON file is being uploaded to Arweave via Bundlr. This will require multiple wallet confirmations, including payment and signature verification.",
+      });
+      try {
+        const { uri: upload } = await metaplex.nfts().uploadMetadata(json);
+        uri = upload;
+      } catch (err) {
+        console.log({ err });
+        if (err instanceof WalletSignTransactionError || err instanceof WalletSignMessageError) {
+          // callback will handle it
+          return;
+        }
+        notify({
+          type: "error",
+          title: "File upload error",
+          description: (
+            <div className="break-normal">
+              <p>
+                There has been an error while uploading with the message:{" "}
+                <span className="font-medium text-yellow-300">{err?.message}</span>.
+              </p>
+              <p className="mt-2">
+                You can recover any lost funds on the{" "}
+                <Link href="/storage">
+                  <a className="font-medium text-blue-300">/storage</a>
+                </Link>{" "}
+                page.
+              </p>
+            </div>
+          ),
+        });
+        setIsConfirming(false);
+        return;
+      }
+    } else {
+      uri = data.uri;
+    }
+
     const createNftInput: CreateNftInput = {
       name,
       symbol,
@@ -205,17 +259,72 @@ const Mint: NextPage = () => {
                 />
               </div>
 
-              <div className="sm:col-span-6">
-                <InputGroup
-                  label="URI"
-                  register={register("uri", {
-                    maxLength: {
-                      value: 200,
-                      message: "Max URI length is 200",
-                    },
-                  })}
-                  error={errors?.uri}
-                />
+              <div className="sm:col-span-4">
+                <div>
+                  <label htmlFor={"uri"} className="block space-x-2">
+                    <span className="text-sm font-medium text-gray-700">URI</span>
+                    <span className="text-xs font-normal text-gray-500">
+                      Use an existing link to a metadata file or create one
+                    </span>
+                  </label>
+                  <div className="relative mt-1">
+                    <input
+                      type="text"
+                      id="uri"
+                      disabled={!!json}
+                      {...register("uri", {
+                        maxLength: {
+                          value: 200,
+                          message: "Max URI length is 200",
+                        },
+                        shouldUnregister: !!json,
+                      })}
+                      className={classNames(
+                        "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm",
+                        !json &&
+                          errors?.uri &&
+                          "border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:outline-none focus:ring-red-500"
+                      )}
+                      aria-invalid={errors?.uri ? "true" : "false"}
+                    />
+                    {!json && errors?.uri && (
+                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                        <ExclamationCircleIcon
+                          className="h-5 w-5 text-red-500"
+                          aria-hidden="true"
+                        />
+                      </div>
+                    )}
+                    {json && (
+                      <div className="absolute inset-y-0 left-0 flex items-center pl-3">
+                        <span className="inline-flex items-center rounded-full bg-indigo-200 px-2.5 py-0.5 text-sm font-medium text-indigo-900">
+                          {json.name}
+                          <button className="ml-1 -mr-1" onClick={() => setJson(null)}>
+                            <XCircleIcon className="h-4 w-4 text-indigo-400 hover:cursor-pointer hover:text-indigo-500"></XCircleIcon>
+                          </button>
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  {!json && errors?.uri && (
+                    <p className="mt-2 text-sm text-red-600" id={errors?.uri?.type}>
+                      {errors?.uri?.message}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="sm:col-span-2 sm:self-end">
+                <button
+                  type="button"
+                  onClick={() => setShowPanel((prev) => !prev)}
+                  className={classNames(
+                    "inline-flex items-center rounded-md border-2 border-transparent bg-indigo-600 py-2 px-2.5 text-sm text-white hover:bg-indigo-700",
+                    "focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                  )}
+                >
+                  {!!json ? "Edit file" : "Create a metadata file"}
+                </button>
               </div>
 
               <div className="sm:col-span-6">
@@ -526,9 +635,12 @@ const Mint: NextPage = () => {
           <div className="pt-5">
             <div className="flex justify-end gap-2">
               <button
-                onClick={() => reset()}
+                onClick={() => {
+                  reset();
+                  setJson(null);
+                }}
                 type="button"
-                className="inline-flex items-center rounded-md bg-secondary/20 px-4 py-2 text-base text-secondary shadow-sm hover:bg-secondary/30 focus:outline-none focus:ring-2 focus:ring-secondary-focus focus:ring-offset-2"
+                className="inline-flex items-center rounded-md border border-gray-300 bg-transparent px-4 py-2 text-base text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2"
               >
                 Clear inputs
               </button>
@@ -538,12 +650,12 @@ const Mint: NextPage = () => {
               >
                 {isConfirming ? (
                   <>
-                    <ArrowPathIcon className="-ml-1 mr-2 h-5 w-5 animate-spin" />
+                    <ArrowPathIcon className="-ml-1 mr-1 h-5 w-5 animate-spin" />
                     Confirming
                   </>
                 ) : (
                   <>
-                    <ChevronRightIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden={true} />
+                    <ChevronRightIcon className="-ml-1 mr-1 h-5 w-5" aria-hidden={true} />
                     Mint
                   </>
                 )}
@@ -552,6 +664,8 @@ const Mint: NextPage = () => {
           </div>
         </form>
       </div>
+
+      <JsonPanel open={showPanel} setOpen={setShowPanel} setJson={setJson} />
     </>
   );
 };

@@ -26,23 +26,6 @@ export const HomeView: FC = ({}) => {
   }, [wallet.publicKey, connection, getUserSOLBalance]);
 
   return (
-    // <div className="mx-auto p-4 md:hero">
-    //   <div className="flex flex-col md:hero-content">
-    //     <h1 className="text-center font-display text-5xl font-bold text-slate-700">
-    //       BlastCtrl <span>Tools</span>
-    //     </h1>
-    //     <h4 className="my-2 text-center text-slate-600 md:w-full">
-    //       <p>A small toolbox for the adventuring Solana user.</p>
-    //       <p className="px-10 sm:px-0">Mint, build and use these to get out of any trouble.</p>
-    //     </h4>
-    //     <div className="text-center">
-    //       {/* <<RequestAirdrop />> */}
-    //       <a href="https://blastctrl.com">
-    //         <button className="btn btn-secondary btn-link">Visit our homepage</button>
-    //       </a>
-    //     </div>
-    //   </div>
-    // </div>
     <div className="relative overflow-hidden">
       <div className="mx-auto max-w-7xl">
         <main className="mx-auto mt-6 max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
