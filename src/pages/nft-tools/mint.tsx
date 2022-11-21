@@ -145,11 +145,11 @@ const Mint: NextPage = () => {
             <div className="break-normal">
               <p>
                 There has been an error while uploading with the message:{" "}
-                <span className="font-medium text-yellow-300">{err?.message}</span>.
+                <span className="break-all font-medium text-yellow-300">{err?.message}</span>.
               </p>
               <p className="mt-2">
                 You can recover any lost funds on the{" "}
-                <Link href="/storage">
+                <Link href="/storage/file-upload">
                   <a className="font-medium text-blue-300">/storage</a>
                 </Link>{" "}
                 page.
