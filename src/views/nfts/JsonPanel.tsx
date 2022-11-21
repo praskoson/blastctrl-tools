@@ -1,4 +1,5 @@
 import { Dialog, Transition } from "@headlessui/react";
+import { XCircleIcon } from "@heroicons/react/24/solid";
 import type { UploadMetadataInput } from "@metaplex-foundation/js";
 import { toMetaplexFileFromBrowser } from "@metaplex-foundation/js";
 import { InputGroup } from "components/InputGroup";
@@ -27,6 +28,7 @@ export const JsonPanel = ({ open, setOpen, setJson }: JsonPanelProps) => {
     formState: { errors },
     watch,
     handleSubmit,
+    setValue,
   } = useForm<CreateJsonInputs>({});
   const image = watch("image");
 
@@ -123,7 +125,7 @@ export const JsonPanel = ({ open, setOpen, setJson }: JsonPanelProps) => {
                             >
                               Image
                             </label> */}
-                            <div className="group mt-2 h-48 w-64 overflow-hidden rounded-xl border-2 border-dashed border-gray-300 drop-shadow-md hover:cursor-pointer">
+                            <div className="group relative mt-2 h-48 w-64 overflow-hidden rounded-xl border-2 border-dashed border-gray-300 drop-shadow-md hover:cursor-pointer">
                               {image?.length > 0 ? (
                                 <>
                                   <Image
@@ -131,8 +133,16 @@ export const JsonPanel = ({ open, setOpen, setJson }: JsonPanelProps) => {
                                     alt=""
                                     height={192}
                                     width={256}
-                                    className="object-cover hover:opacity-90"
+                                    className="object-cover"
                                   />
+                                  <div className="absolute right-0 bottom-0 z-10 m-2 hidden group-hover:block">
+                                    <button
+                                      className="h-min w-min overflow-hidden rounded-full"
+                                      onClick={() => setValue("image", null)}
+                                    >
+                                      <XCircleIcon className="h-8 w-8 bg-white text-red-500 hover:text-red-700" />
+                                    </button>
+                                  </div>
                                 </>
                               ) : (
                                 <>
@@ -148,7 +158,7 @@ export const JsonPanel = ({ open, setOpen, setJson }: JsonPanelProps) => {
                                     className="sr-only"
                                     type="file"
                                     accept=".gif,.jpg,.jpeg,.png"
-                                    {...register("image", { setValueAs: (value) => value.item(0) })}
+                                    {...register("image")}
                                   />
                                 </>
                               )}
