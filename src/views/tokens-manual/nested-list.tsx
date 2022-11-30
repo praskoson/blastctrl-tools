@@ -6,13 +6,14 @@ import { findNestedAta } from "utils/spl/nested-ata";
 import Image from "next/image";
 import { QuestionMarkCircleIcon } from "@heroicons/react/24/solid";
 import { ArrowPathIcon, ChevronRightIcon } from "@heroicons/react/20/solid";
-import { normalizeTokenAmount } from "utils/spl/common";
+import { isATA, normalizeTokenAmount } from "utils/spl/common";
 import { notify } from "components/Notification";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { Transaction } from "@solana/web3.js";
 import { createRecoverNestedTokenAccountInstruction } from "utils/spl/token";
 import { Dispatch, SetStateAction, useState } from "react";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
+import { Tooltip } from "components/Tooltip";
 
 type NestedPairs = Awaited<ReturnType<typeof findNestedAta>>;
 
@@ -70,6 +71,7 @@ export const NestedInfo = ({
 
   const parentTokenInfo = findTokenByMint(parent.mint.toBase58());
   const nestedTokenInfo = findTokenByMint(nested.mint.toBase58());
+  const recoverable = isATA({ address: nested.address, owner: parent.address, mint: nested.mint });
 
   const handleRecover = async () => {
     if (!connected) {
@@ -191,24 +193,37 @@ export const NestedInfo = ({
         </div>
       </div>
       <div className="flex justify-end bg-gray-50 px-4 py-2 sm:px-6">
-        <button
-          type="button"
-          onClick={handleRecover}
-          disabled={confirming}
-          className="inline-flex items-center rounded-full border border-transparent bg-green-600 px-3 py-0.5 text-sm text-white hover:bg-green-700 disabled:bg-green-700"
-        >
-          {confirming ? (
-            <>
-              <ArrowPathIcon className="ml-1 mr-1 h-5 w-5 animate-spin text-white" />
-              Confirming
-            </>
-          ) : (
-            <>
-              Recover
-              <ChevronRightIcon className="ml-1 -mr-2 h-5 w-5" />
-            </>
-          )}
-        </button>
+        {recoverable ? (
+          <button
+            type="button"
+            onClick={handleRecover}
+            disabled={confirming || !recoverable}
+            className="inline-flex items-center rounded-full border border-transparent bg-green-600 px-3 py-0.5 text-sm text-white hover:bg-green-700 disabled:bg-green-700"
+          >
+            {confirming ? (
+              <>
+                <ArrowPathIcon className="ml-1 mr-1 h-5 w-5 animate-spin text-white" />
+                Confirming
+              </>
+            ) : (
+              <>
+                Recover
+                <ChevronRightIcon className="ml-1 -mr-2 h-5 w-5" />
+              </>
+            )}
+          </button>
+        ) : (
+          <div className="inline-flex items-center">
+            😥 Unrecoverable
+            <Tooltip
+              content={
+                "Currently, only nested associated token accounts can be recovered. It isn't possible to recover regular token accounts."
+              }
+            >
+              <QuestionMarkCircleIcon className="ml-2 h-5 w-5 text-gray-400 hover:cursor-pointer" />
+            </Tooltip>
+          </div>
+        )}
       </div>
     </div>
   );
