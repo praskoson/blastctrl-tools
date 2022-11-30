@@ -111,7 +111,9 @@ export const AutomaticRecover = () => {
           </div>
         </div>
       )}
-      {step === 3 && <NestedList nestedTokenAccounts={nestedPairs} />}
+      {step === 3 && (
+        <NestedList nestedTokenAccounts={nestedPairs} setNestedTokenAccounts={setNestedPairs} />
+      )}
     </>
   );
 };
