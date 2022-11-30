@@ -1,11 +1,10 @@
 import { Account, getAssociatedTokenAddressSync, getMint } from "@solana/spl-token-next";
-import { classNames } from "utils";
 import { compress } from "utils/spl";
 import { findTokenByMint } from "utils/spl/common-tokens";
 import { findNestedAta } from "utils/spl/nested-ata";
 import Image from "next/image";
 import { QuestionMarkCircleIcon } from "@heroicons/react/24/solid";
-import { ArrowPathIcon, ChevronRightIcon } from "@heroicons/react/20/solid";
+import { ArrowPathIcon, ChevronRightIcon, WalletIcon } from "@heroicons/react/20/solid";
 import { isATA, normalizeTokenAmount } from "utils/spl/common";
 import { notify } from "components/Notification";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
@@ -180,12 +179,15 @@ export const NestedInfo = ({
                   <p className="tracking-tigher font-mono font-medium leading-5 text-gray-500">
                     {compress(account.address.toBase58(), 6)}
                   </p>
-                  <p className="mt-2 text-right font-mono text-gray-900 underline">
-                    {normalizeTokenAmount(
-                      account.amount.toString(),
-                      tokenInfo?.decimals ?? 0
-                    ).toLocaleString()}
-                  </p>
+                  <div className="mt-2 inline-flex w-full items-center justify-end">
+                    <WalletIcon className="mr-1 h-3 w-3 text-gray-500" />
+                    <span className="font-mono text-gray-900 underline">
+                      {normalizeTokenAmount(
+                        account.amount.toString(),
+                        tokenInfo?.decimals ?? 0
+                      ).toLocaleString()}
+                    </span>
+                  </div>
                 </div>
               </div>
             );
