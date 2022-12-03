@@ -217,7 +217,7 @@ export const ManualInput = () => {
         title: "Recover nested success",
         description: (
           <>
-            Transaction success, recovered{" "}
+            Successfully recovered{" "}
             <span className="font-medium text-blue-300">
               {normalizeTokenAmount(Number(nestedInfo.data.amount), mintInfo.decimals)}
             </span>{" "}

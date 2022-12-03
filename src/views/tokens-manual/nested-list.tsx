@@ -113,7 +113,7 @@ export const NestedInfo = ({
         title: "Recover nested success",
         description: (
           <>
-            Transaction success, recovered{" "}
+            Successfully recovered{" "}
             <span className="font-medium text-blue-300">
               {normalizeTokenAmount(nested.amount.toString(), nestedDecimals)}
             </span>{" "}
