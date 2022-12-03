@@ -18,6 +18,7 @@
     "@metaplex-foundation/js": "^0.17.2",
     "@metaplex-foundation/mpl-token-metadata": "^2.3.0",
     "@next/bundle-analyzer": "^13.0.0",
+    "@popperjs/core": "^2.11.6",
     "@solana/spl-token-next": "npm:@solana/spl-token@0.3.5",
     "@solana/wallet-adapter-base": "^0.9.19",
     "@solana/wallet-adapter-ledger": "^0.9.20",

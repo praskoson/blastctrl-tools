@@ -45,7 +45,7 @@ const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
       new SalmonWalletAdapter(),
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [network]
+    []
   );
 
   const onError = useCallback((error: WalletError) => {
@@ -71,12 +71,8 @@ const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
 export const ContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
   return (
-    <>
-      {/* <NetworkConfigurationProvider> */}
-      <AutoConnectProvider>
-        <WalletContextProvider>{children}</WalletContextProvider>
-      </AutoConnectProvider>
-      {/* </NetworkConfigurationProvider> */}
-    </>
+    <AutoConnectProvider>
+      <WalletContextProvider>{children}</WalletContextProvider>
+    </AutoConnectProvider>
   );
 };
