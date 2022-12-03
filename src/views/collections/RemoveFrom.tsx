@@ -8,10 +8,12 @@ import { WalletSignTransactionError } from "@solana/wallet-adapter-base";
 import { errorFromCode } from "@metaplex-foundation/mpl-token-metadata";
 import { tryGetErrorCodeFromMessage } from "utils/spl";
 import { ArrowPathIcon } from "@heroicons/react/20/solid";
+import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 
 export const RemoveFrom = () => {
   const { connection } = useConnection();
   const { publicKey, sendTransaction } = useWallet();
+  const { setVisible } = useWalletModal();
   const [nftStr, setNftStr] = useState("");
   const [isConfirming, setIsConfirming] = useState(false);
 
@@ -20,10 +22,7 @@ export const RemoveFrom = () => {
       e.preventDefault();
 
       if (!publicKey) {
-        notify({
-          type: "error",
-          description: "Connect your wallet",
-        });
+        setVisible(true);
         return;
       }
 
@@ -85,7 +84,7 @@ export const RemoveFrom = () => {
         setIsConfirming(false);
       }
     },
-    [publicKey, connection, nftStr, sendTransaction]
+    [publicKey, connection, nftStr, sendTransaction, setVisible]
   );
 
   return (

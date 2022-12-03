@@ -9,6 +9,7 @@ import {
   Mint,
 } from "@solana/spl-token-next";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { Transaction } from "@solana/web3.js";
 import { notify } from "components/Notification";
 import { AccountInfo } from "models/types";
@@ -34,6 +35,7 @@ type FormValues = {
 export const ManualInput = () => {
   const { connection } = useConnection();
   const { publicKey: wallet, connected, sendTransaction } = useWallet();
+  const { setVisible } = useWalletModal();
   const [isProcessing, setIsProcessing] = useState(false);
   const { balance, getUserSOLBalance } = useUserSOLBalanceStore();
 
@@ -64,7 +66,7 @@ export const ManualInput = () => {
 
   const onSubmit = async (data: FormValues) => {
     if (!connected) {
-      notify({ type: "error", description: "Connect your wallet" });
+      setVisible(true);
       return;
     }
 

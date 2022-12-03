@@ -1,8 +1,7 @@
 import { ArrowPathIcon } from "@heroicons/react/20/solid";
-import { parseTokenAccount } from "@metaplex-foundation/js";
-import { Account, AccountLayout, TOKEN_PROGRAM_ID, unpackAccount } from "@solana/spl-token-next";
-import { WalletNotConnectedError } from "@solana/wallet-adapter-base";
+import { Account, TOKEN_PROGRAM_ID, unpackAccount } from "@solana/spl-token-next";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { useCallback, useState } from "react";
 import { classNames } from "utils";
 import { isATA } from "utils/spl/common";
@@ -20,6 +19,7 @@ export type LoadingSteps = 0 | 1 | 2 | 3;
 export const AutomaticRecover = () => {
   const { connection } = useConnection();
   const { publicKey, connected } = useWallet();
+  const { setVisible } = useWalletModal();
   const [step, setStep] = useState<LoadingSteps>(0);
   const [progress, setProgress] = useState<number>(0);
 
@@ -31,8 +31,10 @@ export const AutomaticRecover = () => {
 
   const query = useCallback(async () => {
     if (!connected) {
-      throw new WalletNotConnectedError("Connect your wallet");
+      setVisible(true);
+      return;
     }
+
     // Reset
     setStep(0);
     setWalletAccounts(null);
@@ -61,7 +63,7 @@ export const AutomaticRecover = () => {
     setNestedPairs(nested);
 
     setStep(3);
-  }, [connected, publicKey, connection]);
+  }, [connected, publicKey, connection, setVisible]);
 
   return (
     <>

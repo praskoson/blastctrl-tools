@@ -27,6 +27,7 @@ import { useEffect, useState } from "react";
 import { classNames } from "utils";
 import { MAX_CREATORS } from "./update";
 import { WalletError } from "@solana/wallet-adapter-base";
+import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 
 export type CreateFormInputs = {
   name: string;
@@ -48,6 +49,7 @@ export type CreateFormInputs = {
 const Mint: NextPage = () => {
   const { connection } = useConnection();
   const wallet = useWallet();
+  const { setVisible } = useWalletModal();
   const router = useRouter();
   const [isConfirming, setIsConfirming] = useState(false);
 
@@ -102,7 +104,7 @@ const Mint: NextPage = () => {
 
   const submit = async (data: CreateFormInputs) => {
     if (!wallet.connected) {
-      notify({ type: "error", description: "Connect your wallet", title: "Connect your wallet" });
+      setVisible(true);
       return;
     }
 

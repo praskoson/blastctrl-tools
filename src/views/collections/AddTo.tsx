@@ -7,10 +7,12 @@ import { errorFromCode } from "@metaplex-foundation/mpl-token-metadata";
 
 import { addNftToCollection } from "utils/spl/collections";
 import { tryGetErrorCodeFromMessage } from "utils/spl";
+import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 
 export const AddTo = () => {
   const { connection } = useConnection();
   const { publicKey, sendTransaction } = useWallet();
+  const { setVisible } = useWalletModal();
   const [nftStr, setNftStr] = useState("");
   const [collectionStr, setCollectionStr] = useState("");
 
@@ -19,11 +21,7 @@ export const AddTo = () => {
       e.preventDefault();
 
       if (!publicKey) {
-        console.log("error", "Wallet not connected!");
-        notify({
-          type: "error",
-          description: "Connect your wallet",
-        });
+        setVisible(true);
         return;
       }
 
@@ -80,7 +78,7 @@ export const AddTo = () => {
         });
       }
     },
-    [publicKey, connection, collectionStr, nftStr, sendTransaction]
+    [publicKey, connection, collectionStr, nftStr, sendTransaction, setVisible]
   );
 
   return (
