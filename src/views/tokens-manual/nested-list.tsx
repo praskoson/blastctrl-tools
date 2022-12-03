@@ -113,7 +113,7 @@ export const NestedInfo = ({
         title: "Recover nested success",
         description: (
           <>
-            Transaction success, recovered{" "}
+            Successfully recovered{" "}
             <span className="font-medium text-blue-300">
               {normalizeTokenAmount(nested.amount.toString(), nestedDecimals)}
             </span>{" "}
@@ -210,6 +210,13 @@ export const NestedInfo = ({
             ) : (
               <>
                 Recover
+                <Tooltip
+                  content="The
+          nested account will be deleted and its tokens will be transferred to your ATA of the same
+          mint as the nested account, while the rent will be transferred to your wallet."
+                >
+                  <QuestionMarkCircleIcon className="ml-1 h-5 w-5 text-white hover:cursor-pointer" />
+                </Tooltip>
                 <ChevronRightIcon className="ml-1 -mr-2 h-5 w-5" />
               </>
             )}

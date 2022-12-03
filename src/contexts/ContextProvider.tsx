@@ -1,4 +1,12 @@
-import { WalletError, WalletSendTransactionError } from "@solana/wallet-adapter-base";
+import {
+  WalletConnectionError,
+  WalletDisconnectedError,
+  WalletError,
+  WalletNotConnectedError,
+  WalletSendTransactionError,
+  WalletSignMessageError,
+  WalletSignTransactionError,
+} from "@solana/wallet-adapter-base";
 import { ConnectionProvider, WalletProvider } from "@solana/wallet-adapter-react";
 import { WalletModalProvider as ReactUIWalletModalProvider } from "@solana/wallet-adapter-react-ui";
 import { FC, ReactNode, useCallback, useMemo } from "react";
@@ -14,6 +22,7 @@ import {
   LedgerWalletAdapter,
   BraveWalletAdapter,
   SalmonWalletAdapter,
+  SlopeWalletAdapter,
 } from "@solana/wallet-adapter-wallets";
 
 const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
@@ -40,17 +49,32 @@ const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
       new GlowWalletAdapter(),
       new BackpackWalletAdapter(),
       new LedgerWalletAdapter(),
-      new BackpackWalletAdapter(),
       new BraveWalletAdapter(),
       new SalmonWalletAdapter(),
+      new SlopeWalletAdapter(),
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 
   const onError = useCallback((error: WalletError) => {
-    if (error instanceof WalletSendTransactionError) {
+    if (
+      error instanceof WalletSendTransactionError ||
+      error instanceof WalletSignTransactionError ||
+      error instanceof WalletSignMessageError
+    ) {
       // The caller should be handling this
+      return;
+    }
+
+    if (
+      error instanceof WalletNotConnectedError ||
+      error instanceof WalletDisconnectedError ||
+      error instanceof WalletConnectionError ||
+      error instanceof WalletNotConnectedError
+    ) {
+      // Ignore
+      notify({ title: "Wallet Error", description: "Connect your Solana wallet." });
       return;
     }
     notify({

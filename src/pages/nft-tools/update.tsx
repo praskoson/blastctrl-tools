@@ -32,6 +32,7 @@ import { classNames } from "utils";
 import { getMetadata, isPublicKey } from "utils/spl/common";
 import { notify } from "components/Notification";
 import { WalletError } from "@solana/wallet-adapter-base";
+import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 
 export type FormToken = {
   name: string;
@@ -72,6 +73,7 @@ const defaultValues = {
 const Update: NextPage = () => {
   const { connection } = useConnection();
   const wallet = useWallet();
+  const { setVisible } = useWalletModal();
   const { nfts } = useUserNfts();
   const [isConfirming, setIsConfirming] = useState(false);
   const [current, setCurrent] = useState<Metadata<JsonMetadata<string>> | Nft | Sft>(null);
@@ -148,7 +150,7 @@ const Update: NextPage = () => {
 
   const submit = async (data: FormInputs) => {
     if (!wallet.connected) {
-      notify({ type: "error", description: "Connect your wallet" });
+      setVisible(true);
       return;
     }
 

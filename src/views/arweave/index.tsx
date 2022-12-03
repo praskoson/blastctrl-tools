@@ -3,6 +3,7 @@ import { QuestionMarkCircleIcon } from "@heroicons/react/20/solid";
 import { ArrowPathIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import { useLocalStorage, useWallet } from "@solana/wallet-adapter-react";
+import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { notify } from "components/Notification";
 import dayjs from "dayjs";
@@ -27,6 +28,7 @@ function pascalify(text: string) {
 
 export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
   const { connected } = useWallet();
+  const { setVisible } = useWalletModal();
   const { network } = useNetworkConfigurationStore();
   const [dragActive, setDragActive] = useState(false);
   const [file, setFile] = useState<File>();
@@ -151,7 +153,7 @@ export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
 
   const handleUpload = async () => {
     if (!connected) {
-      notify({ type: "error", description: "Connect your wallet" });
+      setVisible(true);
       return;
     }
 
