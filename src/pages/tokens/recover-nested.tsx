@@ -7,7 +7,7 @@ import { AutomaticRecover } from "views/tokens-manual/automatic";
 
 import { ManualInput } from "views/tokens-manual/manual-input";
 
-const tabs = [{ name: "Manual Input" }, { name: "Automatic" }];
+const tabs = [{ name: "Automatic" }, { name: "Manual Input" }];
 
 const RecoverNested: NextPage = () => {
   return (
@@ -51,10 +51,10 @@ const RecoverNested: NextPage = () => {
           </div>
           <Tab.Panels>
             <Tab.Panel>
-              <ManualInput />
+              <AutomaticRecover />
             </Tab.Panel>
             <Tab.Panel>
-              <AutomaticRecover />
+              <ManualInput />
             </Tab.Panel>
           </Tab.Panels>
         </Tab.Group>
