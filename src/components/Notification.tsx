@@ -14,7 +14,7 @@ export const notify = (props: NotifyProps) => {
     (t) => (
       <NotificationWindow {...props} visible={t.visible} onClose={() => toast.dismiss(t.id)} />
     ),
-    { duration: props.type === "error" ? Infinity : 30000 }
+    { duration: props.type === "error" ? Infinity : 20000 }
   );
 };
 
