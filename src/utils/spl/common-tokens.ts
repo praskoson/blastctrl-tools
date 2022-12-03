@@ -31,6 +31,13 @@ export const tokenList = [
     decimals: 6,
     image: "https://www.arweave.net/VRKOcXIvCxqp35RZ9I0-bDGk5qNfT46OTho-2oP9iGc",
   },
+  {
+    name: "Samoyedcoin",
+    ticker: "SAMO",
+    mintAddress: "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU",
+    decimals: 9,
+    image: "https://assets.coingecko.com/coins/images/15051/large/IXeEj5e.png",
+  },
 ];
 
 export const findTokenByMint = (address: string | PublicKey) => {
