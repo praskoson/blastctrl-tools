@@ -1,8 +1,14 @@
+const defaultTheme = require("tailwindcss/defaultTheme");
+
 module.exports = {
   mode: "jit",
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
   darkMode: "media",
   theme: {
+    screens: {
+      xs: "475px",
+      ...defaultTheme.screens,
+    },
     extend: {
       keyframes: {
         enter: {
@@ -27,6 +33,7 @@ module.exports = {
     fontFamily: {
       sans: ["Roboto", "sans-serif"],
       display: ['"Roboto Slab"'],
+      mono: [...defaultTheme.fontFamily.mono],
     },
   },
   plugins: [

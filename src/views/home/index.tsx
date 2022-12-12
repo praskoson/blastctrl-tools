@@ -15,7 +15,6 @@ export const HomeView: FC = ({}) => {
   const wallet = useWallet();
   const { connection } = useConnection();
 
-  const balance = useUserSOLBalanceStore((s) => s.balance);
   const { getUserSOLBalance } = useUserSOLBalanceStore();
 
   useEffect(() => {

@@ -1,6 +1,7 @@
 import { clusterApiUrl, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import { assert } from "../../utils";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
+import { getAssociatedTokenAddressSync } from "@solana/spl-token-next";
 
 export const PROGRAM_ADDRESS = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s";
 export const METADATA_PROGRAM_ID = new PublicKey(PROGRAM_ADDRESS);
@@ -36,6 +37,19 @@ export function isPublicKey(value: any) {
   } catch {
     return false;
   }
+}
+
+export function isATA({
+  address,
+  owner,
+  mint,
+}: {
+  address: PublicKey;
+  owner: PublicKey;
+  mint: PublicKey;
+}) {
+  const ata = getAssociatedTokenAddressSync(mint, owner, true);
+  return ata.equals(address);
 }
 
 export function assertPublicKey(value: any): asserts value is PublicKey {
