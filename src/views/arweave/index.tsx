@@ -384,17 +384,18 @@ export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
           </Transition>
         </div>
 
-        <div className="my-3 max-w-sm rounded-md border border-gray-300 px-3 py-2 shadow-sm">
-          <div className="font-base text-sm text-gray-900">
-            <span className="mb-1 block text-xs uppercase tracking-wider text-gray-500">
-              {network}
-            </span>
-            <span className="font-medium text-gray-500">Bundlr balance </span>
-            <span className="mx-1 text-base font-semibold text-gray-700">
-              {balance ? <>{formatAmount(balance)}</> : "0 SOL"}
-            </span>
-          </div>
-          {balance && balance.basisPoints.gtn(0) && (
+        {balance?.basisPoints.gtn(0) && (
+          <div className="my-3 max-w-sm rounded-md border border-gray-300 px-3 py-2 shadow-sm">
+            <div className="font-base text-sm text-gray-900">
+              <span className="mb-1 block text-xs uppercase tracking-wider text-gray-500">
+                {network}
+              </span>
+              <span className="font-medium text-gray-500">Bundlr balance </span>
+              <span className="mx-1 text-base font-semibold text-gray-700">
+                {balance ? <>{formatAmount(balance)}</> : "0 SOL"}
+              </span>
+            </div>
+
             <div className="my-3 w-full">
               <button
                 disabled={isUploading}
@@ -413,8 +414,8 @@ export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
                 withdrawing is 5000 lamports.
               </p>
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {uploads?.length > 0 && (
           <div className="my-4 sm:my-6">
