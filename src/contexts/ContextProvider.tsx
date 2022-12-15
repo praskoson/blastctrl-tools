@@ -22,7 +22,6 @@ import {
   LedgerWalletAdapter,
   BraveWalletAdapter,
   SalmonWalletAdapter,
-  SlopeWalletAdapter,
 } from "@solana/wallet-adapter-wallets";
 
 const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
@@ -51,7 +50,6 @@ const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
       new LedgerWalletAdapter(),
       new BraveWalletAdapter(),
       new SalmonWalletAdapter(),
-      new SlopeWalletAdapter(),
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
