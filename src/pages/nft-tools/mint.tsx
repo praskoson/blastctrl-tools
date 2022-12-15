@@ -4,13 +4,15 @@ import {
   ExclamationCircleIcon,
   PlusCircleIcon,
   QuestionMarkCircleIcon,
-  XCircleIcon,
   XMarkIcon,
 } from "@heroicons/react/20/solid";
 import {
   CreateNftInput,
+  JsonMetadata,
   Metaplex,
+  MetaplexFile,
   toBigNumber,
+  toMetaplexFileFromBrowser,
   walletAdapterIdentity,
 } from "@metaplex-foundation/js";
 import type { UploadMetadataInput } from "@metaplex-foundation/js";
@@ -32,18 +34,27 @@ import { PublicKey } from "@solana/web3.js";
 import { notify } from "components/Notification";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { classNames } from "utils";
-import { JsonPanel } from "views/nfts/JsonPanel";
+import { classNames, mimeTypeToCategory } from "utils";
 import { MAX_CREATORS } from "./update";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
+import { InputMultiline } from "components/InputMultiline";
+import { Attributes } from "views/nfts/Attributes";
+import { MediaFiles } from "views/nfts/MediaFiles";
 
 export type CreateFormInputs = {
   name: string;
   symbol: string;
+  description: string;
+  external_url: string;
   uri: string;
   updateAuthority: string;
   isMutable: boolean;
   primarySaleHappened: boolean;
+  image: File;
+  attributes: {
+    trait_type: string;
+    value: string;
+  }[];
   creators: {
     address: string;
     share: number;
@@ -60,8 +71,7 @@ const Mint: NextPage = () => {
   const { setVisible } = useWalletModal();
   const router = useRouter();
   const [isConfirming, setIsConfirming] = useState(false);
-  const [showPanel, setShowPanel] = useState(false);
-  const [json, setJson] = useState<UploadMetadataInput | null>(null);
+  const [createJson, setCreateJson] = useState(true);
 
   const {
     register,
@@ -114,23 +124,52 @@ const Mint: NextPage = () => {
 
   const submit = async (data: CreateFormInputs) => {
     if (!wallet.connected) {
-      setVisible(true);
-      return;
+      return setVisible(true);
     }
 
-    console.log(data);
     setIsConfirming(true);
     const metaplex = Metaplex.make(connection).use(walletAdapterIdentity(wallet));
-    const { name, symbol, isMutable, maxSupply, isCollection, collectionIsSized } = data;
+    const {
+      name,
+      symbol,
+      isMutable,
+      maxSupply,
+      isCollection,
+      collectionIsSized,
+      description,
+      attributes,
+      external_url,
+      image,
+    } = data;
 
     let uri: string;
     // Check if we are uploading a file
-    if (json) {
+    if (createJson) {
       notify({
         title: "Uploading external metadata",
         description:
           "The metadata JSON file is being uploaded to Arweave via Bundlr. This will require multiple wallet confirmations, including payment and signature verification.",
       });
+
+      const mplxImage = await toMetaplexFileFromBrowser(image);
+      const category = mimeTypeToCategory(mplxImage.contentType);
+      const json: JsonMetadata<MetaplexFile | string> = {
+        name,
+        symbol,
+        description,
+        attributes,
+        external_url,
+        image: mplxImage,
+        properties: {
+          files: [
+            {
+              uri: mplxImage,
+              type: mplxImage.contentType,
+            },
+          ],
+          category,
+        },
+      };
       try {
         const { uri: upload } = await metaplex.nfts().uploadMetadata(json);
         uri = upload;
@@ -229,15 +268,35 @@ const Mint: NextPage = () => {
 
         <form onSubmit={handleSubmit(submit)} className="space-y-8 divide-y divide-gray-200">
           <div>
-            <div className="mt-4">
+            <div className="mt-4 flex items-center justify-between">
               <h3 className="text-lg font-medium leading-6 text-gray-900">Basic Information</h3>
+              <div className="relative flex items-start">
+                <div className="flex h-5 items-center">
+                  <input
+                    id="use-json"
+                    name="use-json"
+                    type="checkbox"
+                    checked={!createJson}
+                    onChange={() => {
+                      setCreateJson((prev) => !prev);
+                    }}
+                    className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                  />
+                </div>
+                <div className="ml-3 text-sm">
+                  <label htmlFor="use-json" className="font-medium text-gray-700">
+                    Already have a <code>JSON</code> file?
+                  </label>
+                </div>
+              </div>
             </div>
 
             <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
               <div className="sm:col-span-4">
                 <InputGroup
                   label="Name"
-                  register={register("name", {
+                  type="text"
+                  {...register("name", {
                     maxLength: {
                       value: 32,
                       message: "Max name length is 32",
@@ -251,7 +310,8 @@ const Mint: NextPage = () => {
               <div className="sm:col-span-2">
                 <InputGroup
                   label="Symbol"
-                  register={register("symbol", {
+                  type="text"
+                  {...register("symbol", {
                     maxLength: {
                       value: 10,
                       message: "Max symbol length is 10",
@@ -261,73 +321,37 @@ const Mint: NextPage = () => {
                 />
               </div>
 
-              <div className="sm:col-span-4">
-                <div>
-                  <label htmlFor={"uri"} className="block space-x-2">
-                    <span className="text-sm font-medium text-gray-700">URI</span>
-                    <span className="text-xs font-normal text-gray-500">
-                      Use an existing link to a metadata file or create one
-                    </span>
-                  </label>
-                  <div className="relative mt-1">
-                    <input
-                      type="text"
-                      id="uri"
-                      disabled={!!json}
-                      {...register("uri", {
-                        maxLength: {
-                          value: 200,
-                          message: "Max URI length is 200",
-                        },
-                        shouldUnregister: !!json,
-                      })}
-                      className={classNames(
-                        "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm",
-                        !json &&
-                          errors?.uri &&
-                          "border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:outline-none focus:ring-red-500"
-                      )}
-                      aria-invalid={errors?.uri ? "true" : "false"}
-                    />
-                    {!json && errors?.uri && (
-                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                        <ExclamationCircleIcon
-                          className="h-5 w-5 text-red-500"
-                          aria-hidden="true"
-                        />
-                      </div>
-                    )}
-                    {json && (
-                      <div className="absolute inset-y-0 left-0 flex items-center pl-3">
-                        <span className="inline-flex items-center rounded-full bg-indigo-200 px-2.5 py-0.5 text-sm font-medium text-indigo-900">
-                          {json.name}
-                          <button className="ml-1 -mr-1" onClick={() => setJson(null)}>
-                            <XCircleIcon className="h-4 w-4 text-indigo-400 hover:cursor-pointer hover:text-indigo-500"></XCircleIcon>
-                          </button>
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  {!json && errors?.uri && (
-                    <p className="mt-2 text-sm text-red-600" id={errors?.uri?.type}>
-                      {errors?.uri?.message}
-                    </p>
-                  )}
-                </div>
-              </div>
+              <InputMultiline
+                className={`sm:col-span-6 ${createJson ? "block" : "hidden"}`}
+                label="Description"
+                rows={2}
+                {...register("description", { shouldUnregister: !createJson })}
+                error={errors?.description}
+              />
 
-              <div className="sm:col-span-2 sm:self-end">
-                <button
-                  type="button"
-                  onClick={() => setShowPanel((prev) => !prev)}
-                  className={classNames(
-                    "inline-flex items-center rounded-md border-2 border-transparent bg-indigo-600 py-2 px-2.5 text-sm text-white hover:bg-indigo-700",
-                    "focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                  )}
-                >
-                  {!!json ? "Edit file" : "Create a metadata file"}
-                </button>
-              </div>
+              <InputGroup
+                className={`sm:col-span-6 ${createJson ? "block" : "hidden"}`}
+                label="External URL"
+                type="text"
+                description="Link to your homepage or a gallery"
+                {...register("external_url", { shouldUnregister: !createJson })}
+                error={errors?.external_url}
+              />
+
+              <InputGroup
+                className={`sm:col-span-6 ${!createJson ? "block" : "hidden"}`}
+                label="URI"
+                description="Use an existing link to a metadata file"
+                type="text"
+                {...register("uri", {
+                  maxLength: {
+                    value: 200,
+                    message: "Max URI length is 200",
+                  },
+                  shouldUnregister: createJson,
+                })}
+                error={errors?.uri}
+              />
 
               <div className="sm:col-span-6">
                 <label htmlFor="maxSupply" className="flex items-end gap-x-2 text-sm">
@@ -355,6 +379,36 @@ const Mint: NextPage = () => {
               </div>
             </div>
           </div>
+
+          {createJson && (
+            <>
+              <div>
+                <div className="mt-4">
+                  <h3 className="text-lg font-medium leading-6 text-gray-900">Image and Files</h3>
+                  <p className="mt-1 text-sm text-gray-500">
+                    Image that represents your NFT and any other files that will be associated with
+                    it. All files are uploaded to Arweave via Bundlr.
+                  </p>
+                </div>
+                <MediaFiles
+                  watch={watch}
+                  setValue={setValue}
+                  control={control}
+                  register={register}
+                />
+              </div>
+
+              <div>
+                <div className="mt-4">
+                  <h3 className="text-lg font-medium leading-6 text-gray-900">Attributes</h3>
+                  <p className="mt-1 text-sm text-gray-500">
+                    Attributes appended to the external metadata of your NFT.
+                  </p>
+                </div>
+                <Attributes control={control} register={register} />
+              </div>
+            </>
+          )}
 
           <div>
             <div className="mt-4">
@@ -385,8 +439,8 @@ const Mint: NextPage = () => {
                               <label className="col-span-6 mb-1 pl-1 text-sm text-gray-600">
                                 Creator address
                               </label>
-                              <label className="col-span-3 mb-1 pl-1 text-sm text-gray-600">
-                                Share
+                              <label className="col-span-3 mb-1 pl-1 text-sm tracking-tight text-gray-600">
+                                Royalties share
                               </label>
                             </>
                           )}
@@ -469,7 +523,10 @@ const Mint: NextPage = () => {
                     (sellerFeeBasisPoints [0-10000])
                   </code>
                 </label>
-                <div className="relative mt-1">
+                <div className="relative mt-1 rounded-md shadow-sm">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-3">
+                    <span className="text-gray-500 sm:text-sm">‱</span>
+                  </div>
                   <input
                     id="sellerFeeBasisPoints"
                     type="number"
@@ -480,11 +537,12 @@ const Mint: NextPage = () => {
                       required: true,
                     })}
                     className={classNames(
-                      "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm",
+                      "block w-full rounded-md border-gray-300 pl-9 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm",
                       errors?.sellerFeeBasisPoints &&
                         "border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:outline-none focus:ring-red-500"
                     )}
                     aria-invalid={errors?.sellerFeeBasisPoints ? "true" : "false"}
+                    aria-describedby="basis-points"
                   />
                   {errors?.sellerFeeBasisPoints && (
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
@@ -639,7 +697,6 @@ const Mint: NextPage = () => {
               <button
                 onClick={() => {
                   reset();
-                  setJson(null);
                 }}
                 type="button"
                 className="inline-flex items-center rounded-md border border-gray-300 bg-transparent px-4 py-2 text-base text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2"
@@ -666,8 +723,6 @@ const Mint: NextPage = () => {
           </div>
         </form>
       </div>
-
-      <JsonPanel open={showPanel} setOpen={setShowPanel} setJson={setJson} />
     </>
   );
 };

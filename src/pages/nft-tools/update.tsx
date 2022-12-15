@@ -304,44 +304,41 @@ const Update: NextPage = () => {
             </div>
 
             <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-              <div className="sm:col-span-4">
-                <InputGroup
-                  label="Name"
-                  register={register("name", {
-                    maxLength: {
-                      value: 32,
-                      message: "Max name length is 32",
-                    },
-                  })}
-                  error={errors?.name}
-                />
-              </div>
+              <InputGroup
+                className="sm:col-span-4"
+                label="Name"
+                {...register("name", {
+                  maxLength: {
+                    value: 32,
+                    message: "Max name length is 32",
+                  },
+                })}
+                error={errors?.name}
+              />
 
-              <div className="sm:col-span-2">
-                <InputGroup
-                  label="Symbol"
-                  register={register("symbol", {
-                    maxLength: {
-                      value: 10,
-                      message: "Max symbol length is 10",
-                    },
-                  })}
-                  error={errors?.symbol}
-                />
-              </div>
+              <InputGroup
+                className="sm:col-span-2"
+                label="Symbol"
+                {...register("symbol", {
+                  maxLength: {
+                    value: 10,
+                    message: "Max symbol length is 10",
+                  },
+                })}
+                error={errors?.symbol}
+              />
 
-              <div className="sm:col-span-6">
-                <InputGroup
-                  label="URI"
-                  register={register("uri", {
-                    maxLength: {
-                      value: 200,
-                      message: "Max URI length is 200",
-                    },
-                  })}
-                  error={errors?.uri}
-                />
-              </div>
+              <InputGroup
+                className="sm:col-span-6"
+                label="URI"
+                {...register("uri", {
+                  maxLength: {
+                    value: 200,
+                    message: "Max URI length is 200",
+                  },
+                })}
+                error={errors?.uri}
+              />
             </div>
           </div>
 
@@ -498,17 +495,16 @@ const Update: NextPage = () => {
             </div>
 
             <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-              <div className="sm:col-span-4">
-                <InputGroup
-                  label="Update authority"
-                  register={register("updateAuthority", {
-                    validate: {
-                      pubkey: (value) => isPublicKey(value) || value === "" || "Not a valid pubkey",
-                    },
-                  })}
-                  error={errors?.updateAuthority}
-                />
-              </div>
+              <InputGroup
+                className="sm:col-span-4"
+                label="Update authority"
+                {...register("updateAuthority", {
+                  validate: {
+                    pubkey: (value) => isPublicKey(value) || value === "" || "Not a valid pubkey",
+                  },
+                })}
+                error={errors?.updateAuthority}
+              />
 
               <div className="sm:col-span-5">
                 <SwitchButton

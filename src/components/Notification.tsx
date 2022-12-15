@@ -73,7 +73,7 @@ export function NotificationWindow({
           <div className="ml-3 w-0 flex-1 pt-0.5">
             <p className="text-xl font-semibold tracking-wide text-gray-50">{title}</p>
             <p className="mt-1 text-sm text-gray-300">{description}</p>
-            {txid && <div className="pt-4 pb-3 text-gray-200">{linkMemo}</div>}
+            {txid && <span className="block pt-4 pb-3 text-gray-200">{linkMemo}</span>}
           </div>
           <div className="ml-4 flex flex-shrink-0">
             <button
