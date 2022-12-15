@@ -252,7 +252,7 @@ export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
                     <div className="flex text-sm text-gray-600">
                       <label
                         htmlFor="file-upload"
-                        className="relative cursor-pointer rounded-md font-medium text-secondary focus-within:outline-none focus-within:ring-2 focus-within:ring-secondary focus-within:ring-offset-2 hover:text-secondary-focus"
+                        className="relative cursor-pointer border-b-2 border-b-secondary font-medium text-secondary focus-within:outline-none focus-within:ring-2 focus-within:ring-secondary focus-within:ring-offset-2 hover:text-secondary-focus"
                       >
                         <span>Upload a file</span>
                         <input
