@@ -15,7 +15,6 @@ import {
   toMetaplexFileFromBrowser,
   walletAdapterIdentity,
 } from "@metaplex-foundation/js";
-import type { UploadMetadataInput } from "@metaplex-foundation/js";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { InputGroup } from "components/InputGroup";
 import type { NextPage } from "next";
@@ -30,16 +29,16 @@ import {
   WalletSignMessageError,
   WalletSignTransactionError,
 } from "@solana/wallet-adapter-base";
+import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { PublicKey } from "@solana/web3.js";
+import { InputMultiline } from "components/InputMultiline";
 import { notify } from "components/Notification";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { classNames, mimeTypeToCategory } from "utils";
-import { MAX_CREATORS } from "./update";
-import { useWalletModal } from "@solana/wallet-adapter-react-ui";
-import { InputMultiline } from "components/InputMultiline";
 import { Attributes } from "views/nfts/Attributes";
 import { MediaFiles } from "views/nfts/MediaFiles";
+import { MAX_CREATORS } from "./update";
 
 export type CreateFormInputs = {
   name: string;
@@ -390,12 +389,7 @@ const Mint: NextPage = () => {
                     it. All files are uploaded to Arweave via Bundlr.
                   </p>
                 </div>
-                <MediaFiles
-                  watch={watch}
-                  setValue={setValue}
-                  control={control}
-                  register={register}
-                />
+                <MediaFiles watch={watch} setValue={setValue} />
               </div>
 
               <div>

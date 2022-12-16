@@ -1,21 +1,17 @@
+import { InformationCircleIcon } from "@heroicons/react/20/solid";
+import Tooltip from "components/Tooltip";
+import Image from "next/image";
 import { CreateFormInputs } from "pages/nft-tools/mint";
 import { useDropzone } from "react-dropzone";
-import { Control, UseFormRegister, UseFormSetValue, UseFormWatch } from "react-hook-form";
+import { UseFormSetValue, UseFormWatch } from "react-hook-form";
 import { classNames, mimeTypeToCategory } from "utils";
-import Image from "next/image";
-import { useState } from "react";
-import { ArrowRightIcon, InformationCircleIcon } from "@heroicons/react/20/solid";
-import Tooltip from "components/Tooltip";
 
 export type MediaFilesProps = {
-  register: UseFormRegister<CreateFormInputs>;
-  control: Control<CreateFormInputs, any>;
   setValue: UseFormSetValue<CreateFormInputs>;
   watch: UseFormWatch<CreateFormInputs>;
 };
 
-export const MediaFiles = ({ register, control, setValue, watch }: MediaFilesProps) => {
-  // const [image, setImage] = useState<File>();
+export const MediaFiles = ({ setValue, watch }: MediaFilesProps) => {
   const handleDropFile = (files: File[]) => setValue("image", files[0]);
   const handleRemoveImage = () => setValue("image", null);
   const image = watch("image");
@@ -49,12 +45,15 @@ export const MediaFiles = ({ register, control, setValue, watch }: MediaFilesPro
                 layout="fill"
                 className="object-contain"
               />
-              <div className="absolute bottom-4 left-4 z-10 max-w-[120px] overflow-hidden text-ellipsis rounded-full bg-sky-600 py-0.5 px-1.5 text-sm text-white ring-1 hover:bg-sky-700">
+              <div
+                title={image.name}
+                className="absolute bottom-3 left-3 z-10 max-w-[120px] overflow-hidden text-ellipsis rounded-full bg-sky-600 py-0.5 px-1.5 text-sm text-white ring-1"
+              >
                 {image.name}
               </div>
               <button
                 onClick={handleRemoveImage}
-                className="absolute bottom-4 right-4 z-10 overflow-hidden rounded-full bg-sky-600 py-0.5 px-1.5 text-sm text-white ring-1 hover:bg-sky-700"
+                className="absolute bottom-3 right-3 z-10 overflow-hidden rounded-full bg-sky-600 py-0.5 px-1.5 text-sm text-white ring-1 hover:bg-sky-700"
               >
                 Remove
               </button>
