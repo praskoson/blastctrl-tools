@@ -2,9 +2,10 @@ import { InformationCircleIcon } from "@heroicons/react/20/solid";
 import Tooltip from "components/Tooltip";
 import Image from "next/image";
 import { CreateFormInputs } from "pages/nft-tools/mint";
+import { useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { UseFormSetValue, UseFormWatch } from "react-hook-form";
-import { classNames, mimeTypeToCategory } from "utils";
+import { abbreviatedNumber, classNames, mimeTypeToCategory } from "utils";
 
 export type MediaFilesProps = {
   setValue: UseFormSetValue<CreateFormInputs>;
@@ -12,39 +13,73 @@ export type MediaFilesProps = {
 };
 
 export const MediaFiles = ({ setValue, watch }: MediaFilesProps) => {
-  const handleDropFile = (files: File[]) => setValue("image", files[0]);
-  const handleRemoveImage = () => setValue("image", null);
+  const [imagePreview, setImagePreview] = useState<string | null>();
+
+  const handleDropImage = (files: File[]) => {
+    setValue("image", files[0]);
+    setImagePreview(URL.createObjectURL(files[0]));
+  };
+  const handleRemoveImage = () => {
+    setValue("image", null);
+    URL.revokeObjectURL(imagePreview);
+    setImagePreview(null);
+  };
+
+  const handleDropAnimationFile = (files: File[]) => setValue("animation_url", files[0]);
+  const handleRemoveAnimationFile = () => setValue("animation_url", null);
   const image = watch("image");
+  const animationUrl = watch("animation_url");
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     maxFiles: 1,
     accept: {
       "image/*": [".jpeg", ".png", ".gif", ".jpg"],
     },
-    onDropAccepted: handleDropFile,
+    onDropAccepted: handleDropImage,
   });
+
+  const {
+    getRootProps: getRootProps2,
+    getInputProps: getInputProps2,
+    isDragActive: isDragActive2,
+  } = useDropzone({
+    maxFiles: 1,
+    accept: {
+      "image/*": [".jpeg", ".png", ".gif", ".jpg", ".webp"],
+      "video/*": [".mp4", ".avi", ".mpeg", ".ogv", ".webm", ".3gp"],
+      "audio/*": [".mp3", ".aac", ".weba", ".oga", ".wav", ".opus"],
+      "text/html": [],
+      "model/gltf-binary": [],
+    },
+    onDropAccepted: handleDropAnimationFile,
+  });
+
+  useEffect(() => {
+    return () => URL.revokeObjectURL(imagePreview);
+  }, [imagePreview]);
+
+  const mimeCategory = animationUrl
+    ? mimeTypeToCategory(animationUrl.type)
+    : image
+    ? mimeTypeToCategory(image.type)
+    : "";
 
   return (
     <div className="mt-6 grid gap-x-6 sm:grid-cols-2">
       <div>
-        <p className="py-2 text-center text-sm font-semibold">Image</p>
+        <p className="py-2 text-left text-sm font-semibold">Image</p>
 
         <div
           {...getRootProps({
             className: classNames(
-              "relative flex justify-center w-full h-64 rounded-md border-2 border-dashed border-gray-300 px-6 pt-5 pb-6 transition-colors",
-              isDragActive && "bg-accent/30"
+              "relative flex justify-center w-full h-64 bg-gray-100 rounded-md border-2 border-dashed border-gray-300 px-6 pt-5 pb-6 transition-colors",
+              isDragActive && "bg-gray-50"
             ),
           })}
         >
-          {image ? (
+          {imagePreview ? (
             <>
-              <Image
-                src={URL.createObjectURL(image)}
-                alt=""
-                layout="fill"
-                className="object-contain"
-              />
+              <Image src={imagePreview} alt="" layout="fill" className="object-contain" />
               <div
                 title={image.name}
                 className="absolute bottom-3 left-3 z-10 max-w-[120px] overflow-hidden text-ellipsis rounded-full bg-sky-600 py-0.5 px-1.5 text-sm text-white ring-1"
@@ -95,10 +130,55 @@ export const MediaFiles = ({ setValue, watch }: MediaFilesProps) => {
       </div>
 
       <div>
-        <p className="py-2 text-center text-sm font-semibold">Animation</p>
+        <p className="py-2 text-left text-sm font-semibold">Additional file (animation)</p>
+
+        <div
+          {...getRootProps2({
+            className: classNames(
+              "relative flex justify-center w-full h-64 rounded-md bg-gray-100 border-2 border-dashed border-gray-300 px-6 pt-5 pb-6 transition-colors",
+              isDragActive2 && "bg-gray-50"
+            ),
+          })}
+        >
+          {animationUrl ? (
+            <>
+              <div className="my-auto space-y-4 text-center text-sm text-gray-600">
+                <p>{animationUrl.name}</p>
+                <p>{abbreviatedNumber(animationUrl.size)}Bytes</p>
+                <code>{animationUrl.type}</code>
+              </div>
+              <button
+                type="button"
+                onClick={handleRemoveAnimationFile}
+                className="absolute bottom-3 right-3 z-10 overflow-hidden rounded-full bg-sky-600 py-0.5 px-1.5 text-sm text-white ring-1 hover:bg-sky-700"
+              >
+                Remove
+              </button>
+            </>
+          ) : (
+            <div className="flex flex-col items-center justify-center space-y-1 text-center">
+              <div className="space-y-2 text-sm text-gray-600">
+                <label
+                  htmlFor="file-upload"
+                  className="relative cursor-pointer border-b-2 border-b-secondary text-sm font-medium text-secondary focus-within:outline-none focus-within:ring-2 focus-within:ring-secondary focus-within:ring-offset-2 hover:text-secondary-focus"
+                >
+                  <span>Select a file</span>
+                  <input
+                    id="file-upload"
+                    name="file-upload"
+                    className="sr-only"
+                    {...getInputProps2()}
+                  />
+                </label>
+                <p className="pl-1">or drag and drop</p>
+                <p className="text-gray-500">.mp4, .avi, .mp3, .glb, ...</p>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
-      {image && (
+      {(image || animationUrl) && (
         <div className="mt-4 flex flex-col">
           <dd className="inline-flex items-center px-3 py-0.5 text-gray-600">
             Media Category
@@ -134,8 +214,8 @@ export const MediaFiles = ({ setValue, watch }: MediaFilesProps) => {
             </Tooltip>
           </dd>
           <dt className="inline-flex max-w-fit items-center rounded-full bg-blue-100 px-3 py-0.5 text-sm font-medium text-blue-800">
-            <span className="mr-1 capitalize">{mimeTypeToCategory(image.type)}</span>{" "}
-            <span className="font-mono">({image.type})</span>
+            <span className="mr-1 capitalize">{mimeCategory}</span>{" "}
+            <span className="font-mono">{animationUrl ? animationUrl.type : image.type}</span>
           </dt>
         </div>
       )}

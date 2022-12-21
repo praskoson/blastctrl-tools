@@ -50,6 +50,7 @@ export type CreateFormInputs = {
   isMutable: boolean;
   primarySaleHappened: boolean;
   image: File;
+  animation_url: File;
   attributes: {
     trait_type: string;
     value: string;
@@ -139,6 +140,7 @@ const Mint: NextPage = () => {
       attributes,
       external_url,
       image,
+      animation_url,
     } = data;
 
     let uri: string;
@@ -151,6 +153,7 @@ const Mint: NextPage = () => {
       });
 
       const mplxImage = await toMetaplexFileFromBrowser(image);
+      const animationUrl = await toMetaplexFileFromBrowser(animation_url);
       const category = mimeTypeToCategory(mplxImage.contentType);
       const json: JsonMetadata<MetaplexFile | string> = {
         name,
@@ -159,11 +162,16 @@ const Mint: NextPage = () => {
         attributes,
         external_url,
         image: mplxImage,
+        animation_url: animationUrl,
         properties: {
           files: [
             {
               uri: mplxImage,
               type: mplxImage.contentType,
+            },
+            {
+              uri: animationUrl,
+              type: animationUrl.contentType,
             },
           ],
           category,
@@ -385,8 +393,8 @@ const Mint: NextPage = () => {
                 <div className="mt-4">
                   <h3 className="text-lg font-medium leading-6 text-gray-900">Image and Files</h3>
                   <p className="mt-1 text-sm text-gray-500">
-                    Image that represents your NFT and any other files that will be associated with
-                    it. All files are uploaded to Arweave via Bundlr.
+                    Image that represents your NFT and an additional file that will be associated
+                    with it. All files are uploaded to Arweave via Bundlr.
                   </p>
                 </div>
                 <MediaFiles watch={watch} setValue={setValue} />
