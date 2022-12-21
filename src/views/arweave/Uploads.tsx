@@ -1,5 +1,4 @@
 import { useAutoAnimate } from "@formkit/auto-animate/react";
-import { LinkIcon } from "@heroicons/react/20/solid";
 import {
   CodeBracketIcon,
   DocumentTextIcon,
@@ -78,15 +77,11 @@ export const Uploads = memo(function Uploads({ files }: UploadsProps) {
                 </div>
               </div>
               <div className="inline-flex space-x-1 pt-1 sm:pt-0">
-                <CopyButton content={item.uri}>
-                  <a
-                    rel="noreferrer noopener"
-                    className="inline-flex h-7 items-center rounded-full border border-gray-300 bg-white px-2.5 py-0.5 text-sm font-medium text-gray-700 shadow-sm hover:cursor-pointer hover:bg-gray-50"
-                  >
-                    <LinkIcon className="mx-0.5 h-4 w-4" />
-                    Copy
-                  </a>
-                </CopyButton>
+                <CopyButton
+                  text="Copy"
+                  content={item.uri}
+                  className="inline-flex h-7 items-center rounded-full border border-gray-300 bg-white px-2.5 py-0.5 text-sm font-medium text-gray-700 shadow-sm hover:cursor-pointer hover:bg-gray-50"
+                />
                 <a
                   rel="noreferrer noopener"
                   target="_blank"
