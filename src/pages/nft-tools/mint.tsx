@@ -507,49 +507,25 @@ const Mint: NextPage = () => {
             </div>
 
             <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-              <div className="sm:col-span-4">
-                <label
-                  htmlFor="sellerFeeBasisPoints"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Royalties{" "}
-                  <code className="prose text-sm tracking-tighter">
-                    (sellerFeeBasisPoints [0-10000])
-                  </code>
-                </label>
-                <div className="relative mt-1 rounded-md shadow-sm">
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-3">
-                    <span className="text-gray-500 sm:text-sm">‱</span>
-                  </div>
-                  <input
-                    id="sellerFeeBasisPoints"
-                    type="number"
-                    {...register("sellerFeeBasisPoints", {
-                      min: 0,
-                      max: 10000,
-                      valueAsNumber: true,
-                      required: true,
-                    })}
-                    className={classNames(
-                      "block w-full rounded-md border-gray-300 pl-9 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm",
-                      errors?.sellerFeeBasisPoints &&
-                        "border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:outline-none focus:ring-red-500"
-                    )}
-                    aria-invalid={errors?.sellerFeeBasisPoints ? "true" : "false"}
-                    aria-describedby="basis-points"
-                  />
-                  {errors?.sellerFeeBasisPoints && (
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                      <ExclamationCircleIcon className="h-5 w-5 text-red-500" aria-hidden="true" />
-                    </div>
-                  )}
-                </div>
-                {errors?.sellerFeeBasisPoints && (
-                  <p className="mt-2 text-sm text-red-600" id={errors.sellerFeeBasisPoints.type}>
-                    Seller fee must be between 0 and 1000
-                  </p>
-                )}
-              </div>
+              <InputGroup
+                className="sm:col-span-4"
+                label="Royalties"
+                description={<>(in basis points, 0-10000)</>}
+                type="number"
+                {...register("sellerFeeBasisPoints", {
+                  min: {
+                    value: 0,
+                    message: "Royalties must be between 0 and 10000",
+                  },
+                  max: {
+                    value: 10000,
+                    message: "Royalties must be between 0 and 10000",
+                  },
+                  valueAsNumber: true,
+                  required: true,
+                })}
+                error={errors?.sellerFeeBasisPoints}
+              />
             </div>
           </div>
 

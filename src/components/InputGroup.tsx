@@ -1,11 +1,11 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import { ExclamationCircleIcon } from "@heroicons/react/20/solid";
 import { FieldError } from "react-hook-form";
 import { classNames } from "utils";
 
 export interface InputGroupProps extends React.ComponentPropsWithoutRef<"input"> {
   label: string;
-  description?: string;
+  description?: string | ReactNode;
   error?: FieldError;
   className?: string;
 }
@@ -35,12 +35,16 @@ export const InputGroup = React.forwardRef<HTMLInputElement, InputGroupProps>(fu
           aria-invalid={error ? "true" : "false"}
         />
         {error && (
-          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+          <div
+            className={`pointer-events-none absolute inset-y-0 right-0 flex items-center ${
+              type === "number" ? "pr-8" : "pr-3"
+            }`}
+          >
             <ExclamationCircleIcon className="h-5 w-5 text-red-500" aria-hidden="true" />
           </div>
         )}
       </div>
-      {error && (
+      {error?.message && (
         <p className="mt-2 text-sm text-red-600" id={error?.type}>
           {error?.message}
         </p>
