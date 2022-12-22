@@ -10,18 +10,26 @@ export const zipMap = <T, U, V>(
 
 export const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-export const mimeTypeToCategory = (mimeType: string) => {
-  return mimeType.startsWith("image")
-    ? "image"
-    : mimeType.startsWith("audio")
-    ? "audio"
-    : mimeType.startsWith("video")
-    ? "video"
-    : mimeType.startsWith("model")
-    ? "vr"
-    : mimeType.startsWith("text/html")
-    ? "html"
-    : mimeType.split("/")[0];
+export const mimeTypeToCategory = (file: File) => {
+  const extension = file.name.split(".")[1];
+  const isModel = extension === "glb" || extension === "gltf";
+  const type = file.type ? file.type : isModel ? "model/gltf-binary" : "";
+
+  if (type) {
+    return type.startsWith("image")
+      ? "image"
+      : type.startsWith("audio")
+      ? "audio"
+      : type.startsWith("video")
+      ? "video"
+      : type.startsWith("model")
+      ? "vr"
+      : type.startsWith("text/html")
+      ? "html"
+      : type.split("/")[0];
+  } else {
+    return "";
+  }
 };
 
 export function abbreviatedNumber(value: number, fixed = 1) {

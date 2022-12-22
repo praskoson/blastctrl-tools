@@ -48,8 +48,8 @@ export const MediaFiles = ({ setValue, watch }: MediaFilesProps) => {
       "image/*": [".jpeg", ".png", ".gif", ".jpg", ".webp"],
       "video/*": [".mp4", ".avi", ".mpeg", ".ogv", ".webm", ".3gp"],
       "audio/*": [".mp3", ".aac", ".weba", ".oga", ".wav", ".opus"],
-      "text/html": [],
-      "model/gltf-binary": [],
+      "text/html": [".html"],
+      "model/gltf-binary": [".glb", ".gltf"],
     },
     onDropAccepted: handleDropAnimationFile,
   });
@@ -59,9 +59,9 @@ export const MediaFiles = ({ setValue, watch }: MediaFilesProps) => {
   }, [imagePreview]);
 
   const mimeCategory = animationUrl
-    ? mimeTypeToCategory(animationUrl.type)
+    ? mimeTypeToCategory(animationUrl)
     : image
-    ? mimeTypeToCategory(image.type)
+    ? mimeTypeToCategory(image)
     : "";
 
   return (

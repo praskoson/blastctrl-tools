@@ -10,9 +10,7 @@ import {
   CreateNftInput,
   JsonMetadata,
   Metaplex,
-  MetaplexFile,
   toBigNumber,
-  toMetaplexFileFromBrowser,
   walletAdapterIdentity,
 } from "@metaplex-foundation/js";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
@@ -25,6 +23,7 @@ import { isPublicKey } from "utils/spl/common";
 
 import { Switch } from "@headlessui/react";
 import {
+  WalletAdapterNetwork,
   WalletError,
   WalletSignMessageError,
   WalletSignTransactionError,
@@ -39,6 +38,8 @@ import { classNames, mimeTypeToCategory } from "utils";
 import { Attributes } from "views/nfts/Attributes";
 import { MediaFiles } from "views/nfts/MediaFiles";
 import { MAX_CREATORS } from "./update";
+import { BundlrStorageDriver } from "utils/bundlr-storage";
+import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
 
 export type CreateFormInputs = {
   name: string;
@@ -67,6 +68,7 @@ export type CreateFormInputs = {
 
 const Mint: NextPage = () => {
   const { connection } = useConnection();
+  const { network } = useNetworkConfigurationStore();
   const wallet = useWallet();
   const { setVisible } = useWalletModal();
   const router = useRouter();
@@ -127,24 +129,22 @@ const Mint: NextPage = () => {
       return setVisible(true);
     }
 
+    // Setup
     setIsConfirming(true);
     const metaplex = Metaplex.make(connection).use(walletAdapterIdentity(wallet));
-    const {
-      name,
-      symbol,
-      isMutable,
-      maxSupply,
-      isCollection,
-      collectionIsSized,
-      description,
-      attributes,
-      external_url,
-      image,
-      animation_url,
-    } = data;
+    const bundlr = new BundlrStorageDriver(connection, wallet, {
+      priceMultiplier: 1.5,
+      timeout: 60000,
+      providerUrl: connection.rpcEndpoint,
+      identity: wallet,
+      address:
+        network === WalletAdapterNetwork.Mainnet
+          ? "https://node1.bundlr.network"
+          : "https://devnet.bundlr.network",
+    });
 
-    let uri: string;
-    // Check if we are uploading a file
+    // Check if we are uploading a json file
+    let jsonUrl: string;
     if (createJson) {
       notify({
         title: "Uploading external metadata",
@@ -152,41 +152,16 @@ const Mint: NextPage = () => {
           "The metadata JSON file is being uploaded to Arweave via Bundlr. This will require multiple wallet confirmations, including payment and signature verification.",
       });
 
-      const mplxImage = await toMetaplexFileFromBrowser(image);
-      const animationUrl = await toMetaplexFileFromBrowser(animation_url);
-      const category = mimeTypeToCategory(mplxImage.contentType);
-      const json: JsonMetadata<MetaplexFile | string> = {
-        name,
-        symbol,
-        description,
-        attributes,
-        external_url,
-        image: mplxImage,
-        animation_url: animationUrl,
-        properties: {
-          files: [
-            {
-              uri: mplxImage,
-              type: mplxImage.contentType,
-            },
-            {
-              uri: animationUrl,
-              type: animationUrl.contentType,
-            },
-          ],
-          category,
-        },
-      };
+      // Check if we're also uploading media files
+      const { image, animation_url } = data;
+      let imageUrl: string;
+      let animationUrl: string;
       try {
-        const { uri: upload } = await metaplex.nfts().uploadMetadata(json);
-        uri = upload;
+        if (image) imageUrl = await bundlr.upload(image);
+        if (animation_url) animationUrl = await bundlr.upload(animation_url);
       } catch (err) {
-        console.log({ err });
-        if (err instanceof WalletSignTransactionError || err instanceof WalletSignMessageError) {
-          // callback will handle it
-          return;
-        }
-        notify({
+        setIsConfirming(false);
+        return notify({
           type: "error",
           title: "File upload error",
           description: (
@@ -205,17 +180,44 @@ const Mint: NextPage = () => {
             </div>
           ),
         });
-        setIsConfirming(false);
-        return;
       }
+
+      const category = animation_url
+        ? mimeTypeToCategory(animation_url)
+        : image
+        ? mimeTypeToCategory(image)
+        : undefined;
+
+      const { name, symbol, description, attributes, external_url } = data;
+      const json: JsonMetadata<string> = {
+        name,
+        symbol,
+        description,
+        external_url,
+      };
+      const files: Array<{ type?: string; uri: string }> = [];
+      if (attributes) Object.assign(json, { attributes });
+      if (imageUrl) {
+        Object.assign(json, { image: imageUrl });
+        files.push({ uri: imageUrl, type: image.type });
+      }
+      if (animationUrl) {
+        Object.assign(json, { animation_url: animationUrl });
+        files.push({ uri: animationUrl, type: animation_url.type });
+      }
+      if (files.length > 0) Object.assign(json, { properties: { category, files } });
+
+      const { uri } = await metaplex.nfts().uploadMetadata(json);
+      jsonUrl = uri;
     } else {
-      uri = data.uri;
+      jsonUrl = data.uri;
     }
 
+    const { name, symbol, isMutable, isCollection, collectionIsSized, maxSupply } = data;
     const createNftInput: CreateNftInput = {
       name,
       symbol,
-      uri,
+      uri: jsonUrl,
       isMutable,
       isCollection,
       collectionIsSized,
@@ -252,7 +254,7 @@ const Mint: NextPage = () => {
         return;
       }
       console.log({ err });
-      notify({ type: "error", title: "Error minting", description: err?.problem });
+      notify({ type: "error", title: "Error minting", description: err?.message });
     } finally {
       setIsConfirming(false);
     }
@@ -683,6 +685,7 @@ const Mint: NextPage = () => {
               </button>
               <button
                 type="submit"
+                disabled={isConfirming}
                 className="inline-flex items-center rounded-md bg-secondary px-4 py-2 text-base text-gray-50 shadow-sm hover:bg-secondary-focus focus:outline-none focus:ring-2 focus:ring-secondary-focus focus:ring-offset-2"
               >
                 {isConfirming ? (
