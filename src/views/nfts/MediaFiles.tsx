@@ -123,6 +123,7 @@ export const MediaFiles = ({ setValue, watch }: MediaFilesProps) => {
                   />
                 </label>
                 <p className="pl-1">or drag and drop</p>
+                <p className="text-gray-500">.jpg, .png, .gif, .webp</p>
               </div>
             </div>
           )}
