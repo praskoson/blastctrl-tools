@@ -60,7 +60,7 @@ export type CreateFormInputs = {
     address: string;
     share: number;
   }[];
-  sellerFeeBasisPoints: number;
+  sellerFeePercentage: number;
   isCollection: boolean;
   collectionIsSized: boolean;
   maxSupply: number;
@@ -93,7 +93,7 @@ const Mint: NextPage = () => {
       isMutable: true,
       primarySaleHappened: false,
       creators: [],
-      sellerFeeBasisPoints: null,
+      sellerFeePercentage: null,
       isCollection: false,
       collectionIsSized: false,
       maxSupply: 0,
@@ -229,8 +229,8 @@ const Mint: NextPage = () => {
             authority: address === wallet.publicKey.toBase58() ? wallet : undefined,
           }))
         : undefined,
-      sellerFeeBasisPoints: dirtyFields.sellerFeeBasisPoints
-        ? data.sellerFeeBasisPoints
+      sellerFeeBasisPoints: dirtyFields.sellerFeePercentage
+        ? data.sellerFeePercentage * 100
         : undefined,
     };
 
@@ -520,21 +520,24 @@ const Mint: NextPage = () => {
               <InputGroup
                 className="sm:col-span-4"
                 label="Royalties"
-                description={<>(in basis points, 0-10000)</>}
+                description={<>(in percentages)</>}
+                leading="%"
                 type="number"
-                {...register("sellerFeeBasisPoints", {
+                placeholder="100.00"
+                step={0.01}
+                {...register("sellerFeePercentage", {
                   min: {
                     value: 0,
-                    message: "Royalties must be between 0 and 10000",
+                    message: "Royalties must be between 0 and 100%",
                   },
                   max: {
-                    value: 10000,
-                    message: "Royalties must be between 0 and 10000",
+                    value: 100,
+                    message: "Royalties must be between 0 and 100%",
                   },
                   valueAsNumber: true,
                   required: true,
                 })}
-                error={errors?.sellerFeeBasisPoints}
+                error={errors?.sellerFeePercentage}
               />
             </div>
           </div>
