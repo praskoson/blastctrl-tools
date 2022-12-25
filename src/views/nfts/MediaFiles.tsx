@@ -214,8 +214,9 @@ export const MediaFiles = ({ setValue, watch }: MediaFilesProps) => {
               <InformationCircleIcon className="ml-2 h-4 w-4 text-gray-400 hover:cursor-pointer hover:text-gray-500" />{" "}
             </Tooltip>
           </dd>
-          <dt className="inline-flex max-w-fit items-center rounded-full bg-blue-100 px-3 py-0.5 text-sm font-medium text-blue-800">
-            <span className="mr-1 capitalize">{mimeCategory}</span>{" "}
+          <dt className="inline-flex max-w-fit items-center gap-x-1 rounded-full bg-blue-100 px-3 py-0.5 text-sm font-medium text-blue-800">
+            <span className="mr-1 capitalize">{mimeCategory}</span>
+            {" ~ "}
             <span className="font-mono">{animationUrl ? animationUrl.type : image.type}</span>
           </dt>
         </div>
