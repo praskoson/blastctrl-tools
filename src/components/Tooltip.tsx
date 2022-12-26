@@ -1,4 +1,4 @@
-import { ReactNode, createRef, useState } from "react";
+import { ReactNode, createRef, useState, useEffect } from "react";
 import { createPopper } from "@popperjs/core";
 
 export type TooltipProps = {
@@ -19,6 +19,18 @@ export const Tooltip = ({ children, content }: TooltipProps) => {
   const closeTooltip = () => {
     setPopoverShow(false);
   };
+
+  useEffect(() => {
+    const handleOutsideTap = (ev: TouchEvent) => {
+      console.log(ev.touches);
+    };
+    window.addEventListener("touchstart", handleOutsideTap);
+
+    return () => {
+      window.removeEventListener("touchstart", handleOutsideTap);
+    };
+  }, []);
+
   return (
     <>
       <div className="flex flex-wrap">
@@ -36,6 +48,8 @@ export const Tooltip = ({ children, content }: TooltipProps) => {
               (popoverShow ? "" : "hidden ") +
               "z-50 block max-w-xs break-words rounded-lg border-0 bg-gray-600 text-left text-sm font-normal leading-normal no-underline"
             }
+            onMouseEnter={openTooltip}
+            onMouseLeave={closeTooltip}
             ref={popoverRef}
           >
             <div>

@@ -12,6 +12,7 @@ import {
 import BigNumber from "bignumber.js";
 import { WalletContextState } from "@solana/wallet-adapter-react";
 import { Amount, lamports, toBigNumber } from "types";
+import { WithdrawalResponse } from "@bundlr-network/client/build/common/types";
 
 export type BundlrOptions = {
   address?: string;
@@ -122,7 +123,7 @@ export class BundlrStorageDriver {
     await bundlr.fund(toFund);
   }
 
-  async withdrawAll(): Promise<void> {
+  async withdrawAll(): Promise<WithdrawalResponse> {
     const bundlr = await this.bundlr();
     const balance = await bundlr.getLoadedBalance();
     const minimumBalance = new BigNumber(5000);
@@ -132,17 +133,16 @@ export class BundlrStorageDriver {
     }
 
     const balanceToWithdraw = balance.minus(minimumBalance);
-    await this.withdraw(bigNumberToAmount(balanceToWithdraw));
+    return this.withdraw(bigNumberToAmount(balanceToWithdraw));
   }
 
-  async withdraw(amount: Amount): Promise<void> {
+  async withdraw(amount: Amount): Promise<WithdrawalResponse> {
     const bundlr = await this.bundlr();
 
-    const { status } = await bundlr.withdrawBalance(amountToBigNumber(amount));
-
-    if (status >= 300) {
-      //   throw new BundlrWithdrawError(status);
-      throw Error(`Error withdrawing from bundlr, returned status: ${status}`);
+    try {
+      return await bundlr.withdrawBalance(amountToBigNumber(amount));
+    } catch (err) {
+      throw Error(`Error withdrawing from bundlr with error: ${err}`);
     }
   }
 
@@ -159,16 +159,16 @@ export class BundlrStorageDriver {
 
     const promises = files.map(async (file) => {
       const buffer = await file.arrayBuffer();
-      const { status, data } = await bundlr.uploader.upload(Buffer.from(buffer), {
-        tags: [{ name: "Content-Type", value: file.type }],
-      });
 
-      if (status >= 300) {
-        // throw new AssetUploadFailedError(status);
-        throw Error(`Failed to upload asset, returned error code: ${status}`);
+      try {
+        const { id } = await bundlr.upload(Buffer.from(buffer), {
+          tags: [{ name: "Content-Type", value: file.type }],
+        });
+
+        return `https://arweave.net/${id}`;
+      } catch (err) {
+        throw Error(`Failed to upload asset with error message ${err}`);
       }
-
-      return `https://arweave.net/${data.id}`;
     });
 
     return await Promise.all(promises);

@@ -4,12 +4,11 @@ import { ArrowPathIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import { useLocalStorage, useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
-import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { notify } from "components/Notification";
 import dayjs from "dayjs";
 import { ChangeEvent, DragEvent, useCallback, useEffect, useState } from "react";
 import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
-import { Amount, Currency, formatAmount } from "types";
+import { Amount, Currency, formatAmount, lamports } from "types";
 import { BundlrStorageDriver } from "utils/bundlr-storage";
 import { Uploads } from "./Uploads";
 
@@ -78,19 +77,15 @@ export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
   }, [network, refreshBalance]);
 
   const handleWithdraw = async () => {
-    const memoBalance = balance;
     try {
-      await storage.withdrawAll();
+      const { requested } = await storage.withdrawAll();
+      const balance = lamports(requested);
       notify({
         title: "Withdraw succesful",
         type: "success",
         description: (
           <>
-            Withdrawed{" "}
-            <span className="font-medium text-blue-300">
-              {formatAmount(memoBalance)}
-              {/* {memoBalance.basisPoints.toNumber() / LAMPORTS_PER_SOL} */}
-            </span>
+            Withdrawed <span className="font-medium text-blue-300">{formatAmount(balance)}</span>
           </>
         ),
       });
