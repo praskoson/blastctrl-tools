@@ -26,7 +26,7 @@ const Tokens: NextPage = () => {
   ];
   return (
     <>
-      <h3 className="pb-4">Tools for managing token accounts</h3>
+      <h3 className="pb-4">Tools for managing tokens and token accounts</h3>
       <div className="grid grid-cols-1 gap-y-6 sm:grid-cols-3 sm:gap-x-4">
         {navigation.map((navItem) => (
           <Link key={navItem.name} href={navItem.active ? navItem.href : "#"}>
