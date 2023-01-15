@@ -31,7 +31,7 @@ const navigation = [
   { name: "Mint NFT", href: "/nft-tools/mint", in: "NFT Tools" },
   { name: "Create collection", href: "/nft-tools/mint", in: "NFT Tools" },
   { name: "Recover nested", href: "/tokens/recover-nested", in: "Tokens" },
-  { name: "Update NFT", href: "/nft-tools/update", in: "NFT Tools" },
+  { name: "Fungible token metadata", href: "/tokens/create-token", in: "Tokens" },
   { name: "Upload to Arweave", href: "/storage/file-upload", in: "Storage" },
 ];
 

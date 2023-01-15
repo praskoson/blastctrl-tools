@@ -68,6 +68,11 @@ export const HomeView: FC = ({}) => {
                     Recover nested accounts
                   </a>
                 </Link>
+                <Link href="/tokens/create-account">
+                  <a className="inline-flex items-center justify-center rounded-lg border-2 border-rose-600 px-3 py-1.5 text-rose-900 shadow hover:bg-violet-50">
+                    Create fungible tokens
+                  </a>
+                </Link>
               </div>
               <div className="mt-6 text-sm font-medium text-gray-700">More to come...</div>
             </div>

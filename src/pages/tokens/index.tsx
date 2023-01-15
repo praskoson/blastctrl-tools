@@ -11,6 +11,12 @@ const Tokens: NextPage = () => {
       active: true,
     },
     {
+      name: "Create fungible tokens",
+      href: "/tokens/create-token",
+      description: "Add metadata to fungible tokens",
+      active: true,
+    },
+    {
       name: "Close empty accounts",
       href: "/tokens/close-empty",
       description:
@@ -20,7 +26,7 @@ const Tokens: NextPage = () => {
   ];
   return (
     <>
-      <h3 className="pb-4">Tools for managing token accounts</h3>
+      <h3 className="pb-4">Tools for managing tokens and token accounts</h3>
       <div className="grid grid-cols-1 gap-y-6 sm:grid-cols-3 sm:gap-x-4">
         {navigation.map((navItem) => (
           <Link key={navItem.name} href={navItem.active ? navItem.href : "#"}>
