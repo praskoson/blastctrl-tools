@@ -11,6 +11,12 @@ const Tokens: NextPage = () => {
       active: true,
     },
     {
+      name: "Create fungible tokens",
+      href: "/tokens/create-token",
+      description: "Add metadata to fungible tokens",
+      active: true,
+    },
+    {
       name: "Close empty accounts",
       href: "/tokens/close-empty",
       description:
