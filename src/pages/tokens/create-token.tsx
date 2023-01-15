@@ -173,10 +173,11 @@ const CreateToken: NextPage = () => {
       </Head>
       <div className="mx-auto max-w-xl overflow-visible bg-white px-4 pb-5 sm:mb-6 sm:rounded-lg sm:p-6 sm:shadow">
         <div className="border-b border-gray-200 pb-4">
-          <h1 className="mb-4 font-display text-3xl font-semibold">NFT minting</h1>
+          <h1 className="mb-4 font-display text-3xl font-semibold">Add metadata to tokens</h1>
           <p className="text-sm text-gray-500">
             Enter the metadata information of your token. This information will be uploaded to
-            Arweave and added to your token.
+            Arweave and added to your token. Uploading files will require multiple wallet
+            confirmations.
           </p>
         </div>
 
