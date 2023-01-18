@@ -13,7 +13,7 @@ import {
   walletAdapterIdentity,
 } from "@metaplex-foundation/js";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { InputGroup } from "components/InputGroup";
+import { InputGroup } from "components";
 import type { NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";

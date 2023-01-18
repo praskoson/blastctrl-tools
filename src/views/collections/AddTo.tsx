@@ -1,7 +1,7 @@
 import { WalletSignTransactionError } from "@solana/wallet-adapter-base";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { TransactionSignature, PublicKey, Transaction } from "@solana/web3.js";
-import { notify } from "components/Notification";
+import { notify } from "components";
 import { FormEvent, useCallback, useState } from "react";
 import { errorFromCode } from "@metaplex-foundation/mpl-token-metadata";
 

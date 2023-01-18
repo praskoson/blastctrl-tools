@@ -12,7 +12,7 @@ import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { Transaction } from "@solana/web3.js";
 import { SpinnerIcon } from "components";
-import { notify } from "components/Notification";
+import { notify } from "components";
 import { AccountInfo } from "models/types";
 import { Fragment, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";

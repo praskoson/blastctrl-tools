@@ -11,3 +11,4 @@ export * from "./Breadcrumbs";
 export * from "./DesktopWallet";
 export * from "./MobileWallet";
 export * from "./Footer";
+export * from "./NftSelector";

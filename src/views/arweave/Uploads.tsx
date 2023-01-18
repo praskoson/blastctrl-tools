@@ -7,7 +7,7 @@ import {
   QuestionMarkCircleIcon,
 } from "@heroicons/react/24/outline";
 import { BsBraces } from "react-icons/bs";
-import { CopyButton } from "components/CopyButton";
+import { CopyButton } from "components";
 import dayjs from "dayjs";
 import Image from "next/image";
 import { memo, useState } from "react";
