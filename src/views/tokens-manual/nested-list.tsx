@@ -4,7 +4,7 @@ import { findTokenByMint } from "utils/spl/common-tokens";
 import { findNestedAta } from "utils/spl/nested-ata";
 import Image from "next/image";
 import { QuestionMarkCircleIcon } from "@heroicons/react/24/solid";
-import { ArrowPathIcon, ChevronRightIcon, WalletIcon } from "@heroicons/react/20/solid";
+import { ChevronRightIcon, WalletIcon } from "@heroicons/react/20/solid";
 import { isATA, normalizeTokenAmount } from "utils/spl/common";
 import { notify } from "components/Notification";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
@@ -204,7 +204,7 @@ export const NestedInfo = ({
           >
             {confirming ? (
               <>
-                <ArrowPathIcon className="ml-1 mr-1 h-5 w-5 animate-spin text-white" />
+                <SpinnerIcon className="ml-1 mr-1 h-5 w-5 animate-spin text-white" />
                 Confirming
               </>
             ) : (

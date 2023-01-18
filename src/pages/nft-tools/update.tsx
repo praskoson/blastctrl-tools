@@ -1,6 +1,5 @@
 import { Switch } from "@headlessui/react";
 import {
-  ArrowPathIcon,
   ChevronRightIcon,
   ExclamationCircleIcon,
   PlusCircleIcon,
@@ -18,11 +17,13 @@ import {
   UpdateNftInput,
   walletAdapterIdentity,
 } from "@metaplex-foundation/js";
+import { WalletError } from "@solana/wallet-adapter-base";
 import { useConnection, useLocalStorage, useWallet } from "@solana/wallet-adapter-react";
+import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { PublicKey } from "@solana/web3.js";
-import { InputGroup } from "components/InputGroup";
+import { InputGroup, SpinnerIcon, SwitchButton } from "components";
 import { NftSelector } from "components/NftSelector";
-import { SwitchButton } from "components/Switch";
+import { notify } from "components/Notification";
 import { useUserNfts } from "hooks";
 import type { NextPage } from "next";
 import Head from "next/head";
@@ -30,9 +31,6 @@ import { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { classNames } from "utils";
 import { getMetadata, isPublicKey } from "utils/spl/common";
-import { notify } from "components/Notification";
-import { WalletError } from "@solana/wallet-adapter-base";
-import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 
 export type FormToken = {
   name: string;
@@ -539,7 +537,7 @@ const Update: NextPage = () => {
               >
                 {isConfirming ? (
                   <>
-                    <ArrowPathIcon className="-ml-1 mr-2 h-5 w-5 animate-spin" />
+                    <SpinnerIcon className="-ml-1 mr-2 h-5 w-5 animate-spin" />
                     Confirming
                   </>
                 ) : (

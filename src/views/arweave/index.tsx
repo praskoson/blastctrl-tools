@@ -1,9 +1,10 @@
 import { Transition } from "@headlessui/react";
 import { QuestionMarkCircleIcon } from "@heroicons/react/20/solid";
-import { ArrowPathIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
+import { ChevronRightIcon } from "@heroicons/react/24/outline";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import { useLocalStorage, useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
+import { SpinnerIcon } from "components";
 import { notify } from "components/Notification";
 import dayjs from "dayjs";
 import { ChangeEvent, DragEvent, useCallback, useEffect, useState } from "react";
@@ -365,7 +366,7 @@ export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
                       )}
                     >
                       {isUploading && (
-                        <ArrowPathIcon
+                        <SpinnerIcon
                           className="-ml-1 mr-3 h-5 w-5 animate-spin"
                           aria-hidden="true"
                         />

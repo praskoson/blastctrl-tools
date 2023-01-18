@@ -7,7 +7,7 @@ import { notify } from "components/Notification";
 import { WalletSignTransactionError } from "@solana/wallet-adapter-base";
 import { errorFromCode } from "@metaplex-foundation/mpl-token-metadata";
 import { tryGetErrorCodeFromMessage } from "utils/spl";
-import { ArrowPathIcon } from "@heroicons/react/20/solid";
+import {} from "@heroicons/react/20/solid";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 
 export const RemoveFrom = () => {
@@ -104,7 +104,7 @@ export const RemoveFrom = () => {
         </label>
       </div>
       <button disabled={isConfirming} type="submit" className="btn btn-secondary mt-4">
-        {isConfirming && <ArrowPathIcon className="-ml-1 mr-1 h-5 w-5 animate-spin" />}
+        {isConfirming && <SpinnerIcon className="-ml-1 mr-1 h-5 w-5 animate-spin" />}
         {isConfirming ? "Confirming" : "Submit"}
       </button>
     </form>

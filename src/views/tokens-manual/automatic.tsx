@@ -1,7 +1,7 @@
-import { ArrowPathIcon } from "@heroicons/react/20/solid";
 import { Account, TOKEN_PROGRAM_ID, unpackAccount } from "@solana/spl-token-next";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
+import { SpinnerIcon } from "components";
 import { useCallback, useState } from "react";
 import { classNames } from "utils";
 import { isATA } from "utils/spl/common";
@@ -83,7 +83,7 @@ export const AutomaticRecover = () => {
           )}
           onClick={query}
         >
-          {isSearching && <ArrowPathIcon className="-ml-1 mr-2 h-5 w-5 animate-spin" />}
+          {isSearching && <SpinnerIcon className="-ml-1 mr-2 h-5 w-5 animate-spin" />}
           {isSearching ? "Searching..." : "Start Querying"}
         </button>
       </div>
