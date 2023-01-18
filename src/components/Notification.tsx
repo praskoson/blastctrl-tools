@@ -8,18 +8,19 @@ import { XMarkIcon } from "@heroicons/react/20/solid";
 import useQueryContext from "hooks/useQueryContext";
 import toast from "react-hot-toast";
 import { classNames } from "utils";
+import { SpinnerIcon } from "./SpinnerIcon";
 
 export const notify = (props: NotifyProps) => {
   return toast.custom(
     (t) => (
       <NotificationWindow {...props} visible={t.visible} onClose={() => toast.dismiss(t.id)} />
     ),
-    { duration: props.type === "error" ? Infinity : 20000 }
+    { duration: props.type === "error" ? Infinity : 15000 }
   );
 };
 
 export type NotifyProps = {
-  type?: "error" | "success";
+  type?: "error" | "success" | "loading" | "info";
   title?: string | ReactNode;
   description?: string | ReactNode;
   txid?: string;
@@ -41,6 +42,8 @@ export function NotificationWindow({
         return <CheckCircleIcon className="h-7 w-7 text-emerald-500" aria-hidden="true" />;
       case "error":
         return <ExclamationTriangleIcon className="h-7 w-7 text-amber-600" aria-hidden="true" />;
+      case "loading":
+        return <SpinnerIcon className="h-7 w-7 text-white" aria-hidden="true" />;
       default:
         return <InformationCircleIcon className="h-7 w-7 text-cyan-400" aria-hidden="true" />;
     }

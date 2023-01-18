@@ -1,5 +1,5 @@
 import { Dialog, Transition } from "@headlessui/react";
-import { ArrowPathIcon, CheckCircleIcon } from "@heroicons/react/20/solid";
+import { CheckCircleIcon } from "@heroicons/react/20/solid";
 import { ChevronRightIcon } from "@heroicons/react/24/solid";
 import { PublicKey, zipMap } from "@metaplex-foundation/js";
 import {
@@ -11,7 +11,8 @@ import {
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { Transaction } from "@solana/web3.js";
-import { notify } from "components/Notification";
+import { SpinnerIcon } from "components";
+import { notify } from "components";
 import { AccountInfo } from "models/types";
 import { Fragment, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -335,7 +336,7 @@ export const ManualInput = () => {
               >
                 {isProcessing ? (
                   <>
-                    <ArrowPathIcon className="-ml-2 mr-1 h-5 w-5 animate-spin" />
+                    <SpinnerIcon className="-ml-2 mr-1 h-5 w-5 animate-spin" />
                     Confirming
                   </>
                 ) : (
@@ -506,7 +507,7 @@ export const ManualInput = () => {
                       className="inline-flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
                       onClick={handleRecover}
                     >
-                      {confirming && <ArrowPathIcon className="-ml-2 mr-1 h-5 w-5 animate-spin" />}
+                      {confirming && <SpinnerIcon className="-ml-2 mr-1 h-5 w-5 animate-spin" />}
                       {confirming ? "Confirming" : "Recover"}
                     </button>
                     <button

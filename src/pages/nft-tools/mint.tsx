@@ -1,5 +1,4 @@
 import {
-  ArrowPathIcon,
   ChevronRightIcon,
   ExclamationCircleIcon,
   PlusCircleIcon,
@@ -14,7 +13,7 @@ import {
   walletAdapterIdentity,
 } from "@metaplex-foundation/js";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { InputGroup } from "components/InputGroup";
+import { InputGroup } from "components";
 import type { NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
@@ -30,16 +29,15 @@ import {
 } from "@solana/wallet-adapter-base";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { PublicKey } from "@solana/web3.js";
-import { InputMultiline } from "components/InputMultiline";
-import { notify } from "components/Notification";
+import { InputMultiline, notify, SpinnerIcon } from "components";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
 import { classNames, mimeTypeToCategory } from "utils";
+import { BundlrStorageDriver } from "utils/bundlr-storage";
 import { Attributes } from "views/nfts/Attributes";
 import { MediaFiles } from "views/nfts/MediaFiles";
 import { MAX_CREATORS } from "./update";
-import { BundlrStorageDriver } from "utils/bundlr-storage";
-import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
 
 export type CreateFormInputs = {
   name: string;
@@ -693,7 +691,7 @@ const Mint: NextPage = () => {
               >
                 {isConfirming ? (
                   <>
-                    <ArrowPathIcon className="-ml-1 mr-1 h-5 w-5 animate-spin" />
+                    <SpinnerIcon className="-ml-1 mr-2 h-5 w-5 animate-spin" />
                     Confirming
                   </>
                 ) : (

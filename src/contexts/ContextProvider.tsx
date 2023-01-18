@@ -13,7 +13,7 @@ import { FC, ReactNode, useCallback, useMemo } from "react";
 import { AutoConnectProvider, useAutoConnect } from "./AutoConnectProvider";
 import { mergeClusterApiUrl } from "utils/spl/common";
 import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
-import { notify } from "components/Notification";
+import { notify } from "components";
 import {
   BackpackWalletAdapter,
   GlowWalletAdapter,

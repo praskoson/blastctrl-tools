@@ -1,5 +1,5 @@
 import { useWallet } from "@solana/wallet-adapter-react";
-import { notify } from "components/Notification";
+import { notify } from "components";
 import { useMemo } from "react";
 import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
 import useSWR from "swr";

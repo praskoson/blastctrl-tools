@@ -4,15 +4,14 @@ import { findTokenByMint } from "utils/spl/common-tokens";
 import { findNestedAta } from "utils/spl/nested-ata";
 import Image from "next/image";
 import { QuestionMarkCircleIcon } from "@heroicons/react/24/solid";
-import { ArrowPathIcon, ChevronRightIcon, WalletIcon } from "@heroicons/react/20/solid";
+import { ChevronRightIcon, WalletIcon } from "@heroicons/react/20/solid";
 import { isATA, normalizeTokenAmount } from "utils/spl/common";
-import { notify } from "components/Notification";
+import { notify, SpinnerIcon, Tooltip } from "components";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { Transaction } from "@solana/web3.js";
 import { createRecoverNestedTokenAccountInstruction } from "utils/spl/token";
 import { Dispatch, SetStateAction, useState } from "react";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
-import { Tooltip } from "components/Tooltip";
 
 type NestedPairs = Awaited<ReturnType<typeof findNestedAta>>;
 
@@ -204,7 +203,7 @@ export const NestedInfo = ({
           >
             {confirming ? (
               <>
-                <ArrowPathIcon className="ml-1 mr-1 h-5 w-5 animate-spin text-white" />
+                <SpinnerIcon className="ml-1 mr-1 h-5 w-5 animate-spin text-white" />
                 Confirming
               </>
             ) : (

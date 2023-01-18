@@ -1,12 +1,9 @@
-import { ArrowPathIcon, ChevronRightIcon } from "@heroicons/react/20/solid";
+import { ChevronRightIcon } from "@heroicons/react/20/solid";
 import { Metaplex, PublicKey, walletAdapterIdentity } from "@metaplex-foundation/js";
 import { WalletAdapterNetwork, WalletError } from "@solana/wallet-adapter-base";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
-import { InputGroup } from "components/InputGroup";
-import { InputMultiline } from "components/InputMultiline";
-import { notify } from "components/Notification";
-import { UploadFile } from "components/UploadFile";
+import { InputGroup, InputMultiline, SpinnerIcon, notify, UploadFile } from "components";
 import { NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
@@ -278,7 +275,7 @@ const CreateToken: NextPage = () => {
               >
                 {isConfirming ? (
                   <>
-                    <ArrowPathIcon className="-ml-1 mr-1 h-5 w-5 animate-spin" />
+                    <SpinnerIcon className="-ml-1 mr-1 h-5 w-5 animate-spin" />
                     Confirming
                   </>
                 ) : (
