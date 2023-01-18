@@ -3,7 +3,7 @@ import { TransactionSignature, PublicKey, Transaction } from "@solana/web3.js";
 import { FormEvent, useCallback, useState } from "react";
 
 import { unverifyCollectionNft } from "utils/spl/collections";
-import { notify } from "components/Notification";
+import { notify, SpinnerIcon } from "components";
 import { WalletSignTransactionError } from "@solana/wallet-adapter-base";
 import { errorFromCode } from "@metaplex-foundation/mpl-token-metadata";
 import { tryGetErrorCodeFromMessage } from "utils/spl";
