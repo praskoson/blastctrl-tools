@@ -3,11 +3,7 @@ import { Metaplex, PublicKey, walletAdapterIdentity } from "@metaplex-foundation
 import { WalletAdapterNetwork, WalletError } from "@solana/wallet-adapter-base";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
-import { SpinnerIcon } from "components";
-import { InputGroup } from "components/InputGroup";
-import { InputMultiline } from "components/InputMultiline";
-import { notify } from "components/Notification";
-import { UploadFile } from "components/UploadFile";
+import { InputGroup, InputMultiline, SpinnerIcon, notify, UploadFile } from "components";
 import { NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";

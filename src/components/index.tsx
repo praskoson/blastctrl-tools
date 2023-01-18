@@ -6,3 +6,4 @@ export * from "./Notification";
 export * from "./InputGroup";
 export * from "./InputMultiline";
 export * from "./Switch";
+export * from "./UploadFile";
