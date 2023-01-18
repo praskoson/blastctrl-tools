@@ -1,5 +1,5 @@
 import { InformationCircleIcon } from "@heroicons/react/20/solid";
-import Tooltip from "components/Tooltip";
+import { Tooltip } from "components";
 import Image from "next/image";
 import { CreateFormInputs } from "pages/nft-tools/mint";
 import { useEffect, useState } from "react";

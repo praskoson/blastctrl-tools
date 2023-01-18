@@ -6,13 +6,12 @@ import Image from "next/image";
 import { QuestionMarkCircleIcon } from "@heroicons/react/24/solid";
 import { ChevronRightIcon, WalletIcon } from "@heroicons/react/20/solid";
 import { isATA, normalizeTokenAmount } from "utils/spl/common";
-import { notify } from "components/Notification";
+import { notify, SpinnerIcon, Tooltip } from "components";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { Transaction } from "@solana/web3.js";
 import { createRecoverNestedTokenAccountInstruction } from "utils/spl/token";
 import { Dispatch, SetStateAction, useState } from "react";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
-import { Tooltip } from "components/Tooltip";
 
 type NestedPairs = Awaited<ReturnType<typeof findNestedAta>>;
 
