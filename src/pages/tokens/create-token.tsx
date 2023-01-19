@@ -261,7 +261,12 @@ const CreateToken: NextPage = () => {
               />
               <InputGroup
                 label="External URL"
-                description="Token/project homepage (e.g. www.bonkcoin.com), optional"
+                description={
+                  <>
+                    Token/project homepage, optional{" "}
+                    <span className="hidden sm:inline">(e.g. www.bonkcoin.com)</span>
+                  </>
+                }
                 type="text"
                 {...register("external_url", {
                   required: false,
@@ -280,8 +285,13 @@ const CreateToken: NextPage = () => {
           </div>
 
           <div>
-            <div className="mt-4 flex items-center justify-between">
+            <div className="mt-4">
               <h3 className="text-lg font-medium leading-6 text-gray-900">Image</h3>
+              <ul className="mt-1 mb-3 list-disc text-sm text-gray-500 sm:ml-5">
+                <li>Square aspect ratio</li>
+                <li>Smaller size (e.g. 200x200 pixels)</li>
+                <li>Fit within a circle, as most wallets display token icons within a circle.</li>
+              </ul>
             </div>
 
             <UploadFile
