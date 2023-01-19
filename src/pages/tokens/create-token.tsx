@@ -301,11 +301,15 @@ const CreateToken: NextPage = () => {
           </div>
 
           <div className="pt-5">
-            <div className="flex justify-end gap-2">
+            <div className="flex justify-end gap-x-4 gap-y-2">
+              <p className="text-sm text-gray-700">
+                You will have to approve up to <span className="font-bold text-blue-500">5</span>{" "}
+                transactions and messages.
+              </p>
               <button
                 type="submit"
                 disabled={isConfirming}
-                className="inline-flex items-center rounded-md bg-secondary px-4 py-2 text-base text-gray-50 shadow-sm hover:bg-secondary-focus focus:outline-none focus:ring-2 focus:ring-secondary-focus focus:ring-offset-2 disabled:bg-secondary-focus"
+                className="inline-flex min-w-fit items-center rounded-md bg-secondary px-4 py-2 text-base text-gray-50 shadow-sm hover:bg-secondary-focus focus:outline-none focus:ring-2 focus:ring-secondary-focus focus:ring-offset-2 disabled:bg-secondary-focus"
               >
                 <>
                   <ChevronRightIcon className="-ml-1 mr-1 h-5 w-5" aria-hidden={true} />
