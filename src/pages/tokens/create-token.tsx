@@ -125,24 +125,27 @@ const CreateToken: NextPage = () => {
     metadataUri = await notifyPromise(storage.upload(metadataFile), {
       loading: { description: "Uploading metadata file to Arweave..." },
       success: { description: "JSON upload complete" },
-      error: (err) => {
+      error: (err: any) => {
         setIsConfirming(false);
         console.log({ err });
-        return (
-          <div className="break-normal">
-            <p>
-              There has been an error while uploading with the message:{" "}
-              <span className="break-all font-medium text-yellow-300">{err?.message}</span>.
-            </p>
-            <p className="mt-2">
-              You can recover any lost funds on the{" "}
-              <Link href="/storage/file-upload">
-                <a className="font-medium text-blue-300">/storage</a>
-              </Link>{" "}
-              page.
-            </p>
-          </div>
-        );
+        return {
+          title: "JSON upload error",
+          description: (
+            <div className="break-normal">
+              <p>
+                There has been an error while uploading with the message:{" "}
+                <span className="break-all font-medium text-yellow-300">{err?.message}</span>.
+              </p>
+              <p className="mt-2">
+                You can recover any lost funds on the{" "}
+                <Link href="/storage/file-upload">
+                  <a className="font-medium text-blue-300">/storage</a>
+                </Link>{" "}
+                page.
+              </p>
+            </div>
+          ),
+        };
       },
     });
 
