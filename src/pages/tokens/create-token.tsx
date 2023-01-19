@@ -1,9 +1,8 @@
 import { ChevronRightIcon } from "@heroicons/react/20/solid";
-import { Metaplex, PublicKey, walletAdapterIdentity } from "@metaplex-foundation/js";
 import { WalletAdapterNetwork, WalletError } from "@solana/wallet-adapter-base";
-import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import { useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
-import { InputGroup, InputMultiline, SpinnerIcon, notify, UploadFile } from "components";
+import { InputGroup, InputMultiline, notify, UploadFile, notifyPromise } from "components";
 import { NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
@@ -12,6 +11,9 @@ import { useForm } from "react-hook-form";
 import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
 import { BundlrStorageDriver } from "utils/bundlr-storage";
 import { compress, isPublicKey } from "utils/spl/common";
+import { createMetadataInstruction } from "utils/spl";
+import { useWalletConnection } from "hooks/useWalletConnection";
+import { PublicKey } from "@solana/web3.js";
 
 type TokenData = {
   mint: string;
@@ -25,12 +27,13 @@ type TokenData = {
 const CreateToken: NextPage = () => {
   const wallet = useWallet();
   const { setVisible } = useWalletModal();
-  const { connection } = useConnection();
+  const { connection, simulateVersionedTransaction, sendAndConfirmVersionedTransaction } =
+    useWalletConnection();
   const { network } = useNetworkConfigurationStore();
   const [isConfirming, setIsConfirming] = useState(false);
   const {
     register,
-    formState: { errors },
+    formState: { errors, dirtyFields },
     handleSubmit,
     setValue,
   } = useForm<TokenData>({});
@@ -52,42 +55,62 @@ const CreateToken: NextPage = () => {
           ? "https://node1.bundlr.network"
           : "https://devnet.bundlr.network",
     });
-    const metaplex = Metaplex.make(connection).use(walletAdapterIdentity(wallet));
+
+    // Test if creating metadata is possible
+    const ix = createMetadataInstruction(wallet.publicKey, new PublicKey(data.mint), {});
+    const { value } = await simulateVersionedTransaction([ix]);
+
+    if (value.err) {
+      setIsConfirming(false);
+      console.log({ value });
+
+      return notify({
+        type: "error",
+        title: "Add Metadata Error",
+        description: (
+          <>
+            <p className="mb-1.5">
+              Adding metadata to this token is not possible due to the error:{" "}
+            </p>
+            <code className="break-all py-6">{JSON.stringify(value.err)}</code>
+          </>
+        ),
+      });
+    }
 
     // Upload image
     let imageUri: string;
     let metadataUri: string;
 
     if (data.image) {
-      notify({ title: "Uploading image", description: "Uploading image to arweave..." });
-      try {
-        imageUri = await storage.upload(data.image);
-        notify({ type: "success", title: "Image upload complete" });
-      } catch (err: any) {
-        setIsConfirming(false);
-        return notify({
-          type: "error",
-          title: "Image Upload Error",
-          description: (
-            <div className="break-normal">
-              <p>
-                There has been an error while uploading with the message:{" "}
-                <span className="break-all font-medium text-yellow-300">{err?.message}</span>.
-              </p>
-              <p className="mt-2">
-                You can recover any lost funds on the{" "}
-                <Link href="/storage/file-upload">
-                  <a className="font-medium text-blue-300">/storage</a>
-                </Link>{" "}
-                page.
-              </p>
-            </div>
-          ),
-        });
-      }
+      imageUri = await notifyPromise(storage.upload(data.image), {
+        loading: { description: "Uploading image to Arweave..." },
+        success: { description: "Image upload complete" },
+        error: (err: any) => {
+          setIsConfirming(false);
+          console.log(err);
+          return {
+            title: "Image Upload Error",
+            description: (
+              <div className="break-normal">
+                <p>
+                  There has been an error while uploading with the message:{" "}
+                  <span className="break-all font-medium text-yellow-300">{err?.message}</span>.
+                </p>
+                <p className="mt-2">
+                  You can recover any lost funds on the{" "}
+                  <Link href="/storage/file-upload">
+                    <a className="font-medium text-blue-300">/storage</a>
+                  </Link>{" "}
+                  page.
+                </p>
+              </div>
+            ),
+          };
+        },
+      });
     }
 
-    notify({ title: "Uploading JSON", description: "Uploading metadata file to arweave..." });
     const json = {
       name: data.name,
       symbol: data.symbol,
@@ -98,15 +121,14 @@ const CreateToken: NextPage = () => {
     const metadataFile = new File([JSON.stringify(json)], "metadata.json", {
       type: "application/json",
     });
-    try {
-      metadataUri = await storage.upload(metadataFile);
-      notify({ type: "success", title: "JSON upload complete" });
-    } catch (err) {
-      setIsConfirming(false);
-      return notify({
-        type: "error",
-        title: "JSON Upload Error",
-        description: (
+
+    metadataUri = await notifyPromise(storage.upload(metadataFile), {
+      loading: { description: "Uploading metadata file to Arweave..." },
+      success: { description: "JSON upload complete" },
+      error: (err) => {
+        setIsConfirming(false);
+        console.log({ err });
+        return (
           <div className="break-normal">
             <p>
               There has been an error while uploading with the message:{" "}
@@ -120,35 +142,29 @@ const CreateToken: NextPage = () => {
               page.
             </p>
           </div>
-        ),
-      });
-    }
+        );
+      },
+    });
 
-    const {
-      context: { slot },
-    } = await connection.getLatestBlockhashAndContext();
     try {
-      const { response } = await metaplex.nfts().createSft(
-        {
-          name: data.name,
-          symbol: data.symbol,
-          uri: metadataUri,
-          sellerFeeBasisPoints: 0,
-          useExistingMint: new PublicKey(data.mint),
-        },
-        { confirmOptions: { minContextSlot: slot, commitment: "confirmed" } }
-      );
-
-      notify({
-        title: "Add Metadata Success",
-        description: (
-          <>
-            Metadata created for token{" "}
-            <span className="font-medium text-blue-300">{compress(data.mint, 4)}</span>
-          </>
-        ),
-        type: "success",
-        txid: response.signature,
+      const ix = createMetadataInstruction(wallet.publicKey, new PublicKey(data.mint), {
+        name: data.name,
+        symbol: data.symbol,
+        uri: metadataUri,
+      });
+      await notifyPromise(sendAndConfirmVersionedTransaction([ix]), {
+        loading: { description: "Confirming transaction" },
+        success: (value) => ({
+          txid: value.signature,
+          title: "Add Metadata Success",
+          description: (
+            <>
+              Metadata created for token{" "}
+              <span className="font-medium text-blue-300">{compress(data.mint, 4)}</span>
+            </>
+          ),
+        }),
+        error: (err) => ({ title: "Error Creating Metadata", description: err?.message }),
       });
     } catch (err) {
       if (err instanceof WalletError) {
@@ -180,35 +196,40 @@ const CreateToken: NextPage = () => {
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 divide-y divide-gray-200">
           <div>
-            <div className="mt-4 flex items-center justify-between">
+            <div className="mt-4 ">
               <h3 className="text-lg font-medium leading-6 text-gray-900">Basic Information</h3>
+              <p className="text-sm text-gray-500">
+                You need to have the mint authority over the token.
+              </p>
             </div>
 
             <div className="mt-6 grid grid-cols-1 gap-y-4 gap-x-4">
-              <InputGroup
-                label="Mint address"
-                description={
-                  <>
-                    Address of your previously created token (
-                    <a
-                      className="text-blue-500"
-                      href="https://spl.solana.com/token#example-creating-your-own-fungible-token"
-                    >
-                      e.g. with the CLI
-                    </a>
-                    )
-                  </>
-                }
-                placeholder="Public key"
-                type="text"
-                {...register("mint", {
-                  required: true,
-                  validate: {
-                    isValid: (value) => isPublicKey(value) ?? "Not a valid public key",
-                  },
-                })}
-                error={errors?.mint}
-              />
+              <div>
+                <InputGroup
+                  label="Mint address"
+                  description={
+                    <>
+                      Address of your previously created token (
+                      <a
+                        className="text-blue-500"
+                        href="https://spl.solana.com/token#example-creating-your-own-fungible-token"
+                      >
+                        e.g. with the CLI
+                      </a>
+                      ).
+                    </>
+                  }
+                  placeholder="Public key"
+                  type="text"
+                  {...register("mint", {
+                    required: true,
+                    validate: {
+                      isValid: (value) => isPublicKey(value) ?? "Not a valid public key",
+                    },
+                  })}
+                  error={errors?.mint}
+                />
+              </div>
               <InputGroup
                 label="Name"
                 description="Full name of your token (e.g. USD Coin)"
@@ -271,19 +292,12 @@ const CreateToken: NextPage = () => {
               <button
                 type="submit"
                 disabled={isConfirming}
-                className="inline-flex items-center rounded-md bg-secondary px-4 py-2 text-base text-gray-50 shadow-sm hover:bg-secondary-focus focus:outline-none focus:ring-2 focus:ring-secondary-focus focus:ring-offset-2"
+                className="inline-flex items-center rounded-md bg-secondary px-4 py-2 text-base text-gray-50 shadow-sm hover:bg-secondary-focus focus:outline-none focus:ring-2 focus:ring-secondary-focus focus:ring-offset-2 disabled:bg-secondary-focus"
               >
-                {isConfirming ? (
-                  <>
-                    <SpinnerIcon className="-ml-1 mr-1 h-5 w-5 animate-spin" />
-                    Confirming
-                  </>
-                ) : (
-                  <>
-                    <ChevronRightIcon className="-ml-1 mr-1 h-5 w-5" aria-hidden={true} />
-                    Add metadata
-                  </>
-                )}
+                <>
+                  <ChevronRightIcon className="-ml-1 mr-1 h-5 w-5" aria-hidden={true} />
+                  Add metadata
+                </>
               </button>
             </div>
           </div>
