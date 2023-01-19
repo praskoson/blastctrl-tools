@@ -290,7 +290,7 @@ const CreateToken: NextPage = () => {
               <ul className="mt-1 mb-3 list-disc text-sm text-gray-500 sm:ml-5">
                 <li>Square aspect ratio</li>
                 <li>Smaller size (e.g. 200x200 pixels)</li>
-                <li>Fit within a circle, as most wallets display token icons within a circle.</li>
+                <li>Fit within a circle (most wallets display token icons in a circle)</li>
               </ul>
             </div>
 
