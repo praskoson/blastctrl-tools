@@ -2,7 +2,15 @@ import { useCallback } from "react";
 
 import { WalletNotConnectedError } from "@solana/wallet-adapter-base";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { Commitment, RpcResponseAndContext, SignatureResult, Transaction } from "@solana/web3.js";
+import {
+  Commitment,
+  RpcResponseAndContext,
+  SignatureResult,
+  Transaction,
+  TransactionInstruction,
+  TransactionMessage,
+  VersionedTransaction,
+} from "@solana/web3.js";
 
 type SendTransactionOptions = {
   commitment?: Commitment;
@@ -47,5 +55,57 @@ export const useWalletConnection = () => {
     [publicKey, sendTransaction, connection]
   );
 
-  return { wallet: publicKey, connection, sendAndConfirmTransaction };
+  const simulateVersionedTransaction = useCallback(
+    async (instructions: TransactionInstruction[]) => {
+      const {
+        context: { slot: minContextSlot },
+        value: { blockhash, lastValidBlockHeight },
+      } = await connection.getLatestBlockhashAndContext();
+
+      const messageV0 = new TransactionMessage({
+        payerKey: publicKey,
+        recentBlockhash: blockhash,
+        instructions,
+      }).compileToV0Message();
+
+      const tx = new VersionedTransaction(messageV0);
+
+      return await connection.simulateTransaction(tx);
+    },
+    [connection, publicKey]
+  );
+
+  const sendAndConfirmVersionedTransaction = useCallback(
+    async (instructions: TransactionInstruction[]) => {
+      const {
+        context: { slot: minContextSlot },
+        value: { blockhash, lastValidBlockHeight },
+      } = await connection.getLatestBlockhashAndContext();
+
+      const messageV0 = new TransactionMessage({
+        payerKey: publicKey,
+        recentBlockhash: blockhash,
+        instructions,
+      }).compileToV0Message();
+
+      const tx = new VersionedTransaction(messageV0);
+      const signature = await sendTransaction(tx, connection, { minContextSlot });
+      const result = await connection.confirmTransaction({
+        blockhash,
+        lastValidBlockHeight,
+        signature,
+      });
+
+      return { signature, result };
+    },
+    [connection, publicKey, sendTransaction]
+  );
+
+  return {
+    wallet: publicKey,
+    connection,
+    sendAndConfirmTransaction,
+    sendAndConfirmVersionedTransaction,
+    simulateVersionedTransaction,
+  };
 };

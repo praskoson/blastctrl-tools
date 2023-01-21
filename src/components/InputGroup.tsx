@@ -25,11 +25,11 @@ export const InputGroup = React.forwardRef<HTMLInputElement, InputGroupProps>(fu
 
   return (
     <div className={className}>
-      <label htmlFor={rest.name} className="block space-x-2">
+      <label htmlFor={rest.name} className="flex flex-wrap items-center gap-x-2">
         <span className="text-sm font-medium text-gray-700">{label}</span>
         {description && <span className="text-xs font-normal text-gray-500">{description}</span>}
       </label>
-      <div className="relative mt-1 rounded-md shadow-sm">
+      <div className="relative mt-2 rounded-md shadow-sm sm:mt-1">
         {leadingAddOn}
         <input
           ref={ref}

@@ -13,6 +13,7 @@ import BigNumber from "bignumber.js";
 import { WalletContextState } from "@solana/wallet-adapter-react";
 import { Amount, lamports, toBigNumber } from "types";
 import { WithdrawalResponse } from "@bundlr-network/client/build/common/types";
+import { WalletError } from "@solana/wallet-adapter-base";
 
 export type BundlrOptions = {
   address?: string;
@@ -167,6 +168,9 @@ export class BundlrStorageDriver {
 
         return `https://arweave.net/${id}`;
       } catch (err) {
+        if (err instanceof WalletError) {
+          throw err;
+        }
         throw Error(`Failed to upload asset with error message ${err}`);
       }
     });
