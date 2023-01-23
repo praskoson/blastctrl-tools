@@ -12,7 +12,7 @@ const Storage: NextPage = () => {
       active: true,
     },
     {
-      name: "Create metadata (Arweave)",
+      name: "Create NFT metadata on Arweave",
       href: "/storage/create-metadata",
       description:
         "A wizard-like form for creating Metaplex-standard NFT metadata and uploading it to Arweave.",
