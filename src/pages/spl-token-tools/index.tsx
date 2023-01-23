@@ -7,19 +7,19 @@ const Tokens: NextPage = () => {
   const navigation = [
     {
       name: "Recover nested token accounts",
-      href: "/tokens/recover-nested",
+      href: "/spl-token-tools/recover-nested",
       description: "Recover tokens stuck in nested associated token accounts.",
       active: true,
     },
     {
       name: "Add metadata to tokens",
-      href: "/tokens/create-token",
+      href: "/spl-token-tools/create-token",
       description: "Add on chain metadata to a fungible token",
       active: true,
     },
     {
       name: "Close empty accounts",
-      href: "/tokens/close-empty",
+      href: "/spl-token-tools/close-empty",
       description:
         "Attempt to close your empty token accounts, recovering the SOL used to open them.",
       active: false,

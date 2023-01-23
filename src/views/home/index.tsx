@@ -63,12 +63,12 @@ export const HomeView: FC = ({}) => {
                     Mint NFTs
                   </a>
                 </Link>
-                <Link href="/tokens/recover-nested">
+                <Link href="/spl-token-tools/recover-nested">
                   <a className="inline-flex items-center justify-center rounded-lg border-2 border-violet-600 px-3 py-1.5 text-violet-900 shadow hover:bg-violet-50">
                     Recover nested accounts
                   </a>
                 </Link>
-                <Link href="/tokens/create-token">
+                <Link href="/spl-token-tools/create-token">
                   <a className="inline-flex items-center justify-center rounded-lg border-2 border-rose-600 px-3 py-1.5 text-rose-900 shadow hover:bg-violet-50">
                     Create fungible tokens
                   </a>
