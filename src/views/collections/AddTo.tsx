@@ -67,9 +67,10 @@ export const AddTo = () => {
           description: `This action requires multiple transactions and will be split into ${transactions.length} batches.`,
         });
       } else {
-        return notifyPromise(sendAndConfirmTransaction(transactions[0]), {
+        return void notifyPromise(sendAndConfirmTransaction(transactions[0]), {
           loading: { description: "Confirming transaction..." },
           success: {
+            title: "Add to collection success",
             description: `${nftMints.length} NFTs added to collection ${compress(
               collectionAddress,
               4
@@ -88,8 +89,7 @@ export const AddTo = () => {
       }
 
       // Request signature from wallet
-      let signed: Transaction[];
-      signed = await signAllTransactions(transactions);
+      const signed = await signAllTransactions(transactions);
       const txids = await Promise.all(
         signed.map(async (signedTx) => {
           return await connection.sendRawTransaction(signedTx.serialize(), {

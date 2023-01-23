@@ -1,12 +1,12 @@
 import { Cluster, clusterApiUrl, Connection, PublicKey, Transaction } from "@solana/web3.js";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Networks } from "utils/endpoints";
-import { getMetadata } from "utils/spl";
-import { Metadata } from "@metaplex-foundation/mpl-token-metadata";
-import { addNftToCollection } from "utils/spl/collections";
+import { unverifyCollectionNft } from "utils/spl/collections";
 import { chunk } from "lodash-es";
+import { Metadata } from "@metaplex-foundation/mpl-token-metadata";
+import { getMetadata } from "utils/spl";
 
-export type TxSetAndVerifyData = {
+export type TxUnverifyData = {
   tx: string[];
   blockhash: string;
   lastValidBlockHeight: number;
@@ -15,22 +15,19 @@ export type TxSetAndVerifyData = {
 
 export type Input = {
   authorityAddress: string;
-  collectionAddress: string;
   nftMints: string[];
   network: Cluster;
 };
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<TxSetAndVerifyData>
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse<TxUnverifyData>) {
   if (req.method === "POST") {
-    const { authorityAddress, collectionAddress, nftMints, network } = req.body as Input;
+    const { authorityAddress, nftMints, network } = req.body as Input;
 
     const connection = new Connection(Networks[network]);
     const authority = new PublicKey(authorityAddress);
-    const collection = new PublicKey(collectionAddress);
     const nfts = nftMints.map((str) => new PublicKey(str));
+    const nftMetadata = await Metadata.fromAccountAddress(connection, getMetadata(nfts[0]));
+    const collection = nftMetadata.collection.key;
     const collectionMetadata = await Metadata.fromAccountAddress(
       connection,
       getMetadata(collection)
@@ -38,7 +35,7 @@ export default async function handler(
 
     const batchSize = 12;
     const chunkedInstructions = chunk(
-      nfts.map((nft) => addNftToCollection(authority, nft, collection, collectionMetadata)),
+      nfts.map((nft) => unverifyCollectionNft(nft, authority, collection, collectionMetadata)),
       batchSize
     );
 
@@ -49,6 +46,10 @@ export default async function handler(
     const transactions = chunkedInstructions.map((batch) =>
       new Transaction({ feePayer: authority, blockhash, lastValidBlockHeight }).add(...batch.flat())
     );
+
+    // for (const tx of transactions) {
+    //   const result = await connection.simulateTransaction(tx, []);
+    // }
 
     const serializedTransactionsBase64 = transactions.map((tx) =>
       tx
