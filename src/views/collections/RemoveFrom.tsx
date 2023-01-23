@@ -4,7 +4,7 @@ import { useState } from "react";
 import { ChevronRightIcon } from "@heroicons/react/20/solid";
 
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
-import { InputMultiline, notify, notifyManyPromises, notifyPromise } from "components";
+import { InputMultiline, notify, notifyManyPromises, notifyPromise, SpinnerIcon } from "components";
 import { useWalletConnection } from "hooks/useWalletConnection";
 import { TxUnverifyData } from "pages/api/tx/remove-from-collection";
 import { useForm } from "react-hook-form";
@@ -37,6 +37,7 @@ export const RemoveFrom = () => {
 
     try {
       // unverify
+      setIsConfirming(true);
       let {
         tx: removeCollectionResponse,
         blockhash,
@@ -90,8 +91,6 @@ export const RemoveFrom = () => {
         })
       );
 
-      console.log(signed[0].serialize().byteLength);
-
       const promises = txids.map(async (signature) => {
         const { value } = await connection.confirmTransaction({
           blockhash,
@@ -108,12 +107,14 @@ export const RemoveFrom = () => {
         promise,
       }));
 
-      void notifyManyPromises({
+      notifyManyPromises({
         title: "Confirming multiple transactions",
         promises: transactionPromises,
       });
     } catch (err) {
       notify({ type: "error", title: "Remove from collection Error", description: err?.message });
+    } finally {
+      setIsConfirming(false);
     }
   };
 
@@ -156,9 +157,14 @@ export const RemoveFrom = () => {
         <div className="my-4 flex items-center justify-end py-2">
           <button
             type="submit"
-            className="block w-full rounded-md bg-indigo-600 px-3 py-1.5 text-base text-gray-50 hover:bg-indigo-700"
+            disabled={isConfirming}
+            className="block w-full rounded-md bg-indigo-600 px-3 py-1.5 text-base text-gray-50 hover:bg-indigo-700 disabled:bg-indigo-700"
           >
-            <ChevronRightIcon className="-ml-1 mr-1 inline h-5 w-5" />
+            {isConfirming ? (
+              <SpinnerIcon className="-ml-1 mr-1 inline h-5 w-5 animate-spin" />
+            ) : (
+              <ChevronRightIcon className="-ml-1 mr-1 inline h-5 w-5" />
+            )}
             Submit
           </button>
         </div>

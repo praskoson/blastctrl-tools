@@ -1,14 +1,22 @@
 import { Transaction } from "@solana/web3.js";
-import { InputGroup, InputMultiline, notify, notifyManyPromises, notifyPromise } from "components";
+import {
+  InputGroup,
+  InputMultiline,
+  notify,
+  notifyManyPromises,
+  notifyPromise,
+  SpinnerIcon,
+} from "components";
 
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { useForm } from "react-hook-form";
 import { compress, isPublicKey } from "utils/spl/common";
 import { useWalletConnection } from "hooks/useWalletConnection";
 import { ChevronRightIcon } from "@heroicons/react/20/solid";
-import { fetcher, zipMap } from "utils";
+import { fetcher } from "utils";
 import { TxSetAndVerifyData } from "pages/api/tx/add-to-collection";
 import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
+import { useState } from "react";
 
 type FormData = {
   nftList: string;
@@ -24,13 +32,8 @@ export const AddTo = () => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormData>({
-    defaultValues: {
-      collectionMint: "Gx1Yh4uHp6QiejRFtFrxZoP17ehZS8dMG7ddGckaGqaP",
-      nftList:
-        "86J52egGfkzDmByk961appyevaJ5BqaATXzKMRXCPyZJ\n86J52egGfkzDmByk961appyevaJ5BqaATXzKMRXCPyZJ\n86J52egGfkzDmByk961appyevaJ5BqaATXzKMRXCPyZJ",
-    },
-  });
+  } = useForm<FormData>();
+  const [isConfirming, setIsConfirming] = useState(false);
 
   const onSetCollection = async (data: FormData) => {
     if (!connected) {
@@ -41,6 +44,7 @@ export const AddTo = () => {
     const nftMints = data.nftList.split("\n").filter(Boolean);
     try {
       // set
+      setIsConfirming(true);
       let {
         tx: addCollectionResponse,
         blockhash,
@@ -120,6 +124,8 @@ export const AddTo = () => {
       });
     } catch (err) {
       notify({ type: "error", title: "Add to collection error", description: err?.message });
+    } finally {
+      setIsConfirming(false);
     }
   };
 
@@ -171,9 +177,14 @@ export const AddTo = () => {
         <div className="my-4 flex items-center justify-end py-2">
           <button
             type="submit"
-            className="block w-full rounded-md bg-indigo-600 px-3 py-1.5 text-base text-gray-50 hover:bg-indigo-700"
+            disabled={isConfirming}
+            className="block w-full rounded-md bg-indigo-600 px-3 py-1.5 text-base text-gray-50 hover:bg-indigo-700 disabled:bg-indigo-700"
           >
-            <ChevronRightIcon className="-ml-1 mr-1 inline h-5 w-5" />
+            {isConfirming ? (
+              <SpinnerIcon className="-ml-1 mr-1 inline h-5 w-5 animate-spin" />
+            ) : (
+              <ChevronRightIcon className="-ml-1 mr-1 inline h-5 w-5" />
+            )}
             Submit
           </button>
         </div>
