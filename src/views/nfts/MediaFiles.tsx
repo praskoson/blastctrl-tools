@@ -1,7 +1,7 @@
 import { InformationCircleIcon } from "@heroicons/react/20/solid";
 import { Tooltip } from "components";
 import Image from "next/image";
-import { CreateFormInputs } from "pages/nft-tools/mint";
+import { CreateFormInputs } from "pages/solana-nft-tools/mint";
 import { useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { UseFormSetValue, UseFormWatch } from "react-hook-form";

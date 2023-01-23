@@ -1,6 +1,6 @@
 import { Switch } from "@headlessui/react";
 import { useController, UseControllerProps } from "react-hook-form";
-import { FormInputs } from "pages/nft-tools/update";
+import { FormInputs } from "pages/solana-nft-tools/update";
 
 function classNames(...classes: any[]) {
   return classes.filter(Boolean).join(" ");

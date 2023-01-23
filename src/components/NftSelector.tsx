@@ -5,7 +5,7 @@ import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import { NftSelectorOption } from "./NftSelectorOption";
 import { UseControllerProps, useController } from "react-hook-form";
 import { classNames } from "utils";
-import type { FormInputs, FormToken } from "pages/nft-tools/update";
+import type { FormInputs, FormToken } from "pages/solana-nft-tools/update";
 import { useWallet } from "@solana/wallet-adapter-react";
 
 export const NftSelector = (

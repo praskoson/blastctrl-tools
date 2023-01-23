@@ -1,5 +1,5 @@
 import { PlusCircleIcon, XMarkIcon } from "@heroicons/react/20/solid";
-import { CreateFormInputs } from "pages/nft-tools/mint";
+import { CreateFormInputs } from "pages/solana-nft-tools/mint";
 import { Control, useFieldArray, UseFormRegister } from "react-hook-form";
 import { classNames } from "utils";
 import { isPublicKey } from "utils/spl/common";
