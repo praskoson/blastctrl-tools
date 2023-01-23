@@ -1,4 +1,5 @@
 import { NextPage } from "next";
+import Head from "next/head";
 import Link from "next/link";
 import { classNames } from "utils";
 
@@ -46,8 +47,12 @@ const Nfts: NextPage = (props) => {
       active: false,
     },
   ];
+
   return (
     <>
+      <Head>
+        <title>Solana NFT Tools | Blast Ctrl - Home</title>
+      </Head>
       <h1 className="pb-4">Tools for interacting with Metaplex smart contracts</h1>
       <div className="grid grid-cols-1 gap-y-6 sm:grid-cols-3 sm:gap-x-4">
         {navigation.map((navItem) => (
