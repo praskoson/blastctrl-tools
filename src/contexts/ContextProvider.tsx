@@ -72,7 +72,7 @@ const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
       error instanceof WalletNotConnectedError
     ) {
       // Ignore
-      notify({ title: "Wallet Error", description: "Connect your Solana wallet." });
+      notify({ type: "info", title: "Wallet Error", description: "Connect your Solana wallet." });
       return;
     }
     notify({

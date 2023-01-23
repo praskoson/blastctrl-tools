@@ -24,7 +24,7 @@ export type SendAndConfirmReturnType = {
 
 export const useWalletConnection = () => {
   const { connection } = useConnection();
-  const { publicKey, sendTransaction } = useWallet();
+  const { publicKey, sendTransaction, connected, signAllTransactions } = useWallet();
 
   const sendAndConfirmTransaction = useCallback(
     async (
@@ -50,6 +50,8 @@ export const useWalletConnection = () => {
         opts?.commitment
       );
 
+      if (result.value.err) throw Error(JSON.stringify(result.value.err));
+
       return { signature, result };
     },
     [publicKey, sendTransaction, connection]
@@ -58,8 +60,7 @@ export const useWalletConnection = () => {
   const simulateVersionedTransaction = useCallback(
     async (instructions: TransactionInstruction[]) => {
       const {
-        context: { slot: minContextSlot },
-        value: { blockhash, lastValidBlockHeight },
+        value: { blockhash },
       } = await connection.getLatestBlockhashAndContext();
 
       const messageV0 = new TransactionMessage({
@@ -102,10 +103,12 @@ export const useWalletConnection = () => {
   );
 
   return {
+    connected,
     wallet: publicKey,
     connection,
     sendAndConfirmTransaction,
     sendAndConfirmVersionedTransaction,
     simulateVersionedTransaction,
+    signAllTransactions,
   };
 };

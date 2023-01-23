@@ -118,7 +118,7 @@ const Update: NextPage = () => {
       } catch (err) {
         if (selectedToken?.address) {
           console.log({ err });
-          notify({ description: "Couldn't load information on the selected token." });
+          notify({ type: "info", description: "Couldn't load information on the selected token." });
         }
       }
     }

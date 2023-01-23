@@ -1,120 +1,194 @@
-import { WalletSignTransactionError } from "@solana/wallet-adapter-base";
-import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { TransactionSignature, PublicKey, Transaction } from "@solana/web3.js";
-import { notify } from "components";
-import { FormEvent, useCallback, useState } from "react";
-import { errorFromCode } from "@metaplex-foundation/mpl-token-metadata";
+import { Transaction } from "@solana/web3.js";
+import {
+  InputGroup,
+  InputMultiline,
+  notify,
+  notifyManyPromises,
+  notifyPromise,
+  SpinnerIcon,
+} from "components";
 
-import { addNftToCollection } from "utils/spl/collections";
-import { tryGetErrorCodeFromMessage } from "utils/spl";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
+import { useForm } from "react-hook-form";
+import { compress, isPublicKey } from "utils/spl/common";
+import { useWalletConnection } from "hooks/useWalletConnection";
+import { ChevronRightIcon } from "@heroicons/react/20/solid";
+import { fetcher } from "utils";
+import { TxSetAndVerifyData } from "pages/api/tx/add-to-collection";
+import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
+import { useState } from "react";
+
+type FormData = {
+  nftList: string;
+  collectionMint: string;
+};
 
 export const AddTo = () => {
-  const { connection } = useConnection();
-  const { publicKey, sendTransaction } = useWallet();
+  const { network } = useNetworkConfigurationStore();
+  const { connection, connected, wallet, signAllTransactions, sendAndConfirmTransaction } =
+    useWalletConnection();
   const { setVisible } = useWalletModal();
-  const [nftStr, setNftStr] = useState("");
-  const [collectionStr, setCollectionStr] = useState("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormData>();
+  const [isConfirming, setIsConfirming] = useState(false);
 
-  const onClick = useCallback(
-    async (e: FormEvent) => {
-      e.preventDefault();
+  const onSetCollection = async (data: FormData) => {
+    if (!connected) {
+      return setVisible(true);
+    }
 
-      if (!publicKey) {
-        setVisible(true);
-        return;
-      }
+    const collectionAddress = data.collectionMint;
+    const nftMints = data.nftList.split("\n").filter(Boolean);
+    try {
+      // set
+      setIsConfirming(true);
+      let {
+        tx: addCollectionResponse,
+        blockhash,
+        lastValidBlockHeight,
+        minContextSlot,
+      } = await fetcher<TxSetAndVerifyData>("/api/tx/add-to-collection", {
+        method: "POST",
+        body: JSON.stringify({
+          authorityAddress: wallet.toBase58(),
+          collectionAddress,
+          nftMints,
+          network,
+        }),
+        headers: { "Content-type": "application/json; charset=UTF-8" },
+      });
 
-      let signature: TransactionSignature = "";
-      try {
-        const nftMint = new PublicKey(nftStr);
-        const collectionMint = new PublicKey(collectionStr);
-        const ix = await addNftToCollection(connection, publicKey, nftMint, collectionMint);
-        const tx = new Transaction().add(ix);
-        const {
-          context: { slot: minContextSlot },
-          value: { blockhash, lastValidBlockHeight },
-        } = await connection.getLatestBlockhashAndContext();
+      const transactions = addCollectionResponse.map((tx) =>
+        Transaction.from(Buffer.from(tx, "base64"))
+      );
 
-        signature = await sendTransaction(tx, connection, {
-          minContextSlot,
-        });
-
-        await connection.confirmTransaction(
-          { blockhash, lastValidBlockHeight, signature },
-          "confirmed"
-        );
-        console.log(signature);
-        notify({ type: "success", title: "Add to collection success", txid: signature });
-      } catch (error: any) {
-        if (error instanceof WalletSignTransactionError) {
-          return;
-        }
-        console.log({ error });
-
-        const code = tryGetErrorCodeFromMessage(error?.message);
-        const decodedError = code ? errorFromCode(code) : undefined;
-
+      if (transactions.length > 1) {
         notify({
-          type: "error",
-          title: "Add to collection failed",
-          description: (
-            <span className="break-words">
-              {decodedError ? (
-                <>
-                  <span className="block">
-                    Decoded error:{" "}
-                    <span className="font-medium text-orange-300">{decodedError.name}</span>
-                  </span>
-                  <span className="block">{decodedError.message}</span>
-                </>
-              ) : error?.message ? (
-                <span className="break-words">{error.message}</span>
-              ) : (
-                "Unknown error, check the console for more details"
-              )}
-            </span>
-          ),
+          type: "info",
+          description: `This action requires multiple transactions and will be split into ${transactions.length} batches.`,
+        });
+      } else {
+        return void notifyPromise(sendAndConfirmTransaction(transactions[0]), {
+          loading: { description: "Confirming transaction..." },
+          success: {
+            title: "Add to collection success",
+            description: `${nftMints.length} NFTs added to collection ${compress(
+              collectionAddress,
+              4
+            )}`,
+          },
+          error: (err) => ({
+            title: "Add to collection Error",
+            description: (
+              <div>
+                <p className="block">Transaction failed with message: </p>
+                <p className="mt-1.5 block">{err?.message}</p>
+              </div>
+            ),
+          }),
         });
       }
-    },
-    [publicKey, connection, collectionStr, nftStr, sendTransaction, setVisible]
-  );
+
+      // Request signature from wallet
+      const signed = await signAllTransactions(transactions);
+      const txids = await Promise.all(
+        signed.map(async (signedTx) => {
+          return await connection.sendRawTransaction(signedTx.serialize(), {
+            minContextSlot,
+          });
+        })
+      );
+
+      const promises = txids.map(async (signature) => {
+        const { value } = await connection.confirmTransaction({
+          blockhash,
+          lastValidBlockHeight,
+          signature,
+        });
+        if (value.err) throw Error("msg", { cause: "test" });
+        return { value };
+      });
+
+      const transactionPromises = promises.map((promise, idx) => ({
+        label: `SetAndVerify ~ batch ${idx + 1}`,
+        txid: txids[idx],
+        promise,
+      }));
+
+      void notifyManyPromises({
+        title: "Confirming multiple transactions",
+        promises: transactionPromises,
+      });
+    } catch (err) {
+      notify({ type: "error", title: "Add to collection error", description: err?.message });
+    } finally {
+      setIsConfirming(false);
+    }
+  };
 
   return (
-    <form onSubmit={onClick}>
-      <h3>Add to collection</h3>
-      <div className="form-control">
-        <label className="label">
-          <span className="label-text">NFT mint</span>
-        </label>
-        <label className="input-group">
-          <span>NFT</span>
-          <input
-            value={nftStr}
-            onChange={(e) => setNftStr(e.target.value)}
-            type="text"
-            className="input-bordered input"
-          />
-        </label>
+    <div className="mx-auto max-w-xl overflow-visible bg-white px-4 pb-5 sm:mb-6 sm:rounded-lg sm:p-6 sm:shadow">
+      <div className="border-b border-gray-200 pb-4">
+        <h1 className="mb-4 font-display text-3xl font-semibold">Add to collection</h1>
+        <p className="text-sm text-gray-500">
+          Enter a list of NFTs that you wish to add to a collection. You need to be the{" "}
+          <a
+            className="text-blue-500"
+            target="_blank"
+            rel="noreferrer"
+            href="https://docs.metaplex.com/programs/token-metadata/accounts#metadata"
+          >
+            update authority
+          </a>{" "}
+          of both the collection and all the NFTs.
+        </p>
       </div>
-      <div className="form-control">
-        <label className="label">
-          <span className="label-text">Collection mint</span>
-        </label>
-        <label className="input-group">
-          <span>Collection</span>
-          <input
-            value={collectionStr}
-            onChange={(e) => setCollectionStr(e.target.value)}
+      <form onSubmit={handleSubmit(onSetCollection)}>
+        <div className="my-4 flex flex-col gap-y-4">
+          <InputGroup
+            className="w-full"
             type="text"
-            className="input-bordered input"
+            label="Collection NFT mint"
+            {...register("collectionMint", {
+              required: true,
+              validate: (value) => isPublicKey(value) || "Not a valid pubkey",
+            })}
+            error={errors?.collectionMint}
           />
-        </label>
-      </div>
-      <button type="submit" className="btn btn-secondary mt-4">
-        Submit
-      </button>
-    </form>
+          <InputMultiline
+            className="w-full"
+            rows={10}
+            label="NFT addresses"
+            description="Mint addresses, each in a new line"
+            {...register("nftList", {
+              required: true,
+              validate: (value) => {
+                const list = value.split("\n");
+                const invalid = list.find((row) => !isPublicKey(row));
+                return !invalid || `There is an invalid pubkey: ${invalid}`;
+              },
+            })}
+            error={errors?.nftList}
+          />
+        </div>
+        <div className="my-4 flex items-center justify-end py-2">
+          <button
+            type="submit"
+            disabled={isConfirming}
+            className="block w-full rounded-md bg-indigo-600 px-3 py-1.5 text-base text-gray-50 hover:bg-indigo-700 disabled:bg-indigo-700"
+          >
+            {isConfirming ? (
+              <SpinnerIcon className="-ml-1 mr-1 inline h-5 w-5 animate-spin" />
+            ) : (
+              <ChevronRightIcon className="-ml-1 mr-1 inline h-5 w-5" />
+            )}
+            Submit
+          </button>
+        </div>
+      </form>
+    </div>
   );
 };
