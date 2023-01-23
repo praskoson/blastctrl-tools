@@ -5,13 +5,13 @@ import { classNames } from "utils";
 const Nfts: NextPage = (props) => {
   const navigation = [
     {
-      name: "Update an NFT",
+      name: "Update an existing NFT",
       href: "/nft-tools/update",
       description: "Update an NFT by replacing the on-chain fields that you wish to change.",
       active: true,
     },
     {
-      name: "Mint an NFT",
+      name: "Mint a custom NFT",
       href: "/nft-tools/mint",
       description: "Manually enter the on-chain stored information to mint an NFT.",
       active: true,
@@ -30,25 +30,25 @@ const Nfts: NextPage = (props) => {
         collectionIsSized: true,
       },
       description:
-        "Create a collection mint. This process is the same as creating a regular NFT, but you need to set the collection field.",
+        "This process is the same as minting an NFT, but the collection flag is set as true.",
       active: true,
     },
     {
-      name: "Add or remove from a collection",
+      name: "Add or Remove from a collection",
       href: "/nft-tools/collections",
-      description: "Add or remove NFTs from an on-chain collection.",
+      description: "Add or remove Solana NFTs from an on-chain collection.",
       active: true,
     },
     {
-      name: "Faucet",
+      name: "Solana NFT Faucet",
       href: "/nft-tools/collections",
-      description: "Mint random NFTs for testing or other purposes.",
+      description: "Mint a random NFT for testing purposes.",
       active: false,
     },
   ];
   return (
     <>
-      <h3 className="pb-4">Tools for interacting with Metaplex smart contracts</h3>
+      <h1 className="pb-4">Tools for interacting with Metaplex smart contracts</h1>
       <div className="grid grid-cols-1 gap-y-6 sm:grid-cols-3 sm:gap-x-4">
         {navigation.map((navItem) => (
           <Link key={navItem.name} href={{ pathname: navItem.href, query: navItem.query }}>
@@ -60,21 +60,21 @@ const Nfts: NextPage = (props) => {
               )}
             >
               <div className="flex items-center justify-between">
-                <span className="block text-base font-medium text-gray-900">{navItem.name}</span>
+                <h2 className="block text-base font-medium text-gray-900">{navItem.name}</h2>
                 {!navItem.active && (
                   <span className="inline-flex rotate-2 items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800">
                     Under construction
                   </span>
                 )}
               </div>
-              <span
+              <h3
                 className={classNames(
                   "mt-1 flex items-center text-sm text-gray-500",
                   !navItem.active && "blur-[2px]"
                 )}
               >
                 {navItem.description}
-              </span>
+              </h3>
             </a>
           </Link>
         ))}
