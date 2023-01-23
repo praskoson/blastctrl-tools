@@ -20,12 +20,12 @@ require("@solana/wallet-adapter-react-ui/styles.css");
 require("../styles/globals.css");
 
 const navigation = [
-  { name: "NFT Tools", href: "/nft-tools", description: "Run common Metaplex instructions" },
+  { name: "NFT Tools", href: "/solana-nft-tools", description: "Run common Metaplex instructions" },
   { name: "Tokens", href: "/tokens", description: "Manage token accounts" },
   { name: "Storage", href: "/storage", description: "Decentralized file hosting" },
-  { name: "Add or remove from collection", href: "/nft-tools/collections", in: "NFT Tools" },
-  { name: "Mint NFT", href: "/nft-tools/mint", in: "NFT Tools" },
-  { name: "Create collection", href: "/nft-tools/mint", in: "NFT Tools" },
+  { name: "Add or remove from collection", href: "/solana-nft-tools/collections", in: "NFT Tools" },
+  { name: "Mint NFT", href: "/solana-nft-tools/mint", in: "NFT Tools" },
+  { name: "Create collection", href: "/solana-nft-tools/mint", in: "NFT Tools" },
   { name: "Recover nested", href: "/tokens/recover-nested", in: "Tokens" },
   { name: "Fungible token metadata", href: "/tokens/create-token", in: "Tokens" },
   { name: "Upload to Arweave", href: "/storage/file-upload", in: "Storage" },

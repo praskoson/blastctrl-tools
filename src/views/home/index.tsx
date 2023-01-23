@@ -43,7 +43,7 @@ export const HomeView: FC = ({}) => {
                 </p>
               </div>
               <div className="flex max-w-md flex-col flex-wrap gap-2 sm:max-w-lg sm:flex-row">
-                <Link href="/nft-tools/update">
+                <Link href="/solana-nft-tools/update">
                   <a className="inline-flex items-center justify-center rounded-lg border-2 border-indigo-600 px-3 py-1.5 text-indigo-900 shadow hover:bg-indigo-50 sm:justify-start">
                     Update NFT Metadata
                   </a>
@@ -53,12 +53,12 @@ export const HomeView: FC = ({}) => {
                     Upload files to Arweave
                   </a>
                 </Link>
-                <Link href="/nft-tools/collections">
+                <Link href="/solana-nft-tools/collections">
                   <a className="inline-flex items-center justify-center rounded-lg border-2 border-cyan-600 px-3 py-1.5 text-cyan-900 shadow hover:bg-cyan-50">
                     Add/Remove NFT from collection
                   </a>
                 </Link>
-                <Link href="/nft-tools/mint">
+                <Link href="/solana-nft-tools/mint">
                   <a className="inline-flex items-center justify-center rounded-lg border-2 border-sky-600 px-3 py-1.5 text-sky-900 shadow hover:bg-sky-50">
                     Mint NFTs
                   </a>

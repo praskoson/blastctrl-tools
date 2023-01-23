@@ -7,25 +7,25 @@ const Nfts: NextPage = (props) => {
   const navigation = [
     {
       name: "Update an existing NFT",
-      href: "/nft-tools/update",
+      href: "/solana-nft-tools/update",
       description: "Update an NFT by replacing the on-chain fields that you wish to change.",
       active: true,
     },
     {
       name: "Mint a custom NFT",
-      href: "/nft-tools/mint",
+      href: "/solana-nft-tools/mint",
       description: "Manually enter the on-chain stored information to mint an NFT.",
       active: true,
     },
     {
       name: "Burn NFT",
-      href: "/nft-tools",
+      href: "/solana-nft-tools",
       description: "Fully burn an NFT, recovering the SOL used to create it.",
       active: false,
     },
     {
       name: "Create a collection",
-      href: "/nft-tools/mint",
+      href: "/solana-nft-tools/mint",
       query: {
         isCollection: true,
         collectionIsSized: true,
@@ -36,13 +36,13 @@ const Nfts: NextPage = (props) => {
     },
     {
       name: "Add or Remove from a collection",
-      href: "/nft-tools/collections",
+      href: "/solana-nft-tools/collections",
       description: "Add or remove Solana NFTs from an on-chain collection.",
       active: true,
     },
     {
       name: "Solana NFT Faucet",
-      href: "/nft-tools/collections",
+      href: "/solana-nft-tools/collections",
       description: "Mint a random NFT for testing purposes.",
       active: false,
     },
