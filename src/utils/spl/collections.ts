@@ -49,42 +49,37 @@ export const unverifyCollectionNft = async (
   }
 };
 
-export const addNftToCollection = async (
-  connection: Connection,
+export const addNftToCollection = (
   wallet: PublicKey,
   nftMint: PublicKey,
-  collectionMint: PublicKey
-): Promise<TransactionInstruction> => {
-  try {
-    const metadata = getMetadata(nftMint);
-    const collection = getMetadata(collectionMint);
-    const collectionMasterEditionAccount = getMasterEdition(collectionMint);
-    const collectionMetadata = await Metadata.fromAccountAddress(connection, collection);
+  collectionMint: PublicKey,
+  collectionMetadata: Metadata
+): TransactionInstruction => {
+  const metadata = getMetadata(nftMint);
+  const collection = getMetadata(collectionMint);
+  const collectionMasterEditionAccount = getMasterEdition(collectionMint);
 
-    if (collectionMetadata.collectionDetails && collectionMetadata.collectionDetails.size) {
-      // This is a sized collection
-      return createSetAndVerifySizedCollectionItemInstruction({
-        payer: wallet,
-        updateAuthority: wallet,
-        collectionMint,
-        collection,
-        collectionMasterEditionAccount,
-        collectionAuthority: wallet,
-        metadata,
-      });
-    } else {
-      // This is an unsized collection
-      return createSetAndVerifyCollectionInstruction({
-        payer: wallet,
-        updateAuthority: wallet,
-        collectionMint,
-        collection,
-        collectionMasterEditionAccount,
-        collectionAuthority: wallet,
-        metadata,
-      });
-    }
-  } catch (err) {
-    throw Error("Error creating setAndVerifySizedCollectionItemInstruction", { cause: err });
+  if (collectionMetadata.collectionDetails) {
+    // This is a sized collection
+    return createSetAndVerifySizedCollectionItemInstruction({
+      payer: wallet,
+      updateAuthority: wallet,
+      collectionMint,
+      collection,
+      collectionMasterEditionAccount,
+      collectionAuthority: wallet,
+      metadata,
+    });
+  } else {
+    // This is an unsized collection
+    return createSetAndVerifyCollectionInstruction({
+      payer: wallet,
+      updateAuthority: wallet,
+      collectionMint,
+      collection,
+      collectionMasterEditionAccount,
+      collectionAuthority: wallet,
+      metadata,
+    });
   }
 };
