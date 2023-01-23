@@ -99,8 +99,8 @@ const CreateToken: NextPage = () => {
                 </p>
                 <p className="mt-2">
                   You can recover any lost funds on the{" "}
-                  <Link href="/storage/file-upload">
-                    <a className="font-medium text-blue-300">/storage</a>
+                  <Link href="/permanent-storage-tools/file-upload">
+                    <a className="font-medium text-blue-300">/permanent-storage-tools</a>
                   </Link>{" "}
                   page.
                 </p>
@@ -138,7 +138,7 @@ const CreateToken: NextPage = () => {
               </p>
               <p className="mt-2">
                 You can recover any lost funds on the{" "}
-                <Link href="/storage/file-upload">
+                <Link href="/permanent-storage-tools/file-upload">
                   <a className="font-medium text-blue-300">/storage</a>
                 </Link>{" "}
                 page.

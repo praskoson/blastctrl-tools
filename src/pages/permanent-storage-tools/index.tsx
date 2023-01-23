@@ -7,13 +7,13 @@ const Storage: NextPage = () => {
   const navigation = [
     {
       name: "Upload a file to Arweave",
-      href: "/storage/file-upload",
+      href: "/permanent-storage-tools/file-upload",
       description: "The file will be uploaded via the Bundlr network.",
       active: true,
     },
     {
       name: "Create NFT metadata on Arweave",
-      href: "/storage/create-metadata",
+      href: "/permanent-storage-tools/create-metadata",
       description:
         "A wizard-like form for creating Metaplex-standard NFT metadata and uploading it to Arweave.",
       active: false,

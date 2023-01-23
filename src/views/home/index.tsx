@@ -48,7 +48,7 @@ export const HomeView: FC = ({}) => {
                     Update NFT Metadata
                   </a>
                 </Link>
-                <Link href="/storage/file-upload">
+                <Link href="/permanent-storage-tools/file-upload">
                   <a className="inline-flex items-center justify-center rounded-lg border-2 border-orange-600 px-3 py-1.5 text-orange-900 shadow hover:bg-orange-50">
                     Upload files to Arweave
                   </a>

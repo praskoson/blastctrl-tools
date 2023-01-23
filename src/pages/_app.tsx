@@ -22,13 +22,13 @@ require("../styles/globals.css");
 const navigation = [
   { name: "NFT Tools", href: "/solana-nft-tools", description: "Run common Metaplex instructions" },
   { name: "Tokens", href: "/spl-token-tools", description: "Manage token accounts" },
-  { name: "Storage", href: "/storage", description: "Decentralized file hosting" },
+  { name: "Storage", href: "/permanent-storage-tools", description: "Decentralized file hosting" },
   { name: "Add or remove from collection", href: "/solana-nft-tools/collections", in: "NFT Tools" },
   { name: "Mint NFT", href: "/solana-nft-tools/mint", in: "NFT Tools" },
   { name: "Create collection", href: "/solana-nft-tools/mint", in: "NFT Tools" },
   { name: "Recover nested", href: "/spl-token-tools/recover-nested", in: "Tokens" },
   { name: "Fungible token metadata", href: "/spl-token-tools/create-token", in: "Tokens" },
-  { name: "Upload to Arweave", href: "/storage/file-upload", in: "Storage" },
+  { name: "Upload to Arweave", href: "/permanent-storage-tools/file-upload", in: "Storage" },
 ];
 
 const App: FC<AppProps> = ({ Component, pageProps }) => {
