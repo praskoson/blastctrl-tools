@@ -20,9 +20,17 @@ require("@solana/wallet-adapter-react-ui/styles.css");
 require("../styles/globals.css");
 
 const navigation = [
-  { name: "NFT Tools", href: "/solana-nft-tools", description: "Run common Metaplex instructions" },
+  {
+    name: "NFT Tools",
+    href: "/solana-nft-tools",
+    description: "Run common Metaplex instructions",
+  },
   { name: "Tokens", href: "/spl-token-tools", description: "Manage token accounts" },
-  { name: "Storage", href: "/permanent-storage-tools", description: "Decentralized file hosting" },
+  {
+    name: "Permanent Storage",
+    href: "/permanent-storage-tools",
+    description: "Decentralized file hosting",
+  },
   { name: "Add or remove from collection", href: "/solana-nft-tools/collections", in: "NFT Tools" },
   { name: "Mint NFT", href: "/solana-nft-tools/mint", in: "NFT Tools" },
   { name: "Create collection", href: "/solana-nft-tools/mint", in: "NFT Tools" },
