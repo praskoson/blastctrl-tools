@@ -193,25 +193,20 @@ const BonkSwap: NextPage = () => {
             </div>
             <div className="mx-auto flex items-center justify-center gap-x-2 rounded-lg border border-amber-600 p-3">
               <span className="text-sm font-medium text-gray-600">
-                {baseIsSol ? "1 BONK" : "1 USDC"}
+                {baseIsSol ? "1 SOL" : "1 BONK"}
               </span>
               <button
                 type="button"
-                onClick={() =>
-                  setBaseIsSol((prev) => {
-                    mutate();
-                    return !prev;
-                  })
-                }
+                onClick={() => setBaseIsSol((prev) => !prev)}
                 className="rounded-full bg-amber-500 p-1 hover:bg-amber-600"
               >
                 <ArrowsRightLeftIcon className="h-5 w-5 text-white" />
               </button>
               <span className="text-sm font-medium text-gray-600">
                 {baseIsSol ? (
-                  <>{formatNumber.format(bonkQuote?.rate, 9)} USDC</>
+                  <>{formatNumber.format(bonkQuote?.rate, 2)} BONK</>
                 ) : (
-                  <>{formatNumber.format(1 / bonkQuote?.rate, 5)} BONK</>
+                  <>{formatNumber.format(1 / bonkQuote?.rate)} SOL</>
                 )}
               </span>
             </div>

@@ -41,6 +41,7 @@ export const userLocale =
 
 export const numberFormatter = new Intl.NumberFormat(userLocale, {
   style: "decimal",
+  useGrouping: true,
   minimumFractionDigits: 0,
   maximumFractionDigits: 9,
 });
@@ -52,7 +53,10 @@ export const formatNumber = {
     }
 
     if (precision !== undefined) {
-      return val.toFixed(precision);
+      // return val.toFixed(precision);
+      return numberFormatter.format(
+        Math.round((val + Number.EPSILON) * 10 ** precision) / 10 ** precision
+      );
     } else {
       return numberFormatter.format(val);
     }
