@@ -83,7 +83,7 @@ export const HomeView: FC = ({}) => {
                       alt=""
                       className="rounded-full"
                     />
-                    <span className="ml-2">Gasless Swap</span>
+                    <span className="ml-2">Gasless Bonk Swap</span>
                   </a>
                 </Link>
               </div>
