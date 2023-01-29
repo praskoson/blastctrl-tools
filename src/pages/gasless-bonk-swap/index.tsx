@@ -17,7 +17,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
 import useOctaneConfigStore from "stores/useOctaneConfigStore";
-import { abbreviatedBalance, classNames, fetcher, formatNumber, useDataFetch } from "utils";
+import { classNames, fetcher, formatNumber, numberFormatter, useDataFetch } from "utils";
 import { buildWhirlpoolsSwapTransaction, sendWhirlpoolsSwapTransaction } from "utils/octane";
 import { normalizeTokenAmount } from "utils/spl/common";
 
@@ -165,7 +165,7 @@ const BonkSwap: NextPage = () => {
         <div className="border-b border-gray-200 pb-6">
           <h1 className="mb-4 text-center font-display text-3xl font-semibold">
             Gasless{" "}
-            <span className="bg-gradient-to-r from-[#fe5e00] to-[#facc00] bg-clip-text font-sans text-transparent">
+            <span className="bg-gradient-to-tr from-[#fe5e00] to-[#facc00] bg-clip-text font-sans text-transparent">
               BONK{" "}
             </span>
             Swap
@@ -218,12 +218,14 @@ const BonkSwap: NextPage = () => {
           </div>
           {/* Form */}
           <form onSubmit={handleSubmit(submitSwap)} className="flex flex-1 flex-col justify-start">
-            <span className="mb-2 w-full border-b pb-2 text-right text-base">
-              <span className="mr-0.5 text-xs text-gray-600">Balance </span>
-              <span className="font-medium text-amber-600">
-                {bonkBalance ? abbreviatedBalance(bonkBalance, 4) : ""}
+            {bonkBalance && (
+              <span className="mb-2 w-full border-b pb-2 text-right text-base">
+                <span className="mr-0.5 text-xs text-gray-600">Balance </span>
+                <span className="font-medium text-amber-600">
+                  {numberFormatter.format(bonkBalance)}
+                </span>
               </span>
-            </span>
+            )}
             <div>
               <div className="flex flex-wrap justify-between gap-x-2">
                 <label className="text-base font-medium text-gray-600">You will sell:</label>
