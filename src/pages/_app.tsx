@@ -14,6 +14,7 @@ import { FC, useState } from "react";
 import { Toaster } from "react-hot-toast";
 import { classNames } from "utils";
 import BlastCtrlIcon from "../../public/blastctrl_icon_white.svg";
+import BonkSmall from "../../public/bonk_small.png";
 
 dayjs.extend(relativeTime);
 require("@solana/wallet-adapter-react-ui/styles.css");
@@ -77,11 +78,32 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
                             .filter((nav) => !nav.in)
                             .map((item) => (
                               <Link key={item.name} href={item.href}>
-                                <a className="rounded-md py-2 px-3 text-sm font-medium text-white hover:bg-primary-focus">
+                                <a className="rounded-md py-2 px-3 text-base font-medium text-white hover:bg-primary-focus">
                                   {item.name}
                                 </a>
                               </Link>
                             ))}
+                          <Link href="/gasless-bonk-swap">
+                            <a
+                              className={classNames(
+                                "group inline-flex max-w-[42px] items-center space-x-2 overflow-hidden rounded-full",
+                                "bg-gradient-to-r from-[#f97100] to-[#fdce00] hover:max-w-full",
+                                "pl-0.5 pr-4 text-sm font-medium text-white",
+                                "transition-all duration-500"
+                              )}
+                            >
+                              <div className="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-full">
+                                <Image
+                                  unoptimized={true}
+                                  layout="fill"
+                                  objectFit="contain"
+                                  src={BonkSmall}
+                                  alt="Bonk"
+                                />
+                              </div>
+                              <span className="items-center text-lg font-bold">Bonk!</span>
+                            </a>
+                          </Link>
                         </div>
                       </div>
                       <div className="flex flex-1 items-center justify-center px-2 lg:ml-6 lg:justify-end">

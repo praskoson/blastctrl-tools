@@ -32,10 +32,44 @@ export const mimeTypeToCategory = (file: File) => {
   }
 };
 
+const userLocale =
+  typeof window !== "undefined"
+    ? navigator.languages && navigator.languages.length
+      ? navigator.languages[0]
+      : navigator.language
+    : "en-US";
+
+export const numberFormatter = new Intl.NumberFormat(userLocale, {
+  style: "decimal",
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 9,
+});
+
+export const formatNumber = {
+  format: (val?: number, precision?: number) => {
+    if (!val && val !== 0) {
+      return "--";
+    }
+
+    if (precision !== undefined) {
+      return val.toFixed(precision);
+    } else {
+      return numberFormatter.format(val);
+    }
+  },
+};
+
 export function abbreviatedNumber(value: number, fixed = 1) {
   if (value < 1e3) return value;
   if (value >= 1e3 && value < 1e6) return +(value / 1e3).toFixed(fixed) + " K";
   if (value >= 1e6 && value < 1e9) return +(value / 1e6).toFixed(fixed) + " M";
   if (value >= 1e9 && value < 1e12) return +(value / 1e9).toFixed(fixed) + " G";
   if (value >= 1e12) return +(value / 1e12).toFixed(fixed) + "T";
+}
+
+export function abbreviatedBalance(value: number, fixed = 1) {
+  if (value < 1e6) return value;
+  if (value >= 1e6 && value < 1e9) return formatNumber.format(+(value / 1e3), fixed) + "K";
+  if (value >= 1e9 && value < 1e12) return formatNumber.format(+(value / 1e6), fixed) + "M";
+  if (value >= 1e12) return formatNumber.format(+(value / 1e9), fixed) + "B";
 }
