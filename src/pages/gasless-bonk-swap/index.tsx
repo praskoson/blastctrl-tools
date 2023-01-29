@@ -2,7 +2,7 @@ import { ChevronRightIcon } from "@heroicons/react/20/solid";
 import { CogIcon } from "@heroicons/react/24/outline";
 import { ArrowsRightLeftIcon } from "@heroicons/react/24/solid";
 import { AccountLayout, ACCOUNT_SIZE, getAssociatedTokenAddressSync } from "@solana/spl-token-next";
-import { WalletSignTransactionError } from "@solana/wallet-adapter-base";
+import { WalletAdapterNetwork, WalletSignTransactionError } from "@solana/wallet-adapter-base";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { PublicKey, Transaction } from "@solana/web3.js";
 import { notify, notifyPromise, SpinnerIcon } from "components";
@@ -15,6 +15,7 @@ import { BonkQuoteData } from "pages/api/bonk/price";
 import { WhirlpoolQuoteData } from "pages/api/bonk/whirlpool-quote";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
 import useOctaneConfigStore from "stores/useOctaneConfigStore";
 import { abbreviatedBalance, classNames, fetcher, formatNumber, useDataFetch } from "utils";
 import { buildWhirlpoolsSwapTransaction, sendWhirlpoolsSwapTransaction } from "utils/octane";
@@ -35,6 +36,7 @@ const slippages = [
 ];
 
 const BonkSwap: NextPage = () => {
+  const { network } = useNetworkConfigurationStore();
   const { connection } = useConnection();
   const { publicKey, signTransaction } = useWallet();
   const octaneConfig = useOctaneConfigStore((s) => s.config);
@@ -144,6 +146,14 @@ const BonkSwap: NextPage = () => {
   const handlePercentButton = (pct: number) => () => {
     if (bonkBalance) setValue("swapAmount", Math.round((bonkBalance * pct) / 100));
   };
+
+  if (network === WalletAdapterNetwork.Devnet) {
+    return (
+      <div className="mx-auto text-lg">
+        This page is only available on mainnet! Switch your network in the wallet menu 👉
+      </div>
+    );
+  }
 
   return (
     <>
@@ -312,7 +322,8 @@ const BonkSwap: NextPage = () => {
               />
               <button
                 type="submit"
-                className="inline-flex flex-auto items-center justify-center rounded-md bg-amber-500 px-2 py-2 font-medium text-white hover:bg-amber-600"
+                disabled={isSwapping}
+                className="inline-flex flex-auto items-center justify-center rounded-md bg-amber-500 px-2 py-2 font-medium text-white hover:bg-amber-600 disabled:bg-amber-600"
               >
                 <ChevronRightIcon className="-ml-1 h-5 w-5 text-white" />
                 Submit
