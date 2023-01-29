@@ -178,7 +178,6 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
                                 d="M 20.25 12.333 L 7.98 12.333"
                               />
                             </svg>
-                            // <Bars3BottomRightIcon className="block h-6 w-6" aria-hidden="true" />
                           )}
                         </Disclosure.Button>
                       </div>
@@ -207,6 +206,24 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
                                 </Link>
                               </Disclosure.Button>
                             ))}
+                          <Disclosure.Button>
+                            <Link href={"/gasless-bonk-swap"}>
+                              <a
+                                onClick={() => close()}
+                                className="inline-flex w-full items-center gap-x-2 rounded-md py-2 px-3 text-base font-medium text-white hover:bg-primary-focus hover:text-white"
+                              >
+                                <Image
+                                  unoptimized={true}
+                                  className="flex-shrink-0 overflow-hidden rounded-full"
+                                  height={36}
+                                  width={36}
+                                  src={BonkSmall}
+                                  alt="Bonk"
+                                />
+                                Bonk!
+                              </a>
+                            </Link>
+                          </Disclosure.Button>
                         </div>
                         <MobileWallet />
                       </>
