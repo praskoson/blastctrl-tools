@@ -326,6 +326,14 @@ const BonkSwap: NextPage = () => {
                 Submit
               </button>
             </div>
+            <a
+              target="_blank"
+              rel="noreferrer"
+              href="https://orca-so.gitbook.io/orca-developer-portal/orca/welcome"
+              className="mt-1 text-right text-sm text-gray-600 hover:underline"
+            >
+              Swap is powered by Orca.so
+            </a>
           </form>
         </div>
       </div>
