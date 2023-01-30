@@ -44,9 +44,11 @@ const BonkSwap: NextPage = () => {
   const [bonkBalance, setBonkBalance] = useState<number | null>(null);
   const [baseIsSol, setBaseIsSol] = useState(true);
   const [isSwapping, setIsSwapping] = useState(false);
-  const { register, handleSubmit, setValue, watch } = useForm<FormData>();
+  const { register, handleSubmit, setValue, watch } = useForm<FormData>({
+    defaultValues: { slippage: 0.5 },
+  });
 
-  const { data: bonkQuote, mutate, error } = useDataFetch<BonkQuoteData, Error>("/api/bonk/price");
+  const { data: bonkQuote } = useDataFetch<BonkQuoteData, Error>("/api/bonk/price");
   const [priceQuote, setPriceQuote] = useState<WhirlpoolQuoteData | null>(null);
   const [isFetchingQuote, setIsFetchingQuote] = useState(false);
   const watchAmount = watch("swapAmount");
@@ -105,7 +107,8 @@ const BonkSwap: NextPage = () => {
 
   const submitSwap = async (data: FormData) => {
     // Bonk!
-    const { swapAmount } = data;
+    const { swapAmount, slippage } = data;
+
     const feeConfig = getSwapFeeConfig(BONK_MINT_58);
     const mintAsPublicKey = BONK_MINT;
     const amountAsDecimals = Math.floor(swapAmount * 10 ** feeConfig.decimals);
@@ -117,7 +120,8 @@ const BonkSwap: NextPage = () => {
       const swap = await buildWhirlpoolsSwapTransaction(
         publicKey,
         mintAsPublicKey,
-        amountAsDecimals
+        amountAsDecimals,
+        slippage
       );
       messageToken = swap.messageToken;
       signedTransaction = await signTransaction(swap.transaction);
@@ -314,8 +318,8 @@ const BonkSwap: NextPage = () => {
                   </button>
                 )}
                 options={slippages}
-                defaultOption={slippages[1]}
-                onSelect={(value) => null}
+                defaultOption={slippages[2]}
+                onSelect={(value) => setValue("slippage", value.value)}
               />
               <button
                 type="submit"

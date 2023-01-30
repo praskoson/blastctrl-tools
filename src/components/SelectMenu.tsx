@@ -7,7 +7,7 @@ type LabeledObject = { label: ReactNode };
 
 export type SelectMenuProps<T extends KeyedObject & LabeledObject> = {
   renderButton: (selectedValue: T) => JSX.Element;
-  onSelect: (value: T) => void;
+  onSelect?: (value: T) => void;
   options: T[];
   defaultOption: T;
 };
