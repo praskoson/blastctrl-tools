@@ -163,10 +163,10 @@ const BonkSwap: NextPage = () => {
               <span className="font-bold text-blue-400">~20000</span> token transfers or swaps
             </li>
             <li>
-              <span className="font-bold text-blue-400">~70</span> new tokens created
+              <span className="font-bold text-blue-400">~45</span> token accounts created
             </li>
             <li>
-              <span className="font-bold text-blue-400">~20</span> new NFTs minted
+              <span className="font-bold text-blue-400">~20</span> NFTs minted
             </li>
           </ul>
         ),
