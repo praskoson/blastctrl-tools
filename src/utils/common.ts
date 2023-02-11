@@ -53,7 +53,6 @@ export const formatNumber = {
     }
 
     if (precision !== undefined) {
-      // return val.toFixed(precision);
       return numberFormatter.format(
         Math.round((val + Number.EPSILON) * 10 ** precision) / 10 ** precision
       );

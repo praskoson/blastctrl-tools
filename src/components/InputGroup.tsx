@@ -3,13 +3,15 @@ import { ExclamationCircleIcon } from "@heroicons/react/20/solid";
 import { FieldError } from "react-hook-form";
 import { classNames } from "utils";
 
-export interface InputGroupProps extends React.ComponentPropsWithoutRef<"input"> {
+export type InputGroupProps = Pick<
+  React.ComponentPropsWithoutRef<"input">,
+  "className" | "title" | "type" | "name" | "placeholder" | "step"
+> & {
   label: string;
-  description?: string | ReactNode;
+  description?: ReactNode;
   leading?: ReactNode;
   error?: FieldError;
-  className?: string;
-}
+};
 
 export const InputGroup = React.forwardRef<HTMLInputElement, InputGroupProps>(function InputGroup(
   props,
