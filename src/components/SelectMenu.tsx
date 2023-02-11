@@ -6,7 +6,7 @@ type KeyedObject = { id: number | string };
 type LabeledObject = { label: ReactNode };
 
 export type SelectMenuProps<T extends KeyedObject & LabeledObject> = {
-  renderButton: (selectedValue: T) => JSX.Element;
+  renderButton: (selectedValue: T, open: boolean) => JSX.Element;
   onSelect?: (value: T) => void;
   options: T[];
   defaultOption: T;
@@ -24,7 +24,7 @@ export default function SelectMenu<T extends KeyedObject & LabeledObject>({
         <>
           <div className="relative">
             <Listbox.Button className="h-full w-full cursor-default">
-              {renderButton(value)}
+              {renderButton(value, open)}
             </Listbox.Button>
 
             <Transition

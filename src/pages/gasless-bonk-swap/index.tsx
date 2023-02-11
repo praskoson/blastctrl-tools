@@ -371,12 +371,17 @@ const BonkSwap: NextPage = () => {
 
             <div className="mt-6 flex w-full gap-x-2">
               <SelectMenu
-                renderButton={() => (
+                renderButton={(_, open) => (
                   <button
                     type="button"
                     className="group h-full flex-grow-0 rounded-md bg-amber-500 px-3 text-white hover:bg-amber-600"
                   >
-                    <CogIcon className="h-6 w-6 transition-transform duration-200 group-hover:rotate-90" />
+                    <CogIcon
+                      className={classNames(
+                        "h-6 w-6 transition-transform duration-200 group-hover:rotate-90",
+                        open && "rotate-90"
+                      )}
+                    />
                   </button>
                 )}
                 options={slippages}
