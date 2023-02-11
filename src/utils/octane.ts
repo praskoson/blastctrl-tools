@@ -12,6 +12,8 @@ export type TokenFee = {
   account: string;
   decimals: number;
   fee: number;
+  burnFeeBp?: number;
+  transferFeeBp?: number;
 };
 
 export type OctaneConfig = {
@@ -51,7 +53,6 @@ export interface BuildWhirlpoolsSwapResponse {
 }
 
 const OCTANE_ENDPOINT = "https://octane-server-seven.vercel.app/api";
-// const OCTANE_ENDPOINT = 'http://localhost:3001/api';
 
 export async function loadOctaneConfig(): Promise<OctaneConfig> {
   return (await axios.get(OCTANE_ENDPOINT)).data as OctaneConfig;

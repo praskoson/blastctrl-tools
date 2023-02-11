@@ -8,12 +8,13 @@ import { PublicKey, Transaction } from "@solana/web3.js";
 import { notify, notifyPromise, SpinnerIcon } from "components";
 import SelectMenu from "components/SelectMenu";
 import { useDebounce } from "hooks/useDebounce";
+import { debounce } from "lodash-es";
 import { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
 import { BonkQuoteData } from "pages/api/bonk/price";
 import { WhirlpoolQuoteData } from "pages/api/bonk/whirlpool-quote";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
 import useOctaneConfigStore from "stores/useOctaneConfigStore";
@@ -47,14 +48,16 @@ const BonkSwap: NextPage = () => {
   const { register, handleSubmit, setValue, watch } = useForm<FormData>({
     defaultValues: { slippage: 0.5 },
   });
+  const [notifyId, setNotifyId] = useState<string>("");
 
   const { data: bonkQuote } = useDataFetch<BonkQuoteData, Error>("/api/bonk/price");
   const [priceQuote, setPriceQuote] = useState<WhirlpoolQuoteData | null>(null);
   const [isFetchingQuote, setIsFetchingQuote] = useState(false);
   const watchAmount = watch("swapAmount");
-  const debouncedAmount = useDebounce<number>(watchAmount, 800);
+  const debouncedAmount = useDebounce<number>(watchAmount, 400);
 
   const getQuote = async (num: number) => {
+    // const num = parseFloat(e.target.value);
     if (!num) return setPriceQuote(null);
 
     setIsFetchingQuote(true);
@@ -62,7 +65,7 @@ const BonkSwap: NextPage = () => {
       const quote = await fetcher<WhirlpoolQuoteData>("/api/bonk/whirlpool-quote", {
         method: "POST",
         body: JSON.stringify({
-          amountIn: num,
+          amountIn: num * 0.95,
           numerator: 10,
           denominator: 1000,
         }),
@@ -76,6 +79,7 @@ const BonkSwap: NextPage = () => {
     }
   };
 
+  const debouncedGetQuote = useMemo(() => debounce(getQuote, 500), []);
   useEffect(fetchOctaneConfig, [fetchOctaneConfig]);
   useEffect(() => {
     if (!publicKey) return;
@@ -100,10 +104,6 @@ const BonkSwap: NextPage = () => {
       void connection.removeAccountChangeListener(listener);
     };
   }, [connection, publicKey]);
-
-  useEffect(() => {
-    void getQuote(debouncedAmount);
-  }, [debouncedAmount]);
 
   const submitSwap = async (data: FormData) => {
     // Bonk!
@@ -147,8 +147,54 @@ const BonkSwap: NextPage = () => {
     setIsSwapping(false);
   };
 
-  const handlePercentButton = (pct: number) => () => {
-    if (bonkBalance) setValue("swapAmount", Math.round((bonkBalance * pct) / 100));
+  const handlePercentButton = (pct: number) => async () => {
+    const value = Math.round((bonkBalance * pct) / 100);
+    if (bonkBalance) setValue("swapAmount", value);
+
+    await debouncedGetQuote(value);
+  };
+
+  const handlePointOneSolClick = async () => {
+    const id = notify(
+      {
+        type: "info",
+        title: "0.1 SOL is enough for...",
+        description: (
+          <ul className="mt-1 list-disc">
+            <li>
+              <span className="font-bold text-blue-400">~20000</span> token transfers or swaps
+            </li>
+            <li>
+              <span className="font-bold text-blue-400">~70</span> new tokens created
+            </li>
+            <li>
+              <span className="font-bold text-blue-400">~20</span> new NFTs minted
+            </li>
+          </ul>
+        ),
+      },
+      notifyId ? notifyId : null
+    );
+    if (!notifyId) setNotifyId(id);
+
+    setIsFetchingQuote(true);
+    try {
+      const quote = await fetcher<WhirlpoolQuoteData>("/api/bonk/whirlpool-quote", {
+        method: "POST",
+        body: JSON.stringify({
+          amountOut: 0.1,
+          numerator: 10,
+          denominator: 1000,
+        }),
+        headers: { "Content-type": "application/json; charset=UTF-8" },
+      });
+
+      setValue("swapAmount", Math.ceil(parseFloat(quote.estimatedAmountIn) / 0.95));
+      setPriceQuote(quote);
+    } catch (err) {
+    } finally {
+      setIsFetchingQuote(false);
+    }
   };
 
   if (network === WalletAdapterNetwork.Devnet) {
@@ -175,10 +221,11 @@ const BonkSwap: NextPage = () => {
             Swap
           </h1>
           <p className="text-sm text-gray-500 sm:mx-8">
-            Swap Bonk for SOL with an unfunded wallet. Simply connect your wallet, enter the amount
-            and we will help you fund your swap using Bonk itself! <br />
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Maxime reprehenderit culpa
-            libero veniam officia provident aliquam dolorum sit commodi velit.
+            You want to dive deeper into Solana&apos;s DeFi but only have $BONK in your wallet? No
+            worries! Simply connect your wallet, enter the amount and we will help you fund your
+            swap using $BONK itself. No Solana required!
+            <br />
+            2.5% of the $BONK amount that you submit for swapping will be burned! 🔥
           </p>
         </div>
 
@@ -244,6 +291,7 @@ const BonkSwap: NextPage = () => {
                   type="number"
                   {...register("swapAmount", {
                     required: true,
+                    onChange: (e) => debouncedGetQuote(e?.target?.value),
                   })}
                   placeholder="0.00"
                   className={classNames(
@@ -255,7 +303,7 @@ const BonkSwap: NextPage = () => {
               </div>
             </div>
             <div className="my-2 grid w-full grid-cols-4 gap-x-2">
-              {[25, 50, 75, 100].map((pct) => (
+              {[50, 100].map((pct) => (
                 <button
                   key={pct}
                   type="button"
@@ -267,7 +315,17 @@ const BonkSwap: NextPage = () => {
                   {pct}%
                 </button>
               ))}
+              <button
+                type="button"
+                onClick={handlePointOneSolClick}
+                className={classNames(
+                  "col-span-2 rounded-xl bg-gray-200 px-2.5 py-0.5 font-medium text-gray-500 transition-colors duration-150 hover:bg-amber-500 hover:text-white"
+                )}
+              >
+                Get 0.1 SOL
+              </button>
             </div>
+            <div className="flex justify-end"></div>
 
             {/* Price quote */}
             {priceQuote && (
@@ -297,7 +355,7 @@ const BonkSwap: NextPage = () => {
                     </span>
                   </div>
                 </div>
-                <div className="text-xs font-medium">Fee: 100 Bonk</div>
+                {/* <div className="text-xs font-medium">Fee: 5% of the BONK amount</div> */}
               </div>
             )}
 
