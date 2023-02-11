@@ -44,8 +44,14 @@ const BonkSwap: NextPage = () => {
   const [bonkBalance, setBonkBalance] = useState<number | null>(null);
   const [baseIsSol, setBaseIsSol] = useState(true);
   const [isSwapping, setIsSwapping] = useState(false);
-  const { register, handleSubmit, setValue } = useForm<FormData>({
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm<FormData>({
     defaultValues: { slippage: 0.5 },
+    mode: "onSubmit",
   });
   const [notifyId, setNotifyId] = useState<string>("");
   const cheemsRef = useRef<HTMLDivElement | null>(null);
@@ -192,6 +198,27 @@ const BonkSwap: NextPage = () => {
     }
   };
 
+  const handleSetMax = async () => {
+    setValue("swapAmount", bonkBalance);
+    setIsFetchingQuote(true);
+    try {
+      const quote = await fetcher<WhirlpoolQuoteData>("/api/bonk/whirlpool-quote", {
+        method: "POST",
+        body: JSON.stringify({
+          amountIn: bonkBalance,
+          numerator: 10,
+          denominator: 1000,
+        }),
+        headers: { "Content-type": "application/json; charset=UTF-8" },
+      });
+
+      setPriceQuote(quote);
+    } catch (err) {
+    } finally {
+      setIsFetchingQuote(false);
+    }
+  };
+
   const handleCheemsBonk = () => {
     if (!cheemsRef?.current) return;
     setBonkAnimate(true);
@@ -264,8 +291,11 @@ const BonkSwap: NextPage = () => {
           </div>
           {/* Form */}
           <form onSubmit={handleSubmit(submitSwap)} className="flex flex-1 flex-col justify-start">
-            {bonkBalance && (
-              <span className="mb-2 w-full border-b pb-2 text-right text-base">
+            {bonkBalance !== null && bonkBalance > 0 && (
+              <span
+                onClick={handleSetMax}
+                className="mb-2 w-full border-b pb-2 text-right text-base"
+              >
                 <span className="mr-0.5 text-xs text-gray-600">Balance </span>
                 <span className="font-medium text-amber-600">
                   {numberFormatter.format(bonkBalance)}
@@ -291,6 +321,10 @@ const BonkSwap: NextPage = () => {
                   type="number"
                   {...register("swapAmount", {
                     required: true,
+                    validate: {
+                      notEnoughTokens: (value) =>
+                        bonkBalance ? value <= bonkBalance || "Not enough BONK!" : true,
+                    },
                     onChange: (e) => debouncedGetQuote(e?.target?.value),
                   })}
                   placeholder="0.00"
@@ -301,6 +335,7 @@ const BonkSwap: NextPage = () => {
                   )}
                 />
               </div>
+              <span className="text-sm text-red-600">{errors?.swapAmount?.message}</span>
             </div>
 
             {/* Price quote */}
