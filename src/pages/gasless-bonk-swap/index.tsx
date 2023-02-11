@@ -13,7 +13,7 @@ import Head from "next/head";
 import Image from "next/image";
 import { BonkQuoteData } from "pages/api/bonk/price";
 import { WhirlpoolQuoteData } from "pages/api/bonk/whirlpool-quote";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
 import useOctaneConfigStore from "stores/useOctaneConfigStore";
@@ -48,6 +48,7 @@ const BonkSwap: NextPage = () => {
     defaultValues: { slippage: 0.5 },
   });
   const [notifyId, setNotifyId] = useState<string>("");
+  const cheemsRef = useRef<HTMLDivElement | null>(null);
 
   const { data: bonkQuote } = useDataFetch<BonkQuoteData, Error>("/api/bonk/price");
   const [priceQuote, setPriceQuote] = useState<WhirlpoolQuoteData | null>(null);
@@ -195,6 +196,14 @@ const BonkSwap: NextPage = () => {
     }
   };
 
+  const handleCheemsBonk = () => {
+    if (!cheemsRef?.current) return;
+    setBonkAnimate(true);
+    cheemsRef.current.style.animation = "none";
+    cheemsRef.current.offsetHeight; /* trigger reflow */
+    cheemsRef.current.style.animation = null;
+  };
+
   if (network === WalletAdapterNetwork.Devnet) {
     return (
       <div className="mx-auto text-lg">
@@ -230,17 +239,12 @@ const BonkSwap: NextPage = () => {
         <div className="mt-4 flex gap-x-8">
           {/* Image */}
           <div className="relative hidden flex-1 flex-shrink-0 px-2 sm:block">
-            <div className="p-8">
-              <Image
-                onClick={() => setBonkAnimate(true)}
-                unoptimized={true}
-                className={classNames(bonkAnimate && "jello-horizontal", "hover:cursor-pointer")}
-                onAnimationEnd={() => setBonkAnimate((prev) => !prev)}
-                src={"/cheems.png"}
-                alt=""
-                height={320}
-                width={320}
-              />
+            <div
+              ref={cheemsRef}
+              className={classNames(bonkAnimate && "jello-horizontal", "p-8 hover:cursor-pointer")}
+              onClick={handleCheemsBonk}
+            >
+              <Image unoptimized={true} src={"/cheems.png"} alt="" height={320} width={320} />
             </div>
             <div className="mx-auto flex items-center justify-center gap-x-2 rounded-lg border border-amber-600 p-3">
               <span className="text-sm font-medium text-gray-600">
