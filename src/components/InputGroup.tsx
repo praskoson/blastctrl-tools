@@ -35,7 +35,7 @@ export const InputGroup = React.forwardRef<HTMLInputElement, InputGroupProps>(fu
         {leadingAddOn}
         <input
           ref={ref}
-          type={type}
+          type={type ?? "text"}
           id={rest.name}
           {...rest}
           className={classNames(
