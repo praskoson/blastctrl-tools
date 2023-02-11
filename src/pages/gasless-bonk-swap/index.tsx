@@ -146,28 +146,24 @@ const BonkSwap: NextPage = () => {
     setIsSwapping(false);
   };
 
-  const handlePercentButton = (pct: number) => async () => {
-    const value = Math.round((bonkBalance * pct) / 100);
-    if (bonkBalance) setValue("swapAmount", value);
-
-    await debouncedGetQuote(value);
-  };
-
-  const handlePointOneSolClick = async () => {
+  const handleSolClick = (amount: number) => async () => {
     const id = notify(
       {
         type: "info",
-        title: "0.1 SOL is enough for...",
+        title: `${amount} SOL is enough for...`,
         description: (
-          <ul className="mt-1 list-disc">
+          <ul className="mt-1 ">
             <li>
-              <span className="font-bold text-blue-400">~20000</span> token transfers or swaps
+              <span className="font-bold text-blue-400">~{Math.round(amount / 0.000005)}</span>{" "}
+              token transfers or swaps
             </li>
             <li>
-              <span className="font-bold text-blue-400">~45</span> token accounts created
+              <span className="font-bold text-blue-400">~{Math.round(amount / 0.0022)}</span> token
+              accounts created
             </li>
             <li>
-              <span className="font-bold text-blue-400">~20</span> NFTs minted
+              <span className="font-bold text-blue-400">~{Math.round(amount / 0.005)}</span> NFTs
+              minted
             </li>
           </ul>
         ),
@@ -181,7 +177,7 @@ const BonkSwap: NextPage = () => {
       const quote = await fetcher<WhirlpoolQuoteData>("/api/bonk/whirlpool-quote", {
         method: "POST",
         body: JSON.stringify({
-          amountOut: 0.1,
+          amountOut: amount,
           numerator: 10,
           denominator: 1000,
         }),
@@ -306,68 +302,53 @@ const BonkSwap: NextPage = () => {
                 />
               </div>
             </div>
-            <div className="my-2 grid w-full grid-cols-4 gap-x-2">
-              {[50, 100].map((pct) => (
+
+            {/* Price quote */}
+
+            <div className="mt-6">
+              <label className="flex w-full flex-wrap items-center justify-between">
+                <span className="text-base font-medium text-gray-600">You will receive:</span>
+              </label>
+              <div className="pointer-events-none relative mt-2 flex h-10 w-full items-center justify-between rounded-md bg-gray-200 px-3 shadow-sm sm:mt-1">
+                <div className="inline-flex items-center">
+                  <Image
+                    unoptimized={true}
+                    src="/sol_coin.png"
+                    alt=""
+                    className="rounded-full"
+                    height={20}
+                    width={20}
+                  />
+                  <span className="pl-2 font-medium tracking-wider text-gray-500">SOL</span>
+                </div>
+                <div className="inline-flex items-center gap-x-2">
+                  {isFetchingQuote && (
+                    <SpinnerIcon className="h-5 w-5 animate-spin text-gray-500" />
+                  )}
+                  <span className="font-medium text-gray-600">
+                    {priceQuote
+                      ? formatNumber.format(parseFloat(priceQuote.estimatedAmountOut), 6)
+                      : "0.00"}
+                  </span>
+                </div>
+              </div>
+              {/* <div className="text-xs font-medium">Fee: 5% of the BONK amount</div> */}
+            </div>
+
+            <div className="my-2 grid w-full grid-cols-3 gap-x-2">
+              {[0.1, 0.5, 1].map((amount) => (
                 <button
-                  key={pct}
+                  key={amount}
                   type="button"
-                  onClick={handlePercentButton(pct)}
+                  onClick={handleSolClick(amount)}
                   className={classNames(
                     "rounded-xl bg-gray-200 px-1.5 py-0.5 font-medium text-gray-500 transition-colors duration-150 hover:bg-amber-500 hover:text-white"
                   )}
                 >
-                  {pct}%
+                  {amount} SOL
                 </button>
               ))}
-              <button
-                type="button"
-                onClick={handlePointOneSolClick}
-                className={classNames(
-                  "col-span-2 rounded-xl bg-gray-200 px-2.5 py-0.5 font-medium text-gray-500 transition-colors duration-150 hover:bg-amber-500 hover:text-white"
-                )}
-              >
-                Get 0.1 SOL
-              </button>
             </div>
-            <div className="flex justify-end"></div>
-
-            {/* Price quote */}
-            {priceQuote && (
-              <div className="mt-6">
-                <label className="flex w-full flex-wrap items-center justify-between">
-                  <span className="text-base font-medium text-gray-600">You will receive:</span>
-                  {/* <span className="text-sm font-medium   text-gray-500">Estimated</span> */}
-                </label>
-                <div className="pointer-events-none relative mt-2 flex h-10 w-full items-center justify-between rounded-md bg-gray-200 px-3 shadow-sm sm:mt-1">
-                  <div className="inline-flex items-center">
-                    <Image
-                      unoptimized={true}
-                      src="/sol_coin.png"
-                      alt=""
-                      className="rounded-full"
-                      height={20}
-                      width={20}
-                    />
-                    <span className="pl-2 font-medium tracking-wider text-gray-500">SOL</span>
-                  </div>
-                  <div className="inline-flex items-center gap-x-2">
-                    {isFetchingQuote && (
-                      <SpinnerIcon className="h-5 w-5 animate-spin text-gray-500" />
-                    )}
-                    <span className="font-medium text-gray-600">
-                      {formatNumber.format(parseFloat(priceQuote.estimatedAmountOut), 6)}
-                    </span>
-                  </div>
-                </div>
-                {/* <div className="text-xs font-medium">Fee: 5% of the BONK amount</div> */}
-              </div>
-            )}
-
-            {!priceQuote && isFetchingQuote && (
-              <div className="mx-auto my-6">
-                <SpinnerIcon className="h-7 w-7 animate-spin text-gray-400" />
-              </div>
-            )}
 
             <div className="mt-6 flex w-full gap-x-2">
               <SelectMenu
