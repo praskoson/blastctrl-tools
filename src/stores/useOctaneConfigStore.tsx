@@ -18,7 +18,7 @@ const useOctaneConfigStore = create<OctaneConfigStore>((set, get) => ({
     const config = await loadOctaneConfig();
     set((s) => {
       s.config = config;
-      console.log(`loaded octane config: `, config);
+      // console.log(`loaded octane config: `, config);
     });
   },
 

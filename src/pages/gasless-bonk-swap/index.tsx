@@ -44,7 +44,7 @@ const BonkSwap: NextPage = () => {
   const [bonkBalance, setBonkBalance] = useState<number | null>(null);
   const [baseIsSol, setBaseIsSol] = useState(true);
   const [isSwapping, setIsSwapping] = useState(false);
-  const { register, handleSubmit, setValue, watch } = useForm<FormData>({
+  const { register, handleSubmit, setValue } = useForm<FormData>({
     defaultValues: { slippage: 0.5 },
   });
   const [notifyId, setNotifyId] = useState<string>("");
@@ -52,6 +52,7 @@ const BonkSwap: NextPage = () => {
   const { data: bonkQuote } = useDataFetch<BonkQuoteData, Error>("/api/bonk/price");
   const [priceQuote, setPriceQuote] = useState<WhirlpoolQuoteData | null>(null);
   const [isFetchingQuote, setIsFetchingQuote] = useState(false);
+  const [bonkAnimate, setBonkAnimate] = useState(false);
 
   const getQuote = async (num: number) => {
     // const num = parseFloat(e.target.value);
@@ -229,14 +230,16 @@ const BonkSwap: NextPage = () => {
         <div className="mt-4 flex gap-x-8">
           {/* Image */}
           <div className="relative hidden flex-1 flex-shrink-0 px-2 sm:block">
-            <div className="overflow-hidden p-4">
+            <div className="p-8">
               <Image
+                onClick={() => setBonkAnimate(true)}
                 unoptimized={true}
-                className={`${baseIsSol ? "-scale-x-100" : ""} p-4`}
+                className={classNames(bonkAnimate && "jello-horizontal", "hover:cursor-pointer")}
+                onAnimationEnd={() => setBonkAnimate((prev) => !prev)}
                 src={"/cheems.png"}
                 alt=""
-                height={360}
-                width={360}
+                height={320}
+                width={320}
               />
             </div>
             <div className="mx-auto flex items-center justify-center gap-x-2 rounded-lg border border-amber-600 p-3">
