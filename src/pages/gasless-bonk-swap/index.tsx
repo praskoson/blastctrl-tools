@@ -7,7 +7,6 @@ import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { PublicKey, Transaction } from "@solana/web3.js";
 import { notify, notifyPromise, SpinnerIcon } from "components";
 import SelectMenu from "components/SelectMenu";
-import { useDebounce } from "hooks/useDebounce";
 import { debounce } from "lodash-es";
 import { NextPage } from "next";
 import Head from "next/head";
@@ -53,8 +52,6 @@ const BonkSwap: NextPage = () => {
   const { data: bonkQuote } = useDataFetch<BonkQuoteData, Error>("/api/bonk/price");
   const [priceQuote, setPriceQuote] = useState<WhirlpoolQuoteData | null>(null);
   const [isFetchingQuote, setIsFetchingQuote] = useState(false);
-  const watchAmount = watch("swapAmount");
-  const debouncedAmount = useDebounce<number>(watchAmount, 400);
 
   const getQuote = async (num: number) => {
     // const num = parseFloat(e.target.value);
