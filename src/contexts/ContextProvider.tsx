@@ -43,15 +43,11 @@ const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
        * instantiate its legacy wallet adapter here. Common legacy adapters can be found
        * in the npm package `@solana/wallet-adapter-wallets`.
        */
-      new PhantomWalletAdapter(),
       new SolflareWalletAdapter(),
-      new GlowWalletAdapter(),
-      new BackpackWalletAdapter(),
       new LedgerWalletAdapter(),
       new BraveWalletAdapter(),
       new SalmonWalletAdapter(),
     ],
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 
