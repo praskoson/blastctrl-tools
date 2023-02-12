@@ -14,6 +14,7 @@ import { FC, useState } from "react";
 import { Toaster } from "react-hot-toast";
 import { classNames } from "utils";
 import BlastCtrlIcon from "../../public/blastctrl_icon_white.svg";
+import BonkSmall from "../../public/bonk_small.png";
 
 dayjs.extend(relativeTime);
 require("@solana/wallet-adapter-react-ui/styles.css");
@@ -37,6 +38,11 @@ const navigation = [
   { name: "Recover nested", href: "/spl-token-tools/recover-nested", in: "Tokens" },
   { name: "Fungible token metadata", href: "/spl-token-tools/create-token", in: "Tokens" },
   { name: "Upload to Arweave", href: "/permanent-storage-tools/file-upload", in: "Storage" },
+  {
+    name: "Gasless Bonk Swap",
+    href: "/gasless-bonk-swap",
+    description: "Swap Bonk tokens for SOL without gas fees",
+  },
 ];
 
 const App: FC<AppProps> = ({ Component, pageProps }) => {
@@ -74,14 +80,35 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
                         </div>
                         <div className="hidden lg:ml-8 lg:flex lg:space-x-4">
                           {navigation
-                            .filter((nav) => !nav.in)
+                            .filter((nav) => !nav.in && nav.name !== "Gasless Bonk Swap")
                             .map((item) => (
                               <Link key={item.name} href={item.href}>
-                                <a className="rounded-md py-2 px-3 text-sm font-medium text-white hover:bg-primary-focus">
+                                <a className="rounded-md py-2 px-3 text-base font-medium text-white hover:bg-primary-focus">
                                   {item.name}
                                 </a>
                               </Link>
                             ))}
+                          <Link href="/gasless-bonk-swap">
+                            <a
+                              className={classNames(
+                                "group inline-flex max-w-[42px] items-center space-x-2 overflow-hidden rounded-full",
+                                "bg-gradient-to-r from-[#f97100] to-[#fdce00] hover:max-w-full",
+                                "pl-0.5 pr-4 text-sm font-medium text-white",
+                                "transition-all duration-500"
+                              )}
+                            >
+                              <div className="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-full">
+                                <Image
+                                  unoptimized={true}
+                                  layout="fill"
+                                  objectFit="contain"
+                                  src={BonkSmall}
+                                  alt="Bonk"
+                                />
+                              </div>
+                              <span className="items-center text-lg font-bold">Bonk!</span>
+                            </a>
+                          </Link>
                         </div>
                       </div>
                       <div className="flex flex-1 items-center justify-center px-2 lg:ml-6 lg:justify-end">
@@ -156,7 +183,6 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
                                 d="M 20.25 12.333 L 7.98 12.333"
                               />
                             </svg>
-                            // <Bars3BottomRightIcon className="block h-6 w-6" aria-hidden="true" />
                           )}
                         </Disclosure.Button>
                       </div>
@@ -172,7 +198,7 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
                       <>
                         <div className="flex w-full flex-col items-start gap-y-1 px-2 pt-2 pb-3">
                           {navigation
-                            .filter((nav) => !nav.in)
+                            .filter((nav) => !nav.in && nav.name !== "Gasless Bonk Swap")
                             .map((item) => (
                               <Disclosure.Button key={item.name}>
                                 <Link key={item.name} href={item.href}>
@@ -185,6 +211,24 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
                                 </Link>
                               </Disclosure.Button>
                             ))}
+                          <Disclosure.Button>
+                            <Link href={"/gasless-bonk-swap"}>
+                              <a
+                                onClick={() => close()}
+                                className="inline-flex w-full items-center gap-x-2 rounded-md py-2 px-3 text-base font-medium text-white hover:bg-primary-focus hover:text-white"
+                              >
+                                <Image
+                                  unoptimized={true}
+                                  className="flex-shrink-0 overflow-hidden rounded-full"
+                                  height={36}
+                                  width={36}
+                                  src={BonkSmall}
+                                  alt="Bonk"
+                                />
+                                Bonk!
+                              </a>
+                            </Link>
+                          </Disclosure.Button>
                         </div>
                         <MobileWallet />
                       </>

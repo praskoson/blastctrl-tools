@@ -32,6 +32,36 @@ export const mimeTypeToCategory = (file: File) => {
   }
 };
 
+export const userLocale =
+  typeof window !== "undefined"
+    ? navigator.languages && navigator.languages.length
+      ? navigator.languages[0]
+      : navigator.language
+    : "en-US";
+
+export const numberFormatter = new Intl.NumberFormat(userLocale, {
+  style: "decimal",
+  useGrouping: true,
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 9,
+});
+
+export const formatNumber = {
+  format: (val?: number, precision?: number) => {
+    if (!val && val !== 0) {
+      return "--";
+    }
+
+    if (precision !== undefined) {
+      return numberFormatter.format(
+        Math.round((val + Number.EPSILON) * 10 ** precision) / 10 ** precision
+      );
+    } else {
+      return numberFormatter.format(val);
+    }
+  },
+};
+
 export function abbreviatedNumber(value: number, fixed = 1) {
   if (value < 1e3) return value;
   if (value >= 1e3 && value < 1e6) return +(value / 1e3).toFixed(fixed) + " K";

@@ -69,8 +69,21 @@ export const HomeView: FC = ({}) => {
                   </a>
                 </Link>
                 <Link href="/spl-token-tools/create-token">
-                  <a className="inline-flex items-center justify-center rounded-lg border-2 border-rose-600 px-3 py-1.5 text-rose-900 shadow hover:bg-violet-50">
+                  <a className="inline-flex items-center justify-center rounded-lg border-2 border-pink-600 px-3 py-1.5 text-pink-900 shadow hover:bg-pink-50">
                     Create fungible tokens
+                  </a>
+                </Link>
+                <Link href="/gasless-bonk-swap">
+                  <a className="inline-flex items-center justify-center rounded-lg border-2 border-orange-600 bg-amber-300 px-3 py-1.5 text-orange-900 shadow hover:bg-amber-200">
+                    <Image
+                      unoptimized={true}
+                      src="/bonk_small.png"
+                      height={24}
+                      width={24}
+                      alt=""
+                      className="rounded-full"
+                    />
+                    <span className="ml-2">Gasless Bonk Swap</span>
                   </a>
                 </Link>
               </div>
