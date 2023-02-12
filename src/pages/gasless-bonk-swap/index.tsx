@@ -55,6 +55,8 @@ const BonkSwap: NextPage = () => {
   });
   const [notifyId, setNotifyId] = useState<string>("");
   const cheemsRef = useRef<HTMLDivElement | null>(null);
+  const cheemsWrapRef = useRef<HTMLDivElement | null>(null);
+  const [bonkCounter, setBonkCounter] = useState(0);
 
   const { data: bonkQuote } = useDataFetch<BonkQuoteData, Error>("/api/bonk/price");
   const [priceQuote, setPriceQuote] = useState<WhirlpoolQuoteData | null>(null);
@@ -221,10 +223,43 @@ const BonkSwap: NextPage = () => {
 
   const handleCheemsBonk = () => {
     if (!cheemsRef?.current) return;
+    // Start animating
     setBonkAnimate(true);
+
+    // Trigger the "jello" animation
     cheemsRef.current.style.animation = "none";
     cheemsRef.current.offsetHeight; /* trigger reflow */
     cheemsRef.current.style.animation = null;
+
+    // Eyes trigger
+    setBonkCounter((prev) => prev + 1);
+
+    // Text bubbles
+    if (!cheemsWrapRef.current) return;
+    const randomX = Math.round(Math.random() * 100); // [0, 100]
+    const randomY = Math.round(Math.random() * 80); // [0, 80]
+    const turnDeg = Math.round(Math.random() * 120 - 60); // [-60, 60]
+    const el = document.createElement("span");
+    el.textContent = "BONK";
+    el.classList.add(
+      "absolute",
+      "text-orange-400",
+      "text-sm",
+      "font-semibold",
+      "border-2",
+      "border-orange-400",
+      "px-1.5",
+      "py-0.5",
+      "rounded-xl",
+      "pointer-events-none"
+    );
+    el.style.setProperty("transform", `rotate(${turnDeg}deg)`);
+    el.style.setProperty("top", `${randomY}%`);
+    el.style.setProperty("left", `${randomX}%`);
+    cheemsWrapRef.current.appendChild(el);
+    setTimeout(() => {
+      el.remove();
+    }, 1000);
   };
 
   if (network === WalletAdapterNetwork.Devnet) {
@@ -261,13 +296,32 @@ const BonkSwap: NextPage = () => {
 
         <div className="mt-4 flex gap-x-8">
           {/* Image */}
-          <div className="relative hidden flex-1 flex-shrink-0 px-2 sm:block">
+          <div ref={cheemsWrapRef} className="relative hidden flex-1 flex-shrink-0 px-2 sm:block">
             <div
               ref={cheemsRef}
               className={classNames(bonkAnimate && "jello-horizontal", "p-8 hover:cursor-pointer")}
               onClick={handleCheemsBonk}
             >
-              <Image unoptimized={true} src={"/cheems.png"} alt="" height={320} width={320} />
+              <div className="relative">
+                <Image unoptimized={true} src={"/cheems.png"} alt="" height={320} width={320} />
+                {/* Eyes */}
+                <div
+                  className={classNames(
+                    "absolute top-[8%] left-[64%] text-sm",
+                    bonkCounter >= 20 ? "fire-in" : "opacity-0"
+                  )}
+                >
+                  🔥
+                </div>
+                <div
+                  className={classNames(
+                    "absolute top-[7.5%] left-[81%] text-sm",
+                    bonkCounter >= 20 ? "fire-in" : "opacity-0"
+                  )}
+                >
+                  🔥
+                </div>
+              </div>
             </div>
             <div className="mx-auto flex items-center justify-center gap-x-2 rounded-lg border border-amber-600 p-3">
               <span className="text-sm font-medium text-gray-600">
