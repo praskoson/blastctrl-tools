@@ -13,7 +13,7 @@ export const TokenInfo = ({ mint }: { mint: PublicKey }) => {
   const { mintInfo } = useTokenInfo(mint);
   const { json, isError } = useNftJson(mintInfo?.data.uri);
   const mint58 = useMemo(() => mint.toBase58(), [mint]);
-  const explorerLink = fmtUrlWithCluster(`https://explorer.solana.com/address/${mint58}`);
+  const explorerLink = fmtUrlWithCluster(`https://solscan.io/account/${mint58}`);
 
   const name = useMemo(() => {
     if (json?.name) return json.name;

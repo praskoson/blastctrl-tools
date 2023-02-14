@@ -59,7 +59,7 @@ export function NotificationWindow({
         rel="noreferrer"
         target="_blank"
         className="rounded-md text-gray-200 underline underline-offset-2 hover:text-gray-50"
-        href={fmtUrlWithCluster(`https://explorer.solana.com/tx/${txid}`)}
+        href={fmtUrlWithCluster(`https://solscan.io/tx/${txid}`)}
       >
         View transaction
       </a>
@@ -187,7 +187,7 @@ export const StateComponent = ({
             <a
               rel="noreferrer"
               target="_blank"
-              href={fmtUrlWithCluster(`https://explorer.solana.com/tx/${txid}`)}
+              href={fmtUrlWithCluster(`https://solscan.io/tx/${txid}`)}
               className="font-medium underline hover:text-gray-300"
             >
               {state === "rejected" ? "Unconfirmed" : "View transaction"}
