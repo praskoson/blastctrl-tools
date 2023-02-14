@@ -4,6 +4,7 @@ import { ArrowsRightLeftIcon } from "@heroicons/react/24/solid";
 import { AccountLayout, ACCOUNT_SIZE, getAssociatedTokenAddressSync } from "@solana/spl-token-next";
 import { WalletAdapterNetwork, WalletSignTransactionError } from "@solana/wallet-adapter-base";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { PublicKey, Transaction } from "@solana/web3.js";
 import { notify, notifyPromise, SpinnerIcon } from "components";
 import SelectMenu from "components/SelectMenu";
@@ -39,6 +40,7 @@ const BonkSwap: NextPage = () => {
   const { network } = useNetworkConfigurationStore();
   const { connection } = useConnection();
   const { publicKey, signTransaction } = useWallet();
+  const { setVisible } = useWalletModal();
   const octaneConfig = useOctaneConfigStore((s) => s.config);
   const { fetchOctaneConfig, getSwapFeeConfig } = useOctaneConfigStore();
   const [bonkBalance, setBonkBalance] = useState<number | null>(null);
@@ -458,14 +460,24 @@ const BonkSwap: NextPage = () => {
                 defaultOption={slippages[2]}
                 onSelect={(value) => setValue("slippage", value.value)}
               />
-              <button
-                type="submit"
-                disabled={isSwapping}
-                className="inline-flex flex-auto items-center justify-center rounded-md bg-amber-500 px-2 py-2 font-medium text-white hover:bg-amber-600 disabled:bg-amber-600"
-              >
-                <ChevronRightIcon className="-ml-1 h-5 w-5 text-white" />
-                Submit
-              </button>
+              {publicKey ? (
+                <button
+                  type="submit"
+                  disabled={isSwapping}
+                  className="inline-flex flex-auto items-center justify-center rounded-md bg-amber-500 px-2 py-2 font-medium text-white hover:bg-amber-600 disabled:bg-amber-600"
+                >
+                  <ChevronRightIcon className="-ml-1 h-5 w-5 text-white" />
+                  Submit
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setVisible(true)}
+                  className="inline-flex flex-auto items-center justify-center rounded-md bg-amber-500 px-2 py-2 font-medium text-white hover:bg-amber-600 disabled:bg-amber-600"
+                >
+                  Connect wallet
+                </button>
+              )}
             </div>
             <a
               target="_blank"
