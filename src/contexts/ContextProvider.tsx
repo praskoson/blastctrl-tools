@@ -15,9 +15,6 @@ import { mergeClusterApiUrl } from "utils/spl/common";
 import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
 import { notify } from "components";
 import {
-  BackpackWalletAdapter,
-  GlowWalletAdapter,
-  PhantomWalletAdapter,
   SolflareWalletAdapter,
   LedgerWalletAdapter,
   BraveWalletAdapter,
