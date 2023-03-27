@@ -244,7 +244,7 @@ export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
                         strokeLinejoin="round"
                       />
                     </svg>
-                    <div className="flex text-sm text-gray-600">
+                    <div className="flex justify-center text-sm text-gray-600">
                       <label
                         htmlFor="file-upload"
                         className="relative cursor-pointer border-b-2 border-b-secondary font-medium text-secondary focus-within:outline-none focus-within:ring-2 focus-within:ring-secondary focus-within:ring-offset-2 hover:text-secondary-focus"
@@ -260,7 +260,7 @@ export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
                       </label>
                       <p className="pl-1">or drag and drop</p>
                     </div>
-                    <p className="text-xs text-gray-500">Use files that are up to 10MB</p>
+                    <p className="text-xs text-gray-500">Not recommended to use files over 20MB</p>
                   </div>
                 </div>
               </div>
