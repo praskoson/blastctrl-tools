@@ -2,11 +2,17 @@ import { NextApiRequest, NextApiResponse } from "next";
 import axios from "axios";
 
 export type QuoteData = {
-  solToBonk: number;
-  solToUsd: number;
+  rate: number;
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<QuoteData>) {
+  const { quoteToken } = req.query;
+
+  if (typeof quoteToken !== "string") {
+    res.status(401);
+    return;
+  }
+
   try {
     const data = await (
       await axios.get(
@@ -14,11 +20,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
       )
     ).data;
 
-    // SOL to Bonk
     const solToUsd = Number(data.solana.usd);
     const bonkToUsd = Number(data.bonk.usd);
     const solToBonk = solToUsd * (1 / bonkToUsd);
-    res.status(200).json({ solToBonk, solToUsd });
+    // SOL to Bonk
+    if (quoteToken === "BONK") {
+      res.status(200).json({ rate: solToBonk });
+      return;
+    } else if (quoteToken === "USDC") {
+      res.status(200).json({ rate: solToUsd });
+      return;
+    } else {
+      res.status(401);
+    }
   } catch (err) {
     console.log({ err });
     res.status(500).json(err);

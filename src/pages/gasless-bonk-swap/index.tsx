@@ -1,26 +1,23 @@
 import { ChevronRightIcon } from "@heroicons/react/20/solid";
 import { CogIcon } from "@heroicons/react/24/outline";
-import { ArrowsRightLeftIcon } from "@heroicons/react/24/solid";
-import { AccountLayout, ACCOUNT_SIZE, getAssociatedTokenAddressSync } from "@solana/spl-token-next";
 import { WalletAdapterNetwork, WalletSignTransactionError } from "@solana/wallet-adapter-base";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { PublicKey, Transaction } from "@solana/web3.js";
 import { notify, notifyPromise, SpinnerIcon } from "components";
 import SelectMenu from "components/SelectMenu";
+import { useTokenBalance } from "hooks";
 import { debounce } from "lodash-es";
 import { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
-import { QuoteData } from "pages/api/bonk/price";
 import { WhirlpoolQuoteData } from "pages/api/bonk/whirlpool-quote";
-import { MutableRefObject, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
 import useOctaneConfigStore from "stores/useOctaneConfigStore";
-import { classNames, fetcher, formatNumber, numberFormatter, useDataFetch } from "utils";
+import { classNames, fetcher, formatNumber, numberFormatter } from "utils";
 import { buildWhirlpoolsSwapTransaction, sendWhirlpoolsSwapTransaction } from "utils/octane";
-import { normalizeTokenAmount } from "utils/spl/common";
 import { FormLeft } from "views/gasless-swap/FormLeft";
 
 type FormData = {
@@ -39,13 +36,8 @@ const slippages = [
 
 const BonkSwap: NextPage = () => {
   const { network } = useNetworkConfigurationStore();
-  const { connection } = useConnection();
   const { publicKey, signTransaction } = useWallet();
   const { setVisible } = useWalletModal();
-  const octaneConfig = useOctaneConfigStore((s) => s.config);
-  const { fetchOctaneConfig, getSwapFeeConfig } = useOctaneConfigStore();
-  const [bonkBalance, setBonkBalance] = useState<number | null>(null);
-  const [isSwapping, setIsSwapping] = useState(false);
   const {
     register,
     handleSubmit,
@@ -56,10 +48,14 @@ const BonkSwap: NextPage = () => {
     mode: "onSubmit",
   });
   const [notifyId, setNotifyId] = useState<string>("");
-
-  const { data: quote } = useDataFetch<QuoteData, Error>("/api/bonk/price");
+  const [isSwapping, setIsSwapping] = useState(false);
   const [priceQuote, setPriceQuote] = useState<WhirlpoolQuoteData | null>(null);
   const [isFetchingQuote, setIsFetchingQuote] = useState(false);
+
+  useOctaneConfigStore((s) => s.config);
+  const { fetchOctaneConfig, getSwapFeeConfig } = useOctaneConfigStore();
+  const { tokenBalance } = useTokenBalance(BONK_MINT, BONK_DECIMALS);
+  useEffect(fetchOctaneConfig, [fetchOctaneConfig]);
 
   const getQuote = async (num: number) => {
     if (!num) return setPriceQuote(null);
@@ -84,30 +80,6 @@ const BonkSwap: NextPage = () => {
   };
 
   const debouncedGetQuote = useMemo(() => debounce(getQuote, 500), []);
-  useEffect(fetchOctaneConfig, [fetchOctaneConfig]);
-  useEffect(() => {
-    if (!publicKey) return;
-    let isCancelled = false;
-    let listener: number;
-
-    const bonkAta = getAssociatedTokenAddressSync(BONK_MINT, publicKey, true);
-    connection.getTokenAccountBalance(bonkAta, "confirmed").then((result) => {
-      if (!isCancelled) {
-        setBonkBalance(result.value.uiAmount);
-      }
-    });
-
-    listener = connection.onAccountChange(bonkAta, (accountInfo) => {
-      const rawAccount = AccountLayout.decode(accountInfo.data.slice(0, ACCOUNT_SIZE));
-      const uiAmount = normalizeTokenAmount(rawAccount.amount.toString(), BONK_DECIMALS);
-      setBonkBalance(uiAmount);
-    });
-
-    return () => {
-      isCancelled = true;
-      void connection.removeAccountChangeListener(listener);
-    };
-  }, [connection, publicKey]);
 
   const submitSwap = async (data: FormData) => {
     // Bonk!
@@ -198,13 +170,13 @@ const BonkSwap: NextPage = () => {
   };
 
   const handleSetMax = async () => {
-    setValue("swapAmount", bonkBalance);
+    setValue("swapAmount", tokenBalance);
     setIsFetchingQuote(true);
     try {
       const quote = await fetcher<WhirlpoolQuoteData>("/api/bonk/whirlpool-quote", {
         method: "POST",
         body: JSON.stringify({
-          amountIn: bonkBalance,
+          amountIn: tokenBalance,
           numerator: 10,
           denominator: 1000,
         }),
@@ -256,14 +228,14 @@ const BonkSwap: NextPage = () => {
 
           {/* Form */}
           <form onSubmit={handleSubmit(submitSwap)} className="flex flex-1 flex-col justify-start">
-            {bonkBalance !== null && bonkBalance > 0 && (
+            {tokenBalance !== null && tokenBalance > 0 && (
               <span
                 onClick={handleSetMax}
                 className="mb-2 w-full border-b pb-2 text-right text-base"
               >
                 <span className="mr-0.5 text-xs text-gray-600">Balance </span>
                 <span className="font-medium text-amber-600">
-                  {numberFormatter.format(bonkBalance)}
+                  {numberFormatter.format(tokenBalance)}
                 </span>
               </span>
             )}
@@ -283,7 +255,7 @@ const BonkSwap: NextPage = () => {
                     required: true,
                     validate: {
                       notEnoughTokens: (value) =>
-                        bonkBalance ? value <= bonkBalance || "Not enough BONK!" : true,
+                        tokenBalance ? value <= tokenBalance || "Not enough BONK!" : true,
                     },
                     onChange: (e) => debouncedGetQuote(e?.target?.value),
                   })}
