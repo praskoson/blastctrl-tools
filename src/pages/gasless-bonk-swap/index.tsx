@@ -25,7 +25,6 @@ type FormData = {
 };
 
 const BONK_MINT_58 = "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263";
-const BONK_MINT = new PublicKey(BONK_MINT_58);
 const BONK_DECIMALS = 5;
 const USDC_MINT_58 = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
 const USDC_DECIMALS = 6;
