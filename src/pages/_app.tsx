@@ -239,7 +239,7 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
             </Disclosure>
           </>
           <Breadcrumbs />
-          <main className="mx-auto max-w-7xl flex-grow px-4 pt-10 pb-12 lg:pb-16">
+          <main className="mx-auto max-w-7xl flex-grow pt-10 pb-12 sm:px-4 lg:pb-16">
             <Component {...pageProps} />
             <Analytics />
           </main>
