@@ -13,28 +13,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     return;
   }
 
+  let priceData;
   try {
-    const data = await (
+    priceData = (
       await axios.get(
         "https://api.coingecko.com/api/v3/simple/price?ids=bonk%2Csolana&vs_currencies=usd"
       )
     ).data;
-
-    const solToUsd = Number(data.solana.usd);
-    const bonkToUsd = Number(data.bonk.usd);
-    const solToBonk = solToUsd * (1 / bonkToUsd);
-    // SOL to Bonk
-    if (quoteToken === "BONK") {
-      res.status(200).json({ rate: solToBonk });
-      return;
-    } else if (quoteToken === "USDC") {
-      res.status(200).json({ rate: solToUsd });
-      return;
-    } else {
-      res.status(401);
-    }
   } catch (err) {
     console.log({ err });
     res.status(500).json(err);
+    return;
+  }
+
+  const solToUsd = Number(priceData.solana.usd);
+  const bonkToUsd = Number(priceData.bonk.usd);
+  const solToBonk = solToUsd * (1 / bonkToUsd);
+  // SOL to Bonk
+  if (quoteToken === "BONK") {
+    res.status(200).json({ rate: solToBonk });
+    return;
+  } else if (quoteToken === "USDC") {
+    res.status(200).json({ rate: solToUsd });
+    return;
+  } else {
+    res.status(401);
   }
 }
