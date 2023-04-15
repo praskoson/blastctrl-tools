@@ -1,26 +1,23 @@
-import { ChevronRightIcon } from "@heroicons/react/20/solid";
+import { ChevronRightIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import { CogIcon } from "@heroicons/react/24/outline";
-import { ArrowsRightLeftIcon } from "@heroicons/react/24/solid";
-import { AccountLayout, ACCOUNT_SIZE, getAssociatedTokenAddressSync } from "@solana/spl-token-next";
 import { WalletAdapterNetwork, WalletSignTransactionError } from "@solana/wallet-adapter-base";
-import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import { useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { PublicKey, Transaction } from "@solana/web3.js";
-import { notify, notifyPromise, SpinnerIcon } from "components";
-import SelectMenu from "components/SelectMenu";
+import { notify, notifyPromise, Select, SpinnerIcon } from "components";
+import { useTokenBalance } from "hooks";
 import { debounce } from "lodash-es";
 import { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
-import { BonkQuoteData } from "pages/api/bonk/price";
 import { WhirlpoolQuoteData } from "pages/api/bonk/whirlpool-quote";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
 import useOctaneConfigStore from "stores/useOctaneConfigStore";
-import { classNames, fetcher, formatNumber, numberFormatter, useDataFetch } from "utils";
+import { classNames, fetcher, formatNumber, numberFormatter, roundTo } from "utils";
 import { buildWhirlpoolsSwapTransaction, sendWhirlpoolsSwapTransaction } from "utils/octane";
-import { normalizeTokenAmount } from "utils/spl/common";
+import { FormLeft } from "views/gasless-swap/FormLeft";
 
 type FormData = {
   swapAmount: number;
@@ -28,8 +25,13 @@ type FormData = {
 };
 
 const BONK_MINT_58 = "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263";
-const BONK_MINT = new PublicKey(BONK_MINT_58);
 const BONK_DECIMALS = 5;
+const USDC_MINT_58 = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
+const USDC_DECIMALS = 6;
+const TOKENS = [
+  { mint: BONK_MINT_58, decimals: BONK_DECIMALS, name: "BONK" },
+  { mint: USDC_MINT_58, decimals: USDC_DECIMALS, name: "USDC" },
+];
 const slippages = [
   { value: 0.1, label: "0.1%", id: 0 },
   { value: 0.5, label: "0.5%", id: 1 },
@@ -38,14 +40,8 @@ const slippages = [
 
 const BonkSwap: NextPage = () => {
   const { network } = useNetworkConfigurationStore();
-  const { connection } = useConnection();
   const { publicKey, signTransaction } = useWallet();
   const { setVisible } = useWalletModal();
-  const octaneConfig = useOctaneConfigStore((s) => s.config);
-  const { fetchOctaneConfig, getSwapFeeConfig } = useOctaneConfigStore();
-  const [bonkBalance, setBonkBalance] = useState<number | null>(null);
-  const [baseIsSol, setBaseIsSol] = useState(true);
-  const [isSwapping, setIsSwapping] = useState(false);
   const {
     register,
     handleSubmit,
@@ -56,70 +52,52 @@ const BonkSwap: NextPage = () => {
     mode: "onSubmit",
   });
   const [notifyId, setNotifyId] = useState<string>("");
-  const cheemsRef = useRef<HTMLDivElement | null>(null);
-  const cheemsWrapRef = useRef<HTMLDivElement | null>(null);
-  const [bonkCounter, setBonkCounter] = useState(0);
-
-  const { data: bonkQuote } = useDataFetch<BonkQuoteData, Error>("/api/bonk/price");
+  const [isSwapping, setIsSwapping] = useState(false);
   const [priceQuote, setPriceQuote] = useState<WhirlpoolQuoteData | null>(null);
   const [isFetchingQuote, setIsFetchingQuote] = useState(false);
-  const [bonkAnimate, setBonkAnimate] = useState(false);
+  const [selectToken, setSelectToken] = useState(TOKENS[0]);
 
-  const getQuote = async (num: number) => {
-    // const num = parseFloat(e.target.value);
-    if (!num) return setPriceQuote(null);
-
-    setIsFetchingQuote(true);
-    try {
-      const quote = await fetcher<WhirlpoolQuoteData>("/api/bonk/whirlpool-quote", {
-        method: "POST",
-        body: JSON.stringify({
-          amountIn: num * 0.95,
-          numerator: 10,
-          denominator: 1000,
-        }),
-        headers: { "Content-type": "application/json; charset=UTF-8" },
-      });
-      setPriceQuote(quote);
-    } catch (err) {
-      setPriceQuote(null);
-    } finally {
-      setIsFetchingQuote(false);
-    }
-  };
-
-  const debouncedGetQuote = useMemo(() => debounce(getQuote, 500), []);
+  const { tokenBalance } = useTokenBalance(selectToken.mint, selectToken.decimals);
+  useOctaneConfigStore((s) => s.config);
+  const { fetchOctaneConfig, getSwapFeeConfig } = useOctaneConfigStore();
   useEffect(fetchOctaneConfig, [fetchOctaneConfig]);
-  useEffect(() => {
-    if (!publicKey) return;
-    let isCancelled = false;
-    let listener: number;
 
-    const bonkAta = getAssociatedTokenAddressSync(BONK_MINT, publicKey, true);
-    connection.getTokenAccountBalance(bonkAta, "confirmed").then((result) => {
-      if (!isCancelled) {
-        setBonkBalance(result.value.uiAmount);
+  const getQuote = useCallback(
+    async (num: number) => {
+      if (!num) return setPriceQuote(null);
+
+      setIsFetchingQuote(true);
+      const feeConfig = getSwapFeeConfig(selectToken.mint);
+      const feeBp = feeConfig.burnFeeBp + feeConfig.transferFeeBp;
+      try {
+        const quote = await fetcher<WhirlpoolQuoteData>("/api/bonk/whirlpool-quote", {
+          method: "POST",
+          body: JSON.stringify({
+            quoteMint: selectToken.mint,
+            amountIn: num * (1 - feeBp / 10000),
+            numerator: 10,
+            denominator: 1000,
+          }),
+          headers: { "Content-type": "application/json; charset=UTF-8" },
+        });
+        setPriceQuote(quote);
+      } catch (err) {
+        setPriceQuote(null);
+      } finally {
+        setIsFetchingQuote(false);
       }
-    });
+    },
+    [selectToken.mint, getSwapFeeConfig]
+  );
 
-    listener = connection.onAccountChange(bonkAta, (accountInfo) => {
-      const rawAccount = AccountLayout.decode(accountInfo.data.slice(0, ACCOUNT_SIZE));
-      const uiAmount = normalizeTokenAmount(rawAccount.amount.toString(), BONK_DECIMALS);
-      setBonkBalance(uiAmount);
-    });
-
-    return () => {
-      isCancelled = true;
-      void connection.removeAccountChangeListener(listener);
-    };
-  }, [connection, publicKey]);
+  const debouncedGetQuote = useMemo(() => debounce(getQuote, 500), [getQuote]);
 
   const submitSwap = async (data: FormData) => {
     // Bonk!
     const { swapAmount, slippage } = data;
 
-    const feeConfig = getSwapFeeConfig(BONK_MINT_58);
-    const mintAsPublicKey = BONK_MINT;
+    const feeConfig = getSwapFeeConfig(selectToken.mint);
+    const mintAsPublicKey = new PublicKey(selectToken.mint);
     const amountAsDecimals = Math.floor(swapAmount * 10 ** feeConfig.decimals);
 
     let signedTransaction: Transaction;
@@ -183,10 +161,12 @@ const BonkSwap: NextPage = () => {
     if (!notifyId) setNotifyId(id);
 
     setIsFetchingQuote(true);
+    const feeConfig = getSwapFeeConfig(selectToken.mint);
     try {
       const quote = await fetcher<WhirlpoolQuoteData>("/api/bonk/whirlpool-quote", {
         method: "POST",
         body: JSON.stringify({
+          quoteMint: selectToken.mint,
           amountOut: amount,
           numerator: 10,
           denominator: 1000,
@@ -194,7 +174,9 @@ const BonkSwap: NextPage = () => {
         headers: { "Content-type": "application/json; charset=UTF-8" },
       });
 
-      setValue("swapAmount", Math.ceil(parseFloat(quote.estimatedAmountIn) / 0.95));
+      const ratioReducedByFee = 1 - (feeConfig.burnFeeBp + feeConfig.transferFeeBp) / 10000;
+      const swapAmount = parseFloat(quote.estimatedAmountIn) / ratioReducedByFee;
+      setValue("swapAmount", swapAmount > 1e6 ? Math.ceil(swapAmount) : roundTo(swapAmount, 5));
       setPriceQuote(quote);
     } catch (err) {
     } finally {
@@ -203,13 +185,13 @@ const BonkSwap: NextPage = () => {
   };
 
   const handleSetMax = async () => {
-    setValue("swapAmount", bonkBalance);
+    setValue("swapAmount", tokenBalance);
     setIsFetchingQuote(true);
     try {
       const quote = await fetcher<WhirlpoolQuoteData>("/api/bonk/whirlpool-quote", {
         method: "POST",
         body: JSON.stringify({
-          amountIn: bonkBalance,
+          amountIn: tokenBalance,
           numerator: 10,
           denominator: 1000,
         }),
@@ -221,47 +203,6 @@ const BonkSwap: NextPage = () => {
     } finally {
       setIsFetchingQuote(false);
     }
-  };
-
-  const handleCheemsBonk = () => {
-    if (!cheemsRef?.current) return;
-    // Start animating
-    setBonkAnimate(true);
-
-    // Trigger the "jello" animation
-    cheemsRef.current.style.animation = "none";
-    cheemsRef.current.offsetHeight; /* trigger reflow */
-    cheemsRef.current.style.animation = null;
-
-    // Eyes trigger
-    setBonkCounter((prev) => prev + 1);
-
-    // Text bubbles
-    if (!cheemsWrapRef.current) return;
-    const randomX = Math.round(Math.random() * 100); // [0, 100]
-    const randomY = Math.round(Math.random() * 80); // [0, 80]
-    const turnDeg = Math.round(Math.random() * 120 - 60); // [-60, 60]
-    const el = document.createElement("span");
-    el.textContent = "BONK";
-    el.classList.add(
-      "absolute",
-      "text-orange-400",
-      "text-sm",
-      "font-semibold",
-      "border-2",
-      "border-orange-400",
-      "px-1.5",
-      "py-0.5",
-      "rounded-xl",
-      "pointer-events-none"
-    );
-    el.style.setProperty("transform", `rotate(${turnDeg}deg)`);
-    el.style.setProperty("top", `${randomY}%`);
-    el.style.setProperty("left", `${randomX}%`);
-    cheemsWrapRef.current.appendChild(el);
-    setTimeout(() => {
-      el.remove();
-    }, 1000);
   };
 
   if (network === WalletAdapterNetwork.Devnet) {
@@ -297,96 +238,68 @@ const BonkSwap: NextPage = () => {
         </div>
 
         <div className="mt-4 flex gap-x-8">
-          {/* Image */}
-          <div ref={cheemsWrapRef} className="relative hidden flex-1 flex-shrink-0 px-2 sm:block">
-            <div
-              ref={cheemsRef}
-              className={classNames(bonkAnimate && "jello-horizontal", "p-8 hover:cursor-pointer")}
-              onClick={handleCheemsBonk}
-            >
-              <div className="relative">
-                <Image unoptimized={true} src={"/cheems.png"} alt="" height={320} width={320} />
-                {/* Eyes */}
-                <div
-                  className={classNames(
-                    "absolute top-[8%] left-[64%] text-sm",
-                    bonkCounter >= 20 ? "fire-in" : "opacity-0"
-                  )}
-                >
-                  🔥
-                </div>
-                <div
-                  className={classNames(
-                    "absolute top-[7.5%] left-[81%] text-sm",
-                    bonkCounter >= 20 ? "fire-in" : "opacity-0"
-                  )}
-                >
-                  🔥
-                </div>
-              </div>
-            </div>
-            <div className="mx-auto flex items-center justify-center gap-x-2 rounded-lg border border-amber-600 p-3">
-              <span className="text-sm font-medium text-gray-600">
-                {baseIsSol ? "1 SOL" : "1 BONK"}
-              </span>
-              <button
-                type="button"
-                onClick={() => setBaseIsSol((prev) => !prev)}
-                className="rounded-full bg-amber-500 p-1 hover:bg-amber-600"
-              >
-                <ArrowsRightLeftIcon className="h-5 w-5 text-white" />
-              </button>
-              <span className="text-sm font-medium text-gray-600">
-                {baseIsSol ? (
-                  <>{formatNumber.format(bonkQuote?.rate, 2)} BONK</>
-                ) : (
-                  <>{formatNumber.format(1 / bonkQuote?.rate)} SOL</>
-                )}
-              </span>
-            </div>
-          </div>
+          {/* Image + exchange rate */}
+          <FormLeft quoteToken={selectToken.name} />
+
           {/* Form */}
           <form onSubmit={handleSubmit(submitSwap)} className="flex flex-1 flex-col justify-start">
-            {bonkBalance !== null && bonkBalance > 0 && (
+            {tokenBalance !== null && tokenBalance > 0 && (
               <span
                 onClick={handleSetMax}
                 className="mb-2 w-full border-b pb-2 text-right text-base"
               >
                 <span className="mr-0.5 text-xs text-gray-600">Balance </span>
                 <span className="font-medium text-amber-600">
-                  {numberFormatter.format(bonkBalance)}
+                  {numberFormatter.format(tokenBalance)}
                 </span>
               </span>
             )}
             <div>
-              <div className="flex flex-wrap justify-between gap-x-2">
+              <div className="flex flex-wrap gap-x-2">
                 <label className="text-base font-medium text-gray-600">You will sell:</label>
               </div>
-              <div className="relative mt-2 rounded-md shadow-sm sm:mt-1">
-                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                  <Image
-                    className="h-6 w-6 rounded-full"
-                    src="https://quei6zhlcfsxdfyes577gy7bkxmuz7qqakyt72xlbkyh7fysmoza.arweave.net/hQiPZOsRZXGXBJd_82PhVdlM_hACsT_q6wqwf5cSY7I?ext=png"
-                    alt=""
-                    height={24}
-                    width={24}
-                  />
-                  <span className="pl-2 font-medium tracking-wider text-gray-500">BONK</span>
-                </div>
+              <div className="relative mt-2 flex w-full justify-between gap-x-2 sm:mt-1">
+                <Select value={selectToken} onChange={(value) => setSelectToken(value)}>
+                  <Select.Button
+                    as="button"
+                    className="inline-flex h-full w-32 items-center justify-between rounded-md border border-transparent bg-gray-200 px-3 font-medium text-gray-800"
+                  >
+                    {selectToken.name}
+                    <ChevronUpDownIcon className="h-4 w-4 text-gray-700" />
+                  </Select.Button>
+                  <Select.Options>
+                    {TOKENS.map((token) => (
+                      <Select.Option
+                        className={({ selected, active }) =>
+                          classNames(
+                            "cursor-pointer rounded-full px-3",
+                            selected && "bg-amber-500 text-white",
+                            active && !selected && "bg-amber-500/30"
+                          )
+                        }
+                        key={token.mint}
+                        value={token}
+                      >
+                        {token.name}
+                      </Select.Option>
+                    ))}
+                  </Select.Options>
+                </Select>
+
                 <input
                   type="number"
                   {...register("swapAmount", {
                     required: true,
                     validate: {
                       notEnoughTokens: (value) =>
-                        bonkBalance ? value <= bonkBalance || "Not enough BONK!" : true,
+                        tokenBalance ? value <= tokenBalance || "Not enough BONK!" : true,
                     },
                     onChange: (e) => debouncedGetQuote(e?.target?.value),
                   })}
                   placeholder="0.00"
                   className={classNames(
-                    "block w-full rounded-md border-none border-gray-300 border-transparent bg-gray-200 text-right font-medium text-gray-600",
-                    "placeholder:font-medium placeholder:text-gray-400",
+                    "block grow rounded-md border-none border-transparent bg-gray-200 text-right font-medium text-gray-600",
+                    "rounded-md placeholder:font-medium placeholder:text-gray-400",
                     "focus:outline-none focus:ring-0 sm:text-base"
                   )}
                 />
@@ -418,12 +331,11 @@ const BonkSwap: NextPage = () => {
                   )}
                   <span className="font-medium text-gray-600">
                     {priceQuote
-                      ? formatNumber.format(parseFloat(priceQuote.estimatedAmountOut), 6)
+                      ? formatNumber.format(parseFloat(priceQuote.estimatedAmountOut), 5)
                       : "0.00"}
                   </span>
                 </div>
               </div>
-              {/* <div className="text-xs font-medium">Fee: 5% of the BONK amount</div> */}
             </div>
 
             <div className="my-2 grid w-full grid-cols-3 gap-x-2">
@@ -442,24 +354,36 @@ const BonkSwap: NextPage = () => {
             </div>
 
             <div className="mt-6 flex w-full gap-x-2">
-              <SelectMenu
-                renderButton={(_, open) => (
-                  <button
-                    type="button"
-                    className="group h-full flex-grow-0 rounded-md bg-amber-500 px-3 text-white hover:bg-amber-600"
-                  >
+              <Select defaultValue={slippages[2]}>
+                <Select.Button className="group h-full flex-grow-0 rounded-md bg-amber-500 px-3 text-white hover:bg-amber-600">
+                  {({ open }) => (
                     <CogIcon
                       className={classNames(
                         "h-6 w-6 transition-transform duration-200 group-hover:rotate-90",
                         open && "rotate-90"
                       )}
                     />
-                  </button>
-                )}
-                options={slippages}
-                defaultOption={slippages[2]}
-                onSelect={(value) => setValue("slippage", value.value)}
-              />
+                  )}
+                </Select.Button>
+                <Select.Options>
+                  <div className="px-2 text-left text-sm text-gray-500">Slippage</div>
+                  {slippages.map((slippage, i) => (
+                    <Select.Option
+                      key={i}
+                      value={slippage}
+                      className={({ selected, active }) =>
+                        classNames(
+                          "cursor-pointer rounded-full px-3",
+                          selected && "bg-amber-500 text-white",
+                          active && !selected && "bg-amber-500/30"
+                        )
+                      }
+                    >
+                      {slippage.label}
+                    </Select.Option>
+                  ))}
+                </Select.Options>
+              </Select>
               {publicKey ? (
                 <button
                   type="submit"

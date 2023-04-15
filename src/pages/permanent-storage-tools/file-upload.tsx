@@ -7,7 +7,7 @@ import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
 import { BundlrStorageDriver } from "utils/bundlr-storage";
 import { UploaderView } from "views";
 
-const FileUpload: NextPage = (props) => {
+const FileUpload: NextPage = () => {
   const { connection } = useConnection();
   const { network } = useNetworkConfigurationStore();
   const wallet = useWallet();

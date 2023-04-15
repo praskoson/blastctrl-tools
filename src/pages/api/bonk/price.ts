@@ -1,28 +1,42 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import axios from "axios";
 
-export type BonkQuoteData = {
+export type QuoteData = {
   rate: number;
 };
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse<BonkQuoteData>) {
-  // BONK-SOL WHIRLPOOL
-  const BONK_SOL = "3ne4mWqdYuNiYrYZC9TrA3FcfuFdErghH97vNPbjicr1";
+export default async function handler(req: NextApiRequest, res: NextApiResponse<QuoteData>) {
+  const { quoteToken } = req.query;
 
+  if (typeof quoteToken !== "string") {
+    res.status(401);
+    return;
+  }
+
+  let priceData;
   try {
-    const data = await (
+    priceData = (
       await axios.get(
         "https://api.coingecko.com/api/v3/simple/price?ids=bonk%2Csolana&vs_currencies=usd"
       )
     ).data;
-
-    // SOL to Bonk
-    const solToUsd = Number(data.solana.usd);
-    const bonkToUsd = Number(data.bonk.usd);
-    const solToBonk = solToUsd * (1 / bonkToUsd);
-    res.status(200).json({ rate: solToBonk });
   } catch (err) {
     console.log({ err });
     res.status(500).json(err);
+    return;
+  }
+
+  const solToUsd = Number(priceData.solana.usd);
+  const bonkToUsd = Number(priceData.bonk.usd);
+  const solToBonk = solToUsd * (1 / bonkToUsd);
+  // SOL to Bonk
+  if (quoteToken === "BONK") {
+    res.status(200).json({ rate: solToBonk });
+    return;
+  } else if (quoteToken === "USDC") {
+    res.status(200).json({ rate: solToUsd });
+    return;
+  } else {
+    res.status(401);
   }
 }

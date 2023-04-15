@@ -3,3 +3,4 @@ export * from "./useUserNfts";
 export * from "./useNftJson";
 export * from "./useUserNftsQn";
 export * from "./useWindowFocus";
+export * from "./useTokenBalance";

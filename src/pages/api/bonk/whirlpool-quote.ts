@@ -13,9 +13,10 @@ import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 import { Networks } from "utils/endpoints";
 import Decimal from "decimal.js";
 import { DecimalUtil, Percentage } from "@orca-so/common-sdk";
-import { NATIVE_MINT } from "@solana/spl-token-next";
+import { NATIVE_MINT, getMint } from "@solana/spl-token-next";
 
 export type Input = {
+  quoteMint: string;
   amountIn?: number;
   amountOut?: number;
   numerator: number;
@@ -28,18 +29,29 @@ export type WhirlpoolQuoteData = {
   estimatedFeeAmount: string;
 };
 
+// quote token <-> pool address
+const PoolMap = new Map<string, PublicKey>([
+  // Bonk
+  [
+    "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
+    new PublicKey("3ne4mWqdYuNiYrYZC9TrA3FcfuFdErghH97vNPbjicr1"),
+  ],
+  // USDC
+  [
+    "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+    new PublicKey("7qbRF6YsyGuLUVs6Y1q64bdVrfe4ZcUUz1JRdoVNUJnm"),
+  ],
+]);
+
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<WhirlpoolQuoteData>
+  res: NextApiResponse<WhirlpoolQuoteData | { error: string }>
 ) {
   // BONK-SOL WHIRLPOOL
   if (req.method !== "POST") res.status(403).json(null);
+  const { quoteMint, amountIn, amountOut, denominator, numerator } = req.body as Input;
 
-  const { amountIn, amountOut, denominator, numerator } = req.body as Input;
-
-  const BONK_SOL = "3ne4mWqdYuNiYrYZC9TrA3FcfuFdErghH97vNPbjicr1";
   const connection = new Connection(Networks["mainnet-beta"]);
-
   const provider = new AnchorProvider(connection, new Wallet(Keypair.generate()), {});
   const ctx = WhirlpoolContext.from(
     provider.connection,
@@ -49,11 +61,14 @@ export default async function handler(
   const fetcher = new AccountFetcher(ctx.connection);
   const client = buildWhirlpoolClient(ctx);
 
-  // get pool
-  const SOL = { mint: new PublicKey("So11111111111111111111111111111111111111112"), decimals: 9 };
-  const BONK = { mint: new PublicKey("DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263"), decimals: 5 };
-  const whirlpool_pubkey = new PublicKey(BONK_SOL);
+  const quoteToken = new PublicKey(quoteMint);
+  const whirlpool_pubkey = PoolMap.get(quoteMint);
+  if (!whirlpool_pubkey) {
+    res.status(401).json({ error: "Invalid quote mint" });
+    return;
+  }
 
+  const decimals = (await getMint(connection, quoteToken)).decimals;
   const whirlpool = await client.getPool(whirlpool_pubkey);
 
   // get swap quote
@@ -63,8 +78,8 @@ export default async function handler(
 
     quote = await swapQuoteByInputToken(
       whirlpool,
-      BONK.mint,
-      DecimalUtil.toU64(amount_in, BONK.decimals), // toU64
+      quoteToken,
+      DecimalUtil.toU64(amount_in, decimals), // toU64
       Percentage.fromFraction(numerator, denominator), // acceptable slippage is 1.0% (10/1000)
       ctx.program.programId,
       fetcher,
@@ -75,7 +90,7 @@ export default async function handler(
     quote = await swapQuoteByOutputToken(
       whirlpool,
       NATIVE_MINT,
-      DecimalUtil.toU64(amount_out, SOL.decimals),
+      DecimalUtil.toU64(amount_out, 9),
       Percentage.fromFraction(numerator, denominator),
       ctx.program.programId,
       fetcher,
@@ -83,9 +98,9 @@ export default async function handler(
     );
   }
 
-  const estimatedAmountIn = DecimalUtil.fromU64(quote.estimatedAmountIn, BONK.decimals).toString();
-  const estimatedAmountOut = DecimalUtil.fromU64(quote.estimatedAmountOut, SOL.decimals).toString();
-  const estimatedFeeAmount = DecimalUtil.fromU64(quote.estimatedFeeAmount, SOL.decimals).toString();
+  const estimatedAmountIn = DecimalUtil.fromU64(quote.estimatedAmountIn, decimals).toString();
+  const estimatedAmountOut = DecimalUtil.fromU64(quote.estimatedAmountOut, 9).toString();
+  const estimatedFeeAmount = DecimalUtil.fromU64(quote.estimatedFeeAmount, 9).toString();
 
   try {
     res.status(200).json({ estimatedAmountIn, estimatedAmountOut, estimatedFeeAmount });
