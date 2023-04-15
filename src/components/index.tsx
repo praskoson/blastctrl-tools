@@ -13,3 +13,4 @@ export * from "./MobileWallet";
 export * from "./Footer";
 export * from "./NftSelector";
 export * from "./SelectMenu";
+export * from "./Select";

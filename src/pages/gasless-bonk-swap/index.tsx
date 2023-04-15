@@ -1,10 +1,10 @@
-import { ChevronRightIcon } from "@heroicons/react/20/solid";
+import { ChevronDownIcon, ChevronRightIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import { CogIcon } from "@heroicons/react/24/outline";
 import { WalletAdapterNetwork, WalletSignTransactionError } from "@solana/wallet-adapter-base";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { PublicKey, Transaction } from "@solana/web3.js";
-import { notify, notifyPromise, SpinnerIcon } from "components";
+import { notify, notifyPromise, Select, SpinnerIcon } from "components";
 import SelectMenu from "components/SelectMenu";
 import { useTokenBalance } from "hooks";
 import { debounce } from "lodash-es";
@@ -28,6 +28,12 @@ type FormData = {
 const BONK_MINT_58 = "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263";
 const BONK_MINT = new PublicKey(BONK_MINT_58);
 const BONK_DECIMALS = 5;
+const USDC_MINT_58 = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
+const USDC_DECIMALS = 6;
+const TOKENS = [
+  { mint: BONK_MINT_58, decimals: BONK_DECIMALS, name: "BONK" },
+  { mint: USDC_MINT_58, decimals: USDC_DECIMALS, name: "USDC" },
+];
 const slippages = [
   { value: 0.1, label: "0.1%", id: 0 },
   { value: 0.5, label: "0.5%", id: 1 },
@@ -51,10 +57,11 @@ const BonkSwap: NextPage = () => {
   const [isSwapping, setIsSwapping] = useState(false);
   const [priceQuote, setPriceQuote] = useState<WhirlpoolQuoteData | null>(null);
   const [isFetchingQuote, setIsFetchingQuote] = useState(false);
+  const [selectToken, setSelectToken] = useState(TOKENS[0]);
 
+  const { tokenBalance } = useTokenBalance(BONK_MINT, BONK_DECIMALS);
   useOctaneConfigStore((s) => s.config);
   const { fetchOctaneConfig, getSwapFeeConfig } = useOctaneConfigStore();
-  const { tokenBalance } = useTokenBalance(BONK_MINT, BONK_DECIMALS);
   useEffect(fetchOctaneConfig, [fetchOctaneConfig]);
 
   const getQuote = async (num: number) => {
@@ -224,7 +231,7 @@ const BonkSwap: NextPage = () => {
 
         <div className="mt-4 flex gap-x-8">
           {/* Image + exchange rate */}
-          <FormLeft quoteToken="BONK" />
+          <FormLeft quoteToken={selectToken.name} />
 
           {/* Form */}
           <form onSubmit={handleSubmit(submitSwap)} className="flex flex-1 flex-col justify-start">
@@ -244,10 +251,32 @@ const BonkSwap: NextPage = () => {
                 <label className="text-base font-medium text-gray-600">You will sell:</label>
               </div>
               <div className="relative mt-2 flex w-full justify-between gap-x-2 sm:mt-1">
-                <select className="inline-flex w-32 items-center rounded-md border border-transparent bg-gray-200 px-3">
-                  <option>BONK</option>
-                  <option>USDC</option>
-                </select>
+                <Select value={selectToken} onChange={(value) => setSelectToken(value)}>
+                  <Select.Button
+                    as="button"
+                    className="inline-flex h-full w-32 items-center justify-between rounded-md border border-transparent bg-gray-200 px-3 font-medium text-gray-800"
+                  >
+                    {selectToken.name}
+                    <ChevronUpDownIcon className="h-4 w-4 text-gray-700" />
+                  </Select.Button>
+                  <Select.Options>
+                    {TOKENS.map((token) => (
+                      <Select.Option
+                        className={({ selected, active }) =>
+                          classNames(
+                            "cursor-pointer rounded-full px-3",
+                            selected && "bg-amber-500 text-white",
+                            active && !selected && "bg-amber-500/30"
+                          )
+                        }
+                        key={token.mint}
+                        value={token}
+                      >
+                        {token.name}
+                      </Select.Option>
+                    ))}
+                  </Select.Options>
+                </Select>
 
                 <input
                   type="number"
