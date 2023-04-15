@@ -1,22 +1,21 @@
-import { ChevronDownIcon, ChevronRightIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
+import { ChevronRightIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import { CogIcon } from "@heroicons/react/24/outline";
 import { WalletAdapterNetwork, WalletSignTransactionError } from "@solana/wallet-adapter-base";
-import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import { useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { PublicKey, Transaction } from "@solana/web3.js";
 import { notify, notifyPromise, Select, SpinnerIcon } from "components";
-import SelectMenu from "components/SelectMenu";
 import { useTokenBalance } from "hooks";
 import { debounce } from "lodash-es";
 import { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
 import { WhirlpoolQuoteData } from "pages/api/bonk/whirlpool-quote";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
 import useOctaneConfigStore from "stores/useOctaneConfigStore";
-import { classNames, fetcher, formatNumber, numberFormatter } from "utils";
+import { classNames, fetcher, formatNumber, numberFormatter, roundTo } from "utils";
 import { buildWhirlpoolsSwapTransaction, sendWhirlpoolsSwapTransaction } from "utils/octane";
 import { FormLeft } from "views/gasless-swap/FormLeft";
 
@@ -59,41 +58,47 @@ const BonkSwap: NextPage = () => {
   const [isFetchingQuote, setIsFetchingQuote] = useState(false);
   const [selectToken, setSelectToken] = useState(TOKENS[0]);
 
-  const { tokenBalance } = useTokenBalance(BONK_MINT, BONK_DECIMALS);
+  const { tokenBalance } = useTokenBalance(selectToken.mint, selectToken.decimals);
   useOctaneConfigStore((s) => s.config);
   const { fetchOctaneConfig, getSwapFeeConfig } = useOctaneConfigStore();
   useEffect(fetchOctaneConfig, [fetchOctaneConfig]);
 
-  const getQuote = async (num: number) => {
-    if (!num) return setPriceQuote(null);
+  const getQuote = useCallback(
+    async (num: number) => {
+      if (!num) return setPriceQuote(null);
 
-    setIsFetchingQuote(true);
-    try {
-      const quote = await fetcher<WhirlpoolQuoteData>("/api/bonk/whirlpool-quote", {
-        method: "POST",
-        body: JSON.stringify({
-          amountIn: num * 0.95,
-          numerator: 10,
-          denominator: 1000,
-        }),
-        headers: { "Content-type": "application/json; charset=UTF-8" },
-      });
-      setPriceQuote(quote);
-    } catch (err) {
-      setPriceQuote(null);
-    } finally {
-      setIsFetchingQuote(false);
-    }
-  };
+      setIsFetchingQuote(true);
+      const feeConfig = getSwapFeeConfig(selectToken.mint);
+      const feeBp = feeConfig.burnFeeBp + feeConfig.transferFeeBp;
+      try {
+        const quote = await fetcher<WhirlpoolQuoteData>("/api/bonk/whirlpool-quote", {
+          method: "POST",
+          body: JSON.stringify({
+            quoteMint: selectToken.mint,
+            amountIn: num * (1 - feeBp / 10000),
+            numerator: 10,
+            denominator: 1000,
+          }),
+          headers: { "Content-type": "application/json; charset=UTF-8" },
+        });
+        setPriceQuote(quote);
+      } catch (err) {
+        setPriceQuote(null);
+      } finally {
+        setIsFetchingQuote(false);
+      }
+    },
+    [selectToken.mint, getSwapFeeConfig]
+  );
 
-  const debouncedGetQuote = useMemo(() => debounce(getQuote, 500), []);
+  const debouncedGetQuote = useMemo(() => debounce(getQuote, 500), [getQuote]);
 
   const submitSwap = async (data: FormData) => {
     // Bonk!
     const { swapAmount, slippage } = data;
 
-    const feeConfig = getSwapFeeConfig(BONK_MINT_58);
-    const mintAsPublicKey = BONK_MINT;
+    const feeConfig = getSwapFeeConfig(selectToken.mint);
+    const mintAsPublicKey = new PublicKey(selectToken.mint);
     const amountAsDecimals = Math.floor(swapAmount * 10 ** feeConfig.decimals);
 
     let signedTransaction: Transaction;
@@ -157,10 +162,12 @@ const BonkSwap: NextPage = () => {
     if (!notifyId) setNotifyId(id);
 
     setIsFetchingQuote(true);
+    const feeConfig = getSwapFeeConfig(selectToken.mint);
     try {
       const quote = await fetcher<WhirlpoolQuoteData>("/api/bonk/whirlpool-quote", {
         method: "POST",
         body: JSON.stringify({
+          quoteMint: selectToken.mint,
           amountOut: amount,
           numerator: 10,
           denominator: 1000,
@@ -168,7 +175,9 @@ const BonkSwap: NextPage = () => {
         headers: { "Content-type": "application/json; charset=UTF-8" },
       });
 
-      setValue("swapAmount", Math.ceil(parseFloat(quote.estimatedAmountIn) / 0.95));
+      const ratioReducedByFee = 1 - (feeConfig.burnFeeBp + feeConfig.transferFeeBp) / 10000;
+      const swapAmount = parseFloat(quote.estimatedAmountIn) / ratioReducedByFee;
+      setValue("swapAmount", swapAmount > 1e6 ? Math.ceil(swapAmount) : roundTo(swapAmount, 5));
       setPriceQuote(quote);
     } catch (err) {
     } finally {
@@ -323,12 +332,11 @@ const BonkSwap: NextPage = () => {
                   )}
                   <span className="font-medium text-gray-600">
                     {priceQuote
-                      ? formatNumber.format(parseFloat(priceQuote.estimatedAmountOut), 6)
+                      ? formatNumber.format(parseFloat(priceQuote.estimatedAmountOut), 5)
                       : "0.00"}
                   </span>
                 </div>
               </div>
-              {/* <div className="text-xs font-medium">Fee: 5% of the BONK amount</div> */}
             </div>
 
             <div className="my-2 grid w-full grid-cols-3 gap-x-2">
@@ -347,24 +355,36 @@ const BonkSwap: NextPage = () => {
             </div>
 
             <div className="mt-6 flex w-full gap-x-2">
-              <SelectMenu
-                renderButton={(_, open) => (
-                  <button
-                    type="button"
-                    className="group h-full flex-grow-0 rounded-md bg-amber-500 px-3 text-white hover:bg-amber-600"
-                  >
+              <Select>
+                <Select.Button className="group h-full flex-grow-0 rounded-md bg-amber-500 px-3 text-white hover:bg-amber-600">
+                  {({ open }) => (
                     <CogIcon
                       className={classNames(
                         "h-6 w-6 transition-transform duration-200 group-hover:rotate-90",
                         open && "rotate-90"
                       )}
                     />
-                  </button>
-                )}
-                options={slippages}
-                defaultOption={slippages[2]}
-                onSelect={(value) => setValue("slippage", value.value)}
-              />
+                  )}
+                </Select.Button>
+                <Select.Options>
+                  <div className="px-2 text-left text-sm text-gray-500">Slippage</div>
+                  {slippages.map((slippage, i) => (
+                    <Select.Option
+                      key={i}
+                      value={slippage}
+                      className={({ selected, active }) =>
+                        classNames(
+                          "cursor-pointer rounded-full px-3",
+                          selected && "bg-amber-500 text-white",
+                          active && !selected && "bg-amber-500/30"
+                        )
+                      }
+                    >
+                      {slippage.label}
+                    </Select.Option>
+                  ))}
+                </Select.Options>
+              </Select>
               {publicKey ? (
                 <button
                   type="submit"

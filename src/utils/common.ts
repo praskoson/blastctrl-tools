@@ -69,3 +69,8 @@ export function abbreviatedNumber(value: number, fixed = 1) {
   if (value >= 1e9 && value < 1e12) return +(value / 1e9).toFixed(fixed) + " G";
   if (value >= 1e12) return +(value / 1e12).toFixed(fixed) + "T";
 }
+
+export function roundTo(number: number, decimals: number) {
+  const exp = 10 ** decimals;
+  return Math.round((number + Number.EPSILON) * exp) / exp;
+}

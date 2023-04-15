@@ -68,11 +68,7 @@ const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
       notify({ type: "info", title: "Wallet Error", description: "Connect your Solana wallet." });
       return;
     }
-    notify({
-      type: "error",
-      title: error.name,
-      description: error.message ? error.message : error.name,
-    });
+    throw error;
   }, []);
 
   return (
