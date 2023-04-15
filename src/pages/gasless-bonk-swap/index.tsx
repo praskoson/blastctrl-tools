@@ -21,6 +21,7 @@ import useOctaneConfigStore from "stores/useOctaneConfigStore";
 import { classNames, fetcher, formatNumber, numberFormatter, useDataFetch } from "utils";
 import { buildWhirlpoolsSwapTransaction, sendWhirlpoolsSwapTransaction } from "utils/octane";
 import { normalizeTokenAmount } from "utils/spl/common";
+import { FormLeft } from "views/gasless-swap/FormLeft";
 
 type FormData = {
   swapAmount: number;
@@ -44,7 +45,6 @@ const BonkSwap: NextPage = () => {
   const octaneConfig = useOctaneConfigStore((s) => s.config);
   const { fetchOctaneConfig, getSwapFeeConfig } = useOctaneConfigStore();
   const [bonkBalance, setBonkBalance] = useState<number | null>(null);
-  const [baseIsSol, setBaseIsSol] = useState(true);
   const [isSwapping, setIsSwapping] = useState(false);
   const {
     register,
@@ -56,7 +56,6 @@ const BonkSwap: NextPage = () => {
     mode: "onSubmit",
   });
   const [notifyId, setNotifyId] = useState<string>("");
-  const cheemsWrapRef = useRef<HTMLDivElement | null>(null);
 
   const { data: quote } = useDataFetch<QuoteData, Error>("/api/bonk/price");
   const [priceQuote, setPriceQuote] = useState<WhirlpoolQuoteData | null>(null);
@@ -252,15 +251,9 @@ const BonkSwap: NextPage = () => {
         </div>
 
         <div className="mt-4 flex gap-x-8">
-          <div ref={cheemsWrapRef} className="relative hidden flex-1 flex-shrink-0 px-2 sm:block">
-            <CheemsImage wrapperRef={cheemsWrapRef} />
-            <ExchangeRate
-              baseTokenSymbol="SOL"
-              quoteTokenSymbol="BONK"
-              swapTokens={() => {}}
-              quote={{ rate: 0.1 }}
-            />
-          </div>
+          {/* Image + exchange rate */}
+          <FormLeft />
+
           {/* Form */}
           <form onSubmit={handleSubmit(submitSwap)} className="flex flex-1 flex-col justify-start">
             {bonkBalance !== null && bonkBalance > 0 && (
@@ -406,113 +399,3 @@ const BonkSwap: NextPage = () => {
 };
 
 export default BonkSwap;
-
-type ExchangeRateProps = {
-  baseTokenSymbol: string;
-  quoteTokenSymbol: string;
-  swapTokens: () => void;
-  quote: { rate: number };
-};
-
-const ExchangeRate = ({
-  baseTokenSymbol,
-  quoteTokenSymbol,
-  swapTokens,
-  quote,
-}: ExchangeRateProps) => {
-  return (
-    <div className="mx-auto flex items-center justify-center gap-x-2 rounded-lg border border-amber-600 p-3">
-      <span className="text-sm font-medium text-gray-600">1 {baseTokenSymbol}</span>
-      <button
-        type="button"
-        onClick={swapTokens}
-        className="rounded-full bg-amber-500 p-1 hover:bg-amber-600"
-      >
-        <ArrowsRightLeftIcon className="h-5 w-5 text-white" />
-      </button>
-      <span className="text-sm font-medium text-gray-600">
-        {formatNumber.format(quote.rate, 5)} {quoteTokenSymbol}
-      </span>
-    </div>
-  );
-};
-
-type CheemsImageProps = {
-  wrapperRef: MutableRefObject<HTMLDivElement>;
-};
-
-const CheemsImage = ({ wrapperRef }: CheemsImageProps) => {
-  const cheemsRef = useRef<HTMLDivElement | null>(null);
-  const [bonkCounter, setBonkCounter] = useState(0);
-  const [bonkAnimate, setBonkAnimate] = useState(false);
-
-  const handleCheemsBonk = () => {
-    if (!cheemsRef?.current) return;
-    // Start animating
-    setBonkAnimate(true);
-
-    // Trigger the "jello" animation
-    cheemsRef.current.style.animation = "none";
-    cheemsRef.current.offsetHeight; /* trigger reflow */
-    cheemsRef.current.style.animation = null;
-
-    // Eyes trigger
-    setBonkCounter((prev) => prev + 1);
-
-    // Text bubbles
-    if (!wrapperRef.current) return;
-    const randomX = Math.round(Math.random() * 100); // [0, 100]
-    const randomY = Math.round(Math.random() * 80); // [0, 80]
-    const turnDeg = Math.round(Math.random() * 120 - 60); // [-60, 60]
-    const el = document.createElement("span");
-    el.textContent = "BONK";
-    el.classList.add(
-      "absolute",
-      "text-orange-400",
-      "text-sm",
-      "font-semibold",
-      "border-2",
-      "border-orange-400",
-      "px-1.5",
-      "py-0.5",
-      "rounded-xl",
-      "pointer-events-none"
-    );
-    el.style.setProperty("transform", `rotate(${turnDeg}deg)`);
-    el.style.setProperty("top", `${randomY}%`);
-    el.style.setProperty("left", `${randomX}%`);
-    wrapperRef.current.appendChild(el);
-    setTimeout(() => {
-      el.remove();
-    }, 1000);
-  };
-
-  return (
-    <div
-      ref={cheemsRef}
-      className={classNames(bonkAnimate && "jello-horizontal", "p-8 hover:cursor-pointer")}
-      onClick={handleCheemsBonk}
-    >
-      <div className="relative">
-        <Image unoptimized={true} src={"/cheems.png"} alt="" height={320} width={320} />
-        {/* Eyes */}
-        <div
-          className={classNames(
-            "absolute top-[8%] left-[64%] text-sm",
-            bonkCounter >= 20 ? "fire-in" : "opacity-0"
-          )}
-        >
-          🔥
-        </div>
-        <div
-          className={classNames(
-            "absolute top-[7.5%] left-[81%] text-sm",
-            bonkCounter >= 20 ? "fire-in" : "opacity-0"
-          )}
-        >
-          🔥
-        </div>
-      </div>
-    </div>
-  );
-};
