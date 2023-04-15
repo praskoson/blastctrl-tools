@@ -294,7 +294,9 @@ const BonkSwap: NextPage = () => {
                     required: true,
                     validate: {
                       notEnoughTokens: (value) =>
-                        tokenBalance ? value <= tokenBalance || "Not enough BONK!" : true,
+                        tokenBalance
+                          ? value <= tokenBalance || `Not enough ${selectToken.name}`
+                          : true,
                     },
                     onChange: (e) => debouncedGetQuote(e?.target?.value),
                   })}
