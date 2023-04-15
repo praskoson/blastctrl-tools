@@ -354,7 +354,7 @@ const BonkSwap: NextPage = () => {
             </div>
 
             <div className="mt-6 flex w-full gap-x-2">
-              <Select>
+              <Select defaultValue={slippages[2]}>
                 <Select.Button className="group h-full flex-grow-0 rounded-md bg-amber-500 px-3 text-white hover:bg-amber-600">
                   {({ open }) => (
                     <CogIcon
