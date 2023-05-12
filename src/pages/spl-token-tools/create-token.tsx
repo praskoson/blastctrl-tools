@@ -1,8 +1,8 @@
-import { ChevronRightIcon } from "@heroicons/react/20/solid";
+import { ChevronRightIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import { WalletAdapterNetwork, WalletError } from "@solana/wallet-adapter-base";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
-import { InputGroup, InputMultiline, notify, UploadFile, notifyPromise } from "components";
+import { InputGroup, InputMultiline, notify, UploadFile, notifyPromise, Select } from "components";
 import { NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
@@ -11,9 +11,10 @@ import { useForm } from "react-hook-form";
 import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
 import { BundlrStorageDriver } from "utils/bundlr-storage";
 import { compress, isPublicKey } from "utils/spl/common";
-import { createMetadataInstruction } from "utils/spl";
+import { createMetadataInstruction, updateMetadataInstruction } from "utils/spl";
 import { useWalletConnection } from "hooks/useWalletConnection";
-import { PublicKey } from "@solana/web3.js";
+import { PublicKey, TransactionInstruction } from "@solana/web3.js";
+import { classNames } from "utils";
 
 type TokenData = {
   mint: string;
@@ -24,6 +25,9 @@ type TokenData = {
   image: File;
 };
 
+const actions = ["Add", "Update"] as const;
+type Actions = (typeof actions)[number];
+
 const CreateToken: NextPage = () => {
   const wallet = useWallet();
   const { setVisible } = useWalletModal();
@@ -31,9 +35,10 @@ const CreateToken: NextPage = () => {
     useWalletConnection();
   const { network } = useNetworkConfigurationStore();
   const [isConfirming, setIsConfirming] = useState(false);
+  const [selectedAction, setSelectedAction] = useState<Actions>(actions[0]);
   const {
     register,
-    formState: { errors, dirtyFields },
+    formState: { errors },
     handleSubmit,
     setValue,
   } = useForm<TokenData>({});
@@ -57,7 +62,10 @@ const CreateToken: NextPage = () => {
     });
 
     // Test if creating metadata is possible
-    const ix = createMetadataInstruction(wallet.publicKey, new PublicKey(data.mint), {});
+    const ix =
+      selectedAction === "Add"
+        ? createMetadataInstruction(wallet.publicKey, new PublicKey(data.mint), {})
+        : updateMetadataInstruction(wallet.publicKey, new PublicKey(data.mint), {});
     const { value } = await simulateVersionedTransaction([ix]);
 
     if (value.err) {
@@ -66,11 +74,12 @@ const CreateToken: NextPage = () => {
 
       return notify({
         type: "error",
-        title: "Add Metadata Error",
+        title: `${selectedAction} Metadata Error`,
         description: (
           <>
             <p className="mb-1.5">
-              Adding metadata to this token is not possible due to the error:{" "}
+              {selectedAction === "Add" ? "Adding" : "Updating"} metadata to this token is not
+              possible due to the error:{" "}
             </p>
             <code className="break-all py-6">{JSON.stringify(value.err)}</code>
           </>
@@ -150,19 +159,28 @@ const CreateToken: NextPage = () => {
     });
 
     try {
-      const ix = createMetadataInstruction(wallet.publicKey, new PublicKey(data.mint), {
-        name: data.name,
-        symbol: data.symbol,
-        uri: metadataUri,
-      });
+      let ix: TransactionInstruction;
+      if (selectedAction === "Add") {
+        ix = createMetadataInstruction(wallet.publicKey, new PublicKey(data.mint), {
+          name: data.name,
+          symbol: data.symbol,
+          uri: metadataUri,
+        });
+      } else {
+        ix = updateMetadataInstruction(wallet.publicKey, new PublicKey(data.mint), {
+          name: data.name,
+          symbol: data.symbol,
+          uri: metadataUri,
+        });
+      }
       await notifyPromise(sendAndConfirmVersionedTransaction([ix]), {
         loading: { description: "Confirming transaction" },
         success: (value) => ({
           txid: value.signature,
-          title: "Add Metadata Success",
+          title: `${selectedAction} Metadata Success`,
           description: (
             <>
-              Metadata created for token{" "}
+              Metadata {selectedAction === "Add" ? "created" : "updated"} for token{" "}
               <span className="font-medium text-blue-300">{compress(data.mint, 4)}</span>
             </>
           ),
@@ -206,7 +224,7 @@ const CreateToken: NextPage = () => {
               </p>
             </div>
 
-            <div className="mt-6 grid grid-cols-1 gap-y-4 gap-x-4">
+            <div className="mt-6 grid grid-cols-1 gap-x-4 gap-y-4">
               <div>
                 <InputGroup
                   label="Mint address"
@@ -287,7 +305,7 @@ const CreateToken: NextPage = () => {
           <div>
             <div className="mt-4">
               <h3 className="text-lg font-medium leading-6 text-gray-900">Image</h3>
-              <ul className="mt-1 mb-3 list-disc text-sm text-gray-500 sm:ml-5">
+              <ul className="mb-3 mt-1 list-disc text-sm text-gray-500 sm:ml-5">
                 <li>Square aspect ratio</li>
                 <li>Smaller size (e.g. 200x200 pixels)</li>
                 <li>Fit within a circle (most wallets display token icons in a circle)</li>
@@ -306,16 +324,39 @@ const CreateToken: NextPage = () => {
                 You will have to approve up to <span className="font-bold text-blue-500">5</span>{" "}
                 transactions and messages.
               </p>
-              <button
-                type="submit"
-                disabled={isConfirming}
-                className="inline-flex min-w-fit items-center rounded-md bg-secondary px-4 py-2 text-base text-gray-50 shadow-sm hover:bg-secondary-focus focus:outline-none focus:ring-2 focus:ring-secondary-focus focus:ring-offset-2 disabled:bg-secondary-focus"
-              >
-                <>
-                  <ChevronRightIcon className="-ml-1 mr-1 h-5 w-5" aria-hidden={true} />
-                  Add metadata
-                </>
-              </button>
+
+              <div className="group inline-flex min-w-fit rounded-md bg-secondary">
+                <button
+                  type="submit"
+                  disabled={isConfirming}
+                  className="inline-flex min-w-fit items-center rounded-l-md bg-secondary px-4 py-2 text-base text-gray-50 shadow-sm hover:bg-secondary-focus focus:outline-none focus:ring-2 focus:ring-secondary-focus focus:ring-offset-2 disabled:bg-secondary-focus"
+                >
+                  {selectedAction} metadata
+                </button>
+
+                <Select value={selectedAction} onChange={(v) => setSelectedAction(v)}>
+                  <Select.Button className="h-full rounded-r-md px-2 text-gray-50 hover:bg-secondary-focus">
+                    <ChevronUpDownIcon className="h-5 w-5" />
+                  </Select.Button>
+                  <Select.Options className="min-w-[18ch]">
+                    {actions.map((value) => (
+                      <Select.Option
+                        key={value}
+                        value={value}
+                        className={({ active, selected }) =>
+                          classNames(
+                            active && "bg-secondary-focus text-white",
+                            selected && "bg-secondary text-white",
+                            "cursor-pointer rounded-lg px-2 py-1"
+                          )
+                        }
+                      >
+                        {value}
+                      </Select.Option>
+                    ))}
+                  </Select.Options>
+                </Select>
+              </div>
             </div>
           </div>
         </form>

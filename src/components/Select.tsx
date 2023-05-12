@@ -6,6 +6,7 @@ import {
 } from "@headlessui/react";
 import { Fragment, forwardRef } from "react";
 import { classNames } from "utils";
+import { twMerge } from "tailwind-merge";
 
 type CustomSelectProps<TType, TActualType> = Omit<
   ListboxProps<"div", TType, TActualType>,
@@ -43,9 +44,12 @@ const CustomSelectOptions = (props: SelectOptionsProps, ref: React.Ref<HTMLUList
         as="ul"
         ref={ref}
         {...rest}
-        className={classNames(
-          "absolute left-1/2 z-20 mt-3 w-full min-w-fit -translate-x-1/2 space-y-1.5 rounded-md ",
-          "bg-white p-1 shadow-xl ring-1 ring-black/20 focus:outline-none"
+        className={twMerge(
+          classNames(
+            "absolute left-1/2 z-20 mt-3 w-full min-w-fit -translate-x-1/2 space-y-1.5 rounded-md ",
+            "bg-white p-1 shadow-xl ring-1 ring-black/20 focus:outline-none"
+          ),
+          typeof className === "function" ? "" : className
         )}
       >
         {typeof children === "function" ? (bag) => children(bag) : children}
