@@ -286,7 +286,7 @@ const BonkSwap: NextPage = () => {
 
                 <input
                   type="number"
-                  step="0.01"
+                  step="any"
                   inputMode="numeric"
                   {...register("swapAmount", {
                     required: true,
