@@ -129,9 +129,7 @@ const BonkSwap: NextPage = () => {
         txid: value,
       }),
       error: (err) => ({ title: "Bonk Swap Error", description: err?.message }),
-    });
-
-    setIsSwapping(false);
+    }).finally(() => setIsSwapping(false));
   };
 
   const handleSolClick = (amount: number) => async () => {
