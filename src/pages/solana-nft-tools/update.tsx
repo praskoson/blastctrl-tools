@@ -228,7 +228,7 @@ const Update: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Tools | Blast Ctrl - Update</title>
+        <title>BlastTools - Update</title>
         <meta name="Metaplex NFT" content="Basic Functionality" />
       </Head>
       <div className="mx-auto max-w-xl overflow-visible bg-white px-4 pb-5 sm:mb-6 sm:rounded-lg sm:p-6 sm:shadow">
@@ -299,7 +299,7 @@ const Update: NextPage = () => {
               <h3 className="text-lg font-medium leading-6 text-gray-900">Basic Information</h3>
             </div>
 
-            <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+            <div className="mt-6 grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
               <InputGroup
                 className="sm:col-span-4"
                 label="Name"
@@ -348,12 +348,12 @@ const Update: NextPage = () => {
                   rel="noreferrer"
                   target="_blank"
                 >
-                  <QuestionMarkCircleIcon className="ml-1 mb-0.5 inline h-4 w-4 text-gray-400" />
+                  <QuestionMarkCircleIcon className="mb-0.5 ml-1 inline h-4 w-4 text-gray-400" />
                 </a>
               </p>
             </div>
 
-            <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+            <div className="mt-6 grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
               <div className="sm:col-span-6">
                 <div className="flex flex-col gap-y-2">
                   {fields.map((field, idx) => (
@@ -412,7 +412,7 @@ const Update: NextPage = () => {
                           <div className="col-span-1">
                             <label className="sr-only">Remove creator</label>
                             <button
-                              className="inline-flex h-full w-full items-center justify-center rounded-none rounded-tr-md rounded-br-md border border-gray-300 bg-red-500"
+                              className="inline-flex h-full w-full items-center justify-center rounded-none rounded-br-md rounded-tr-md border border-gray-300 bg-red-500"
                               type="button"
                               onClick={() => remove(idx)}
                             >
@@ -431,7 +431,7 @@ const Update: NextPage = () => {
                         className="inline-flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                       >
                         Add Creator
-                        <PlusCircleIcon className="ml-3 -mr-1 h-5 w-5" aria-hidden="true" />
+                        <PlusCircleIcon className="-mr-1 ml-3 h-5 w-5" aria-hidden="true" />
                       </button>
                     )}
                   </div>
@@ -439,7 +439,7 @@ const Update: NextPage = () => {
               </div>
             </div>
 
-            <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+            <div className="mt-6 grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
               <div className="sm:col-span-4">
                 <label
                   htmlFor="sellerFeeBasisPoints"
@@ -490,7 +490,7 @@ const Update: NextPage = () => {
               </p>
             </div>
 
-            <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+            <div className="mt-6 grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
               <InputGroup
                 className="sm:col-span-4"
                 label="Update authority"

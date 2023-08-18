@@ -52,7 +52,7 @@ const CloseEmpty: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Tools | Blast Ctrl - Close Empty Accounts</title>
+        <title>BlastTools - Close Empty Accounts</title>
         <meta name="Close Token Accounts" content="Recover SOL by closing empty token accounts." />
       </Head>
       <div className="mx-auto max-w-xl overflow-visible bg-white px-4 pb-5 sm:mb-6 sm:rounded-lg sm:p-6 sm:shadow">

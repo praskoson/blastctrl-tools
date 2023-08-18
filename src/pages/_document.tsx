@@ -28,21 +28,24 @@ class MyDocument extends Document {
 
           <meta name="twitter:card" content="summary_large_image" />
           <meta property="twitter:url" content="https://tools.blastctrl.com/" />
-          <meta name="twitter:title" content="Tools | Blast Ctrl" />
+          <meta name="twitter:title" content="Tools | BlastCtrl" />
           <meta
             name="twitter:description"
             content="A set of tools for easier token and NFT manipulation on Solana."
           />
-          <meta name="twitter:image" content="https://cdn.blastctrl.com/bc/img/WebsiteTagPic.png" />
+          <meta
+            name="twitter:image"
+            content="https://cdn.blastctrl.com/bc/img/og_tools_image.png"
+          />
 
           <meta property="og:type" content="website" />
           <meta property="og:url" content="https://tools.blastctrl.com/" />
-          <meta property="og:title" content="Tools | Blast Ctrl" />
+          <meta property="og:title" content="Tools | BlastCtrl" />
           <meta
             property="og:description"
             content="A set of tools for easier token and NFT manipulation on Solana."
           />
-          <meta property="og:image" content="https://cdn.blastctrl.com/bc/img/WebsiteTagPic.png" />
+          <meta property="og:image" content="https://cdn.blastctrl.com/bc/img/og_tools_image.png" />
         </Head>
         <body>
           <Main />

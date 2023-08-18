@@ -202,7 +202,7 @@ const CreateToken: NextPage = () => {
   return (
     <>
       <Head>
-        <title>BlastCtrl Tools - Create Token</title>
+        <title>BlastTools - Create Token</title>
         <meta name="SPL Token" content="Basic Functionality" />
       </Head>
       <div className="mx-auto max-w-xl overflow-visible bg-white px-4 pb-5 sm:mb-6 sm:rounded-lg sm:p-6 sm:shadow">

@@ -31,7 +31,7 @@ export const HomeView: FC = ({}) => {
           <div className="flex flex-row-reverse sm:gap-x-10 md:gap-x-16">
             <div className="sm:text-center lg:text-left">
               <h1 className="mb-4 font-display text-4xl font-bold tracking-tight text-gray-700 sm:text-5xl">
-                BlastCtrl <span className="text-primary">Tools</span>
+                Blast<span className="text-primary">Tools</span>
                 <WrenchScrewdriverIcon className="ml-2 inline h-10 w-10 text-gray-600" />
               </h1>
               <div className="mb-8">
