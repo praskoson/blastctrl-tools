@@ -1,5 +1,5 @@
 import { useNftJson } from "hooks";
-import Image from "next/image";
+import Image from "next/legacy/image";
 import { FormToken } from "pages/solana-nft-tools/update";
 
 type NftSelectorProp = {

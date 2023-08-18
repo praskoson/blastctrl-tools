@@ -9,7 +9,7 @@ import {
 import { BsBraces } from "react-icons/bs";
 import { CopyButton } from "components";
 import dayjs from "dayjs";
-import Image from "next/image";
+import Image from "next/legacy/image";
 import { memo, useState } from "react";
 import { UploadedFile } from ".";
 

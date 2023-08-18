@@ -19,9 +19,7 @@ const CustomSelect = <TType, TActualType>({
 }: CustomSelectProps<TType, TActualType>) => {
   return (
     <Listbox<"div", TType, TActualType> as="div" {...rest} className="relative">
-      {(props) => {
-        return typeof children === "function" ? children(props) : children;
-      }}
+      {(props) => (typeof children === "function" ? children(props) : <>{children}</>)}
     </Listbox>
   );
 };

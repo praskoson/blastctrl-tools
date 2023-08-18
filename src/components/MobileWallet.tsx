@@ -6,7 +6,7 @@ import {
   WalletConnectButton,
   WalletModalButton,
 } from "@solana/wallet-adapter-react-ui";
-import Image from "next/image";
+import Image from "next/legacy/image";
 import { useCallback, useMemo, useState } from "react";
 import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
 import { classNames } from "utils";

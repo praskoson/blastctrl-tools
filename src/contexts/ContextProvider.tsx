@@ -20,6 +20,12 @@ import {
   BraveWalletAdapter,
   SalmonWalletAdapter,
 } from "@solana/wallet-adapter-wallets";
+import dynamic from "next/dynamic";
+
+const DynamicReactUiWalletModalProvider = dynamic(
+  () => import("@solana/wallet-adapter-react-ui").then((box) => box.WalletModalProvider),
+  { ssr: false }
+);
 
 const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const { autoConnect } = useAutoConnect();
@@ -74,7 +80,7 @@ const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
   return (
     <ConnectionProvider endpoint={endpoint}>
       <WalletProvider wallets={wallets} onError={onError} autoConnect={autoConnect}>
-        <ReactUIWalletModalProvider>{children}</ReactUIWalletModalProvider>
+        <DynamicReactUiWalletModalProvider>{children}</DynamicReactUiWalletModalProvider>
       </WalletProvider>
     </ConnectionProvider>
   );

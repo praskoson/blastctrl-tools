@@ -9,7 +9,7 @@ import { useTokenBalance } from "hooks";
 import { debounce } from "lodash-es";
 import { NextPage } from "next";
 import Head from "next/head";
-import Image from "next/image";
+import Image from "next/legacy/image";
 import { WhirlpoolQuoteData } from "pages/api/bonk/whirlpool-quote";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";

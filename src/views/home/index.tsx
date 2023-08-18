@@ -1,6 +1,6 @@
 // Next, React
 import { FC, useEffect } from "react";
-import Image from "next/image";
+import Image from "next/legacy/image";
 import BlastCtrlTag from "../../../public/blastctrl_tag.png";
 import Link from "next/link";
 
@@ -38,53 +38,60 @@ export const HomeView: FC = ({}) => {
                 <p className="text-base font-medium text-gray-500 sm:text-xl">
                   A small toolbox for the adventuring Solana degen.
                 </p>
-                <p className="text-base font-medium text-gray-500 line-clamp-2 sm:text-xl">
+                <p className="line-clamp-2 text-base font-medium text-gray-500 sm:text-xl">
                   Use these to build, experiment and if needed, get out of trouble.
                 </p>
               </div>
               <div className="flex max-w-md flex-col flex-wrap gap-2 sm:max-w-lg sm:flex-row">
-                <Link href="/solana-nft-tools/update">
-                  <a className="inline-flex items-center justify-center rounded-lg border-2 border-indigo-600 px-3 py-1.5 text-indigo-900 shadow hover:bg-indigo-50 sm:justify-start">
-                    Update NFT Metadata
-                  </a>
+                <Link
+                  href="/solana-nft-tools/update"
+                  className="inline-flex items-center justify-center rounded-lg border-2 border-indigo-600 px-3 py-1.5 text-indigo-900 shadow hover:bg-indigo-50 sm:justify-start"
+                >
+                  Update NFT Metadata
                 </Link>
-                <Link href="/permanent-storage-tools/file-upload">
-                  <a className="inline-flex items-center justify-center rounded-lg border-2 border-orange-600 px-3 py-1.5 text-orange-900 shadow hover:bg-orange-50">
-                    Upload files to Arweave
-                  </a>
+                <Link
+                  href="/permanent-storage-tools/file-upload"
+                  className="inline-flex items-center justify-center rounded-lg border-2 border-orange-600 px-3 py-1.5 text-orange-900 shadow hover:bg-orange-50"
+                >
+                  Upload files to Arweave
                 </Link>
-                <Link href="/solana-nft-tools/collections">
-                  <a className="inline-flex items-center justify-center rounded-lg border-2 border-cyan-600 px-3 py-1.5 text-cyan-900 shadow hover:bg-cyan-50">
-                    Add/Remove NFT from collection
-                  </a>
+                <Link
+                  href="/solana-nft-tools/collections"
+                  className="inline-flex items-center justify-center rounded-lg border-2 border-cyan-600 px-3 py-1.5 text-cyan-900 shadow hover:bg-cyan-50"
+                >
+                  Add/Remove NFT from collection
                 </Link>
-                <Link href="/solana-nft-tools/mint">
-                  <a className="inline-flex items-center justify-center rounded-lg border-2 border-sky-600 px-3 py-1.5 text-sky-900 shadow hover:bg-sky-50">
-                    Mint NFTs
-                  </a>
+                <Link
+                  href="/solana-nft-tools/mint"
+                  className="inline-flex items-center justify-center rounded-lg border-2 border-sky-600 px-3 py-1.5 text-sky-900 shadow hover:bg-sky-50"
+                >
+                  Mint NFTs
                 </Link>
-                <Link href="/spl-token-tools/recover-nested">
-                  <a className="inline-flex items-center justify-center rounded-lg border-2 border-violet-600 px-3 py-1.5 text-violet-900 shadow hover:bg-violet-50">
-                    Recover nested accounts
-                  </a>
+                <Link
+                  href="/spl-token-tools/recover-nested"
+                  className="inline-flex items-center justify-center rounded-lg border-2 border-violet-600 px-3 py-1.5 text-violet-900 shadow hover:bg-violet-50"
+                >
+                  Recover nested accounts
                 </Link>
-                <Link href="/spl-token-tools/create-token">
-                  <a className="inline-flex items-center justify-center rounded-lg border-2 border-pink-600 px-3 py-1.5 text-pink-900 shadow hover:bg-pink-50">
-                    Create fungible tokens
-                  </a>
+                <Link
+                  href="/spl-token-tools/create-token"
+                  className="inline-flex items-center justify-center rounded-lg border-2 border-pink-600 px-3 py-1.5 text-pink-900 shadow hover:bg-pink-50"
+                >
+                  Create fungible tokens
                 </Link>
-                <Link href="/gasless-bonk-swap">
-                  <a className="inline-flex items-center justify-center rounded-lg border-2 border-orange-600 bg-amber-300 px-3 py-1.5 text-orange-900 shadow hover:bg-amber-200">
-                    <Image
-                      unoptimized={true}
-                      src="/bonk_small.png"
-                      height={24}
-                      width={24}
-                      alt=""
-                      className="rounded-full"
-                    />
-                    <span className="ml-2">Gasless Bonk Swap</span>
-                  </a>
+                <Link
+                  href="/gasless-bonk-swap"
+                  className="inline-flex items-center justify-center rounded-lg border-2 border-orange-600 bg-amber-300 px-3 py-1.5 text-orange-900 shadow hover:bg-amber-200"
+                >
+                  <Image
+                    unoptimized={true}
+                    src="/bonk_small.png"
+                    height={24}
+                    width={24}
+                    alt=""
+                    className="rounded-full"
+                  />
+                  <span className="ml-2">Gasless Bonk Swap</span>
                 </Link>
               </div>
               <div className="mt-6 text-sm font-medium text-gray-700">More to come...</div>

@@ -8,7 +8,7 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { AppProps } from "next/app";
 import Head from "next/head";
-import Image from "next/image";
+import Image from "next/legacy/image";
 import Link from "next/link";
 import { FC, useState } from "react";
 import { Toaster } from "react-hot-toast";
@@ -67,47 +67,46 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
                       <div className="flex items-center px-2 lg:px-0">
                         <div className="flex flex-shrink-0 items-center">
                           <Link href="/">
-                            <a>
-                              <Image
-                                unoptimized={true}
-                                height={38}
-                                width={38}
-                                src={BlastCtrlIcon}
-                                alt="BlastCtrl"
-                              />
-                            </a>
+                            <Image
+                              unoptimized={true}
+                              height={38}
+                              width={38}
+                              src={BlastCtrlIcon}
+                              alt="BlastCtrl"
+                            />
                           </Link>
                         </div>
                         <div className="hidden lg:ml-8 lg:flex lg:space-x-4">
                           {navigation
                             .filter((nav) => !nav.in && nav.name !== "Gasless Bonk Swap")
                             .map((item) => (
-                              <Link key={item.name} href={item.href}>
-                                <a className="rounded-md px-3 py-2 text-base font-medium text-white hover:bg-primary-focus">
-                                  {item.name}
-                                </a>
+                              <Link
+                                key={item.name}
+                                href={item.href}
+                                className="rounded-md px-3 py-2 text-base font-medium text-white hover:bg-primary-focus"
+                              >
+                                {item.name}
                               </Link>
                             ))}
-                          <Link href="/gasless-bonk-swap">
-                            <a
-                              className={classNames(
-                                "group inline-flex max-w-[42px] items-center space-x-2 overflow-hidden rounded-full",
-                                "bg-gradient-to-r from-[#f97100] to-[#fdce00] hover:max-w-full",
-                                "pl-0.5 pr-4 text-sm font-medium text-white",
-                                "transition-all duration-500"
-                              )}
-                            >
-                              <div className="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-full">
-                                <Image
-                                  unoptimized={true}
-                                  layout="fill"
-                                  objectFit="contain"
-                                  src={BonkSmall}
-                                  alt="Bonk"
-                                />
-                              </div>
-                              <span className="items-center text-lg font-bold">Bonk!</span>
-                            </a>
+                          <Link
+                            href="/gasless-bonk-swap"
+                            className={classNames(
+                              "group inline-flex max-w-[42px] items-center space-x-2 overflow-hidden rounded-full",
+                              "bg-gradient-to-r from-[#f97100] to-[#fdce00] hover:max-w-full",
+                              "pl-0.5 pr-4 text-sm font-medium text-white",
+                              "transition-all duration-500"
+                            )}
+                          >
+                            <div className="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-full">
+                              <Image
+                                unoptimized={true}
+                                layout="fill"
+                                objectFit="contain"
+                                src={BonkSmall}
+                                alt="Bonk"
+                              />
+                            </div>
+                            <span className="items-center text-lg font-bold">Bonk!</span>
                           </Link>
                         </div>
                       </div>
@@ -201,32 +200,31 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
                             .filter((nav) => !nav.in && nav.name !== "Gasless Bonk Swap")
                             .map((item) => (
                               <Disclosure.Button key={item.name}>
-                                <Link key={item.name} href={item.href}>
-                                  <a
-                                    onClick={() => close()}
-                                    className="block w-full rounded-md px-3 py-2 text-base font-medium text-white hover:bg-primary-focus hover:text-white"
-                                  >
-                                    {item.name}
-                                  </a>
+                                <Link
+                                  key={item.name}
+                                  href={item.href}
+                                  onClick={() => close()}
+                                  className="block w-full rounded-md px-3 py-2 text-base font-medium text-white hover:bg-primary-focus hover:text-white"
+                                >
+                                  {item.name}
                                 </Link>
                               </Disclosure.Button>
                             ))}
                           <Disclosure.Button>
-                            <Link href={"/gasless-bonk-swap"}>
-                              <a
-                                onClick={() => close()}
-                                className="inline-flex w-full items-center gap-x-2 rounded-md px-3 py-2 text-base font-medium text-white hover:bg-primary-focus hover:text-white"
-                              >
-                                <Image
-                                  unoptimized={true}
-                                  className="flex-shrink-0 overflow-hidden rounded-full"
-                                  height={36}
-                                  width={36}
-                                  src={BonkSmall}
-                                  alt="Bonk"
-                                />
-                                Bonk!
-                              </a>
+                            <Link
+                              href={"/gasless-bonk-swap"}
+                              onClick={() => close()}
+                              className="inline-flex w-full items-center gap-x-2 rounded-md px-3 py-2 text-base font-medium text-white hover:bg-primary-focus hover:text-white"
+                            >
+                              <Image
+                                unoptimized={true}
+                                className="flex-shrink-0 overflow-hidden rounded-full"
+                                height={36}
+                                width={36}
+                                src={BonkSmall}
+                                alt="Bonk"
+                              />
+                              Bonk!
                             </Link>
                           </Disclosure.Button>
                         </div>

@@ -2,7 +2,7 @@ import { Account, getAssociatedTokenAddressSync, getMint } from "@solana/spl-tok
 import { compress } from "utils/spl";
 import { findTokenByMint } from "utils/spl/common-tokens";
 import { findNestedAta } from "utils/spl/nested-ata";
-import Image from "next/image";
+import Image from "next/legacy/image";
 import { QuestionMarkCircleIcon } from "@heroicons/react/24/solid";
 import { ChevronRightIcon, WalletIcon } from "@heroicons/react/20/solid";
 import { isATA, normalizeTokenAmount } from "utils/spl/common";

@@ -1,6 +1,6 @@
 import { MutableRefObject, useRef, useState } from "react";
 import { classNames } from "utils";
-import Image from "next/image";
+import Image from "next/legacy/image";
 
 type Props = {
   wrapperRef: MutableRefObject<HTMLDivElement>;

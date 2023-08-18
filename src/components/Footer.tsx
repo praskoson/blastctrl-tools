@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "next/legacy/image";
 import BlastCtrlIconWhite from "../../public/blastctrl_icon_white.svg";
 import BlastCtrlIconRed from "../../public/blastctrl_icon.svg";
 

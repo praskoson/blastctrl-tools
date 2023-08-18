@@ -5,7 +5,7 @@ import { useNftJson } from "hooks";
 import { useTokenInfo } from "hooks/useTokenInfo";
 import { useMemo } from "react";
 import { compress } from "utils/spl";
-import Image from "next/image";
+import Image from "next/legacy/image";
 import useQueryContext from "hooks/useQueryContext";
 
 export const TokenInfo = ({ mint }: { mint: PublicKey }) => {
