@@ -21,7 +21,7 @@ type NestedListProps = {
 };
 
 export const NestedList = ({ nestedTokenAccounts, setNestedTokenAccounts }: NestedListProps) => {
-  const [parent] = useAutoAnimate<HTMLUListElement>();
+  const [parent] = useAutoAnimate<HTMLUListElement>({});
 
   if (!nestedTokenAccounts || nestedTokenAccounts?.length === 0) {
     return <div className="pt-4 pb-1 font-normal">No nested accounts found ✔</div>;
