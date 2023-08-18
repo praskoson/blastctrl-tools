@@ -31,7 +31,7 @@
     "@vercel/analytics": "^0.1.5",
     "axios": "^1.2.6",
     "bignumber.js": "^9.1.0",
-    "daisyui": "1.24.3",
+    "clsx": "^2.0.0",
     "dayjs": "^1.11.5",
     "decimal.js": "^10.4.3",
     "jdenticon": "^3.2.0",

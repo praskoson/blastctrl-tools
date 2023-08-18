@@ -1,42 +1,35 @@
 import type { NextPage } from "next";
 import Head from "next/head";
-import { useState } from "react";
 import { Tab} from "@headlessui/react"
 import { AddTo } from "views/collections/AddTo";
 import { RemoveFrom } from "views/collections/RemoveFrom";
+import { classNames } from "utils";
 
 const Collections: NextPage = () => {
-  const [tab, setTab] = useState<"add" | "remove">("add");
-
   return (
-    <div>
+    <>
       <Head>
         <title>Tools | BlastTools - Collections</title>
         <meta name="Metaplex Collections" content="Basic Functionality" />
       </Head>
-      <div className="mx-auto p-4 md:hero">
-        <div className="flex flex-col md:hero-content">
-          <div className="tabs">
-            <a
-              className={`tab tab-bordered ${tab === "add" ? "tab-active" : ""}`}
-              onClick={() => setTab("add")}
-            >
-              Add
-            </a>
-            <a
-              className={`tab tab-bordered ${tab === "remove" ? "tab-active" : ""}`}
-              onClick={() => setTab("remove")}
-            >
-              Remove
-            </a>
-          </div>
-          <div className="text-left">
-            {tab === "add" && <AddTo />}
-            {tab === "remove" && <RemoveFrom />}
-          </div>
-        </div>
-      </div>
-    </div>
+
+        <Tab.Group defaultIndex={0} as="div" className="max-w-xl rounded-md flex flex-col w-full overflow-visible">
+          <Tab.List className="w-full sm:pb-0 pb-2.5 bg-indigo-100/20 grid grid-cols-2 items-stretch overflow-hidden text-gray-500">
+            {({ selectedIndex }) => (
+              <>
+              {["Add", "Remove"].map((tab, i) => (
+                <Tab key={tab} className={classNames("hover:bg-indigo-200/50 border-b-2 rounded-tl-md pt-2 py-1.5", 
+                selectedIndex === i ? "border-indigo-700 font-medium text-gray-900" : "font-normal text-gray-500 border-transparent")}>{tab}</Tab>
+              ))}
+              </>
+            )}
+          </Tab.List>
+          <Tab.Panels>
+            <Tab.Panel><AddTo /></Tab.Panel>
+            <Tab.Panel><RemoveFrom /></Tab.Panel>
+          </Tab.Panels>
+        </Tab.Group>      
+    </>
   );
 };
 
