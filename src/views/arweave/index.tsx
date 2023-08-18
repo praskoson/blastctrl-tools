@@ -40,9 +40,10 @@ export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
   const [balance, setBalance] = useState<Amount<Currency>>(null);
 
   const refreshBalance = useCallback(async () => {
+    if (!connected) return;
     const balance = await storage.getBalance();
     setBalance(balance);
-  }, [storage]);
+  }, [storage, connected]);
 
   useEffect(() => {
     if (network !== WalletAdapterNetwork.Mainnet) {
@@ -225,7 +226,7 @@ export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
               <div className="mt-1 sm:col-span-2 sm:mt-0">
                 <div
                   className={classNames(
-                    "flex max-w-lg justify-center rounded-md border-2 border-dashed border-gray-300 px-6 pt-5 pb-6 transition-colors",
+                    "flex max-w-lg justify-center rounded-md border-2 border-dashed border-gray-300 px-6 pb-6 pt-5 transition-colors",
                     dragActive && "bg-accent/30"
                   )}
                 >
@@ -294,33 +295,33 @@ export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
                 </div>
                 <div className="border-t border-gray-200 px-4 py-5 sm:p-0">
                   <dl className="sm:divide-y sm:divide-gray-200">
-                    <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5 sm:px-6">
+                    <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:py-5">
                       <dt className="text-sm font-medium text-gray-500">File name</dt>
                       <dd className="mt-1 break-all text-sm text-gray-900 sm:col-span-2 sm:mt-0">
                         {file.name}
                       </dd>
                     </div>
-                    <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5 sm:px-6">
+                    <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:py-5">
                       <dt className="text-sm font-medium text-gray-500">Type</dt>
                       <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
                         {file.type}
                       </dd>
                     </div>
 
-                    <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5 sm:px-6">
+                    <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:py-5">
                       <dt className="text-sm font-medium text-gray-500">Size</dt>
                       <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
                         {(file.size / 10 ** 3).toFixed(2)} KB
                       </dd>
                     </div>
 
-                    <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5 sm:px-6">
+                    <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:py-5">
                       <dt className="text-sm font-medium text-gray-500">Last modified</dt>
                       <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
                         {dayjs(file.lastModified).fromNow()}
                       </dd>
                     </div>
-                    <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5 sm:px-6">
+                    <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:py-5">
                       <dt className="text-sm font-medium text-gray-500">
                         Estimated cost
                         <a
@@ -328,7 +329,7 @@ export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
                           rel="noreferrer"
                           target="_blank"
                         >
-                          <QuestionMarkCircleIcon className="ml-1 mb-0.5 inline h-4 w-4 text-gray-400" />
+                          <QuestionMarkCircleIcon className="mb-0.5 ml-1 inline h-4 w-4 text-gray-400" />
                         </a>
                       </dt>
                       <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
@@ -348,7 +349,7 @@ export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
                       onClick={handleCancel}
                       className={classNames(
                         "inline-flex items-center rounded-md border border-gray-300 bg-transparent px-4 py-2 text-base font-medium text-gray-700 shadow-sm",
-                        "enabled:focus:outline-none enabled:focus:ring-2 enabled:focus:ring-secondary enabled:focus:ring-offset-2 hover:bg-gray-50",
+                        "hover:bg-gray-50 enabled:focus:outline-none enabled:focus:ring-2 enabled:focus:ring-secondary enabled:focus:ring-offset-2",
                         "disabled:pointer-events-none disabled:bg-gray-200 disabled:text-gray-500"
                       )}
                     >
@@ -360,7 +361,7 @@ export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
                       onClick={handleUpload}
                       className={classNames(
                         "inline-flex items-center rounded-md border border-transparent bg-secondary px-4 py-2 text-base font-medium text-white shadow-sm",
-                        "enabled:focus:outline-none enabled:focus:ring-2 enabled:focus:ring-secondary enabled:focus:ring-offset-2 hover:bg-secondary-focus",
+                        "hover:bg-secondary-focus enabled:focus:outline-none enabled:focus:ring-2 enabled:focus:ring-secondary enabled:focus:ring-offset-2",
                         "disabled:pointer-events-none disabled:bg-slate-700/50"
                       )}
                     >
@@ -380,7 +381,7 @@ export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
         </div>
 
         {balance?.basisPoints.gtn(0) && (
-          <div className="my-3 max-w-sm rounded-md border border-gray-300 px-3 py-2 shadow-sm">
+          <div className="mx-auto my-3 max-w-sm rounded-md border border-gray-300 px-3 py-2 shadow-sm">
             <div className="font-base text-sm text-gray-900">
               <span className="mb-1 block text-xs uppercase tracking-wider text-gray-500">
                 {network}
