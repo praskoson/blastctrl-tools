@@ -29,12 +29,40 @@ module.exports = {
         "slide-in": "slide-in 1.2s cubic-bezier(.41,.73,.51,1.02)",
         leave: "leave 150ms ease-in forwards",
       },
+      colors: {
+        primary: "#e22424" /* Primary color */,
+        "primary-focus": "#a21515" /* Primary color - focused */,
+        "primary-content": "#fdffff" /* Foreground content color to use on primary color */,
+  
+        secondary: "#083d77" /* Secondary color */,
+        "secondary-focus": "#052548" /* Secondary color - focused */,
+        "secondary-content": "#fdffff" /* Foreground content color to use on secondary color */,
+  
+        accent: "#ffe8e5" /* Accent color */,
+        "accent-focus": "#FFBBB3" /* Accent color - focused */,
+        "accent-content": "#141204" /* Foreground content color to use on accent color */,
+  
+        neutral: "#333333" /* Neutral color */,
+        "neutral-focus": "#484848" /* Neutral color - focused */,
+        "neutral-content": "#fdffff" /* Foreground content color to use on neutral color */,
+  
+        "base-100": "#fdffff" /* Base color of page, used for blank backgrounds */,
+        "base-200": "#EEF1F1" /* Base color, a little darker */,
+        "base-300": "#D9E0E0" /* Base color, even more darker */,
+        "base-content": "#141204" /* Foreground content color to use on base color */,
+  
+        info: "#2094f3" /* Info */,
+        success: "#009485" /* Success */,
+        warning: "#ff9900" /* Warning */,
+        error: "#ff5724" /* Error */,
+      }
     },
     fontFamily: {
       sans: ["Roboto", "sans-serif"],
       display: ['"Roboto Slab"'],
       mono: [...defaultTheme.fontFamily.mono],
     },
+
   },
   plugins: [require("@tailwindcss/forms")]
 };
