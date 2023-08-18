@@ -28,7 +28,7 @@ const Tokens: NextPage = () => {
   return (
     <>
       <Head>
-        <title>SPL token tools | BlastCtrl</title>
+        <title>SPL token tools | BlastTools</title>
       </Head>
       <h1 className="pb-4">Tools for managing SPL tokens and token accounts.</h1>
       <div className="grid grid-cols-1 gap-y-6 sm:grid-cols-3 sm:gap-x-4">

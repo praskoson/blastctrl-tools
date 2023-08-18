@@ -30,7 +30,7 @@ const FileUpload: NextPage = () => {
   return (
     <div>
       <Head>
-        <title>Tools | Blast Ctrl - File upload</title>
+        <title>Tools | BlastTools - File upload</title>
         <meta name="Metaplex Collections" content="Basic Functionality" />
       </Head>
       <UploaderView storage={storage} />

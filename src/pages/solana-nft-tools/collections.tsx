@@ -11,7 +11,7 @@ const Collections: NextPage = () => {
   return (
     <div>
       <Head>
-        <title>Tools | Blast Ctrl - Collections</title>
+        <title>Tools | BlastTools - Collections</title>
         <meta name="Metaplex Collections" content="Basic Functionality" />
       </Head>
       <div className="mx-auto p-4 md:hero">

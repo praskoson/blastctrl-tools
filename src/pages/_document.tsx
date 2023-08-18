@@ -16,10 +16,7 @@ class MyDocument extends Document {
             href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@700&family=Roboto:wght@300;400;500;600;700&display=swap"
             rel="stylesheet"
           />
-          <meta
-            name="description"
-            content="A set of tools for easier token and NFT manipulation on Solana."
-          />
+          <meta name="description" content="A small toolbox for the adventuring Solana degen." />
           <meta
             name="keywords"
             content="solana, blockchain, crypto, cryptocurrency, nft, defi, gaming, investing, fund, project, management, consulting, advice, ventures, capital, help, fundraising, tokenomics, business, strategy"
@@ -28,21 +25,24 @@ class MyDocument extends Document {
 
           <meta name="twitter:card" content="summary_large_image" />
           <meta property="twitter:url" content="https://tools.blastctrl.com/" />
-          <meta name="twitter:title" content="Tools | Blast Ctrl" />
+          <meta name="twitter:title" content="BlastTools" />
           <meta
             name="twitter:description"
-            content="A set of tools for easier token and NFT manipulation on Solana."
+            content="A small toolbox for the adventuring Solana degen."
           />
-          <meta name="twitter:image" content="https://cdn.blastctrl.com/bc/img/WebsiteTagPic.png" />
+          <meta
+            name="twitter:image"
+            content="https://cdn.blastctrl.com/bc/img/og_tools_image.png"
+          />
 
           <meta property="og:type" content="website" />
           <meta property="og:url" content="https://tools.blastctrl.com/" />
-          <meta property="og:title" content="Tools | Blast Ctrl" />
+          <meta property="og:title" content="BlastTools" />
           <meta
             property="og:description"
-            content="A set of tools for easier token and NFT manipulation on Solana."
+            content="A small toolbox for the adventuring Solana degen."
           />
-          <meta property="og:image" content="https://cdn.blastctrl.com/bc/img/WebsiteTagPic.png" />
+          <meta property="og:image" content="https://cdn.blastctrl.com/bc/img/og_tools_image.png" />
         </Head>
         <body>
           <Main />

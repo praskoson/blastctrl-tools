@@ -51,7 +51,7 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
   return (
     <>
       <Head>
-        <title>Solana Tools | Blast Ctrl</title>
+        <title>Solana Tools | BlastTools</title>
       </Head>
       <Toaster position="bottom-left" />
       <ContextProvider>
@@ -83,7 +83,7 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
                             .filter((nav) => !nav.in && nav.name !== "Gasless Bonk Swap")
                             .map((item) => (
                               <Link key={item.name} href={item.href}>
-                                <a className="rounded-md py-2 px-3 text-base font-medium text-white hover:bg-primary-focus">
+                                <a className="rounded-md px-3 py-2 text-base font-medium text-white hover:bg-primary-focus">
                                   {item.name}
                                 </a>
                               </Link>
@@ -196,7 +196,7 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
                   <Disclosure.Panel className="lg:hidden">
                     {({ close }) => (
                       <>
-                        <div className="flex w-full flex-col items-start gap-y-1 px-2 pt-2 pb-3">
+                        <div className="flex w-full flex-col items-start gap-y-1 px-2 pb-3 pt-2">
                           {navigation
                             .filter((nav) => !nav.in && nav.name !== "Gasless Bonk Swap")
                             .map((item) => (
@@ -204,7 +204,7 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
                                 <Link key={item.name} href={item.href}>
                                   <a
                                     onClick={() => close()}
-                                    className="block w-full rounded-md py-2 px-3 text-base font-medium text-white hover:bg-primary-focus hover:text-white"
+                                    className="block w-full rounded-md px-3 py-2 text-base font-medium text-white hover:bg-primary-focus hover:text-white"
                                   >
                                     {item.name}
                                   </a>
@@ -215,7 +215,7 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
                             <Link href={"/gasless-bonk-swap"}>
                               <a
                                 onClick={() => close()}
-                                className="inline-flex w-full items-center gap-x-2 rounded-md py-2 px-3 text-base font-medium text-white hover:bg-primary-focus hover:text-white"
+                                className="inline-flex w-full items-center gap-x-2 rounded-md px-3 py-2 text-base font-medium text-white hover:bg-primary-focus hover:text-white"
                               >
                                 <Image
                                   unoptimized={true}
@@ -239,7 +239,7 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
             </Disclosure>
           </>
           <Breadcrumbs />
-          <main className="mx-auto max-w-7xl flex-grow pt-10 pb-12 sm:px-4 lg:pb-16">
+          <main className="mx-auto max-w-7xl flex-grow pb-12 pt-10 sm:px-4 lg:pb-16">
             <Component {...pageProps} />
             <Analytics />
           </main>

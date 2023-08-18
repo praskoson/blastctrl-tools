@@ -51,7 +51,7 @@ const Nfts: NextPage = (props) => {
   return (
     <>
       <Head>
-        <title>Solana NFT Tools | Blast Ctrl - Home</title>
+        <title>Solana NFT Tools | BlastTools - Home</title>
       </Head>
       <h1 className="pb-4">Tools for interacting with Metaplex smart contracts</h1>
       <div className="grid grid-cols-1 gap-y-6 sm:grid-cols-3 sm:gap-x-4">

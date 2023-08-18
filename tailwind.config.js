@@ -1,7 +1,7 @@
 const defaultTheme = require("tailwindcss/defaultTheme");
 
+/** @type {import('tailwindcss').Config} */
 module.exports = {
-  mode: "jit",
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
   darkMode: "media",
   theme: {
@@ -36,12 +36,7 @@ module.exports = {
       mono: [...defaultTheme.fontFamily.mono],
     },
   },
-  plugins: [
-    require("daisyui"),
-    require("@tailwindcss/typography"),
-    require("@tailwindcss/forms"),
-    require("@tailwindcss/line-clamp"),
-  ],
+  plugins: [require("daisyui"), require("@tailwindcss/forms")],
   daisyui: {
     styled: true,
     // TODO: Theme needs works

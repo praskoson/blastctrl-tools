@@ -22,7 +22,7 @@ const Storage: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Permanent NFT Storage | Blast Ctrl</title>
+        <title>Permanent NFT Storage | BlastTools</title>
       </Head>
       <h1 className="pb-4">
         Use SOL to pay for permanent decentralised NFT metadata and media storage.
