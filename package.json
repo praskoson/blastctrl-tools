@@ -17,7 +17,6 @@
     "@heroicons/react": "^2.0.11",
     "@metaplex-foundation/js": "^0.17.12",
     "@metaplex-foundation/mpl-token-metadata": "^2.11.1",
-    "@next/bundle-analyzer": "^13.0.0",
     "@orca-so/common-sdk": "^0.1.12",
     "@orca-so/whirlpools-sdk": "^0.8.2",
     "@popperjs/core": "^2.11.6",
@@ -29,14 +28,12 @@
     "@solana/wallet-adapter-react-ui": "^0.9.27",
     "@solana/wallet-adapter-wallets": "^0.19.11",
     "@solana/web3.js": "^1.66.2",
-    "@tailwindcss/typography": "^0.5.0",
     "@vercel/analytics": "^0.1.5",
     "axios": "^1.2.6",
     "bignumber.js": "^9.1.0",
     "daisyui": "1.24.3",
     "dayjs": "^1.11.5",
     "decimal.js": "^10.4.3",
-    "immer": "^9.0.12",
     "jdenticon": "^3.2.0",
     "lodash-es": "^4.17.21",
     "next": "^12.3.4",
@@ -49,12 +46,11 @@
     "react-hot-toast": "^2.4.0",
     "react-icons": "^4.4.0",
     "swr": "^1.3.0",
-    "tailwind-merge": "^1.12.0",
+    "tailwind-merge": "^1.14.0",
     "zustand": "^3.6.9"
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.3",
-    "@tailwindcss/line-clamp": "^0.4.2",
     "@types/bs58": "^4.0.1",
     "@types/lodash-es": "^4.17.6",
     "@types/node": "^18.7.23",
@@ -66,7 +62,7 @@
     "postcss": "^8.4.5",
     "prettier": "^2.7.1",
     "prettier-plugin-tailwindcss": "^0.1.13",
-    "tailwindcss": "^3.0.15",
+    "tailwindcss": "^3.3.3",
     "typescript": "^4.8.4"
   }
 }
