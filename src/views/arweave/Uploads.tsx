@@ -51,7 +51,7 @@ const getFilePreview = (item: UploadedFile) => {
 };
 
 export const Uploads = memo(function Uploads({ files }: UploadsProps) {
-  const [parent] = useAutoAnimate<HTMLUListElement>();
+  const [parent] = useAutoAnimate<HTMLUListElement>({ });
   const [length, setLength] = useState(5);
 
   const handleShowMore = () => {

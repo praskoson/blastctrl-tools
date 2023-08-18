@@ -199,9 +199,9 @@ export const UploaderView = ({ storage }: { storage: BundlrStorageDriver }) => {
 
   // TODO: add FAQ, disclosures
   return (
-    <div className="mx-auto px-4 md:hero">
-      <div className="flex flex-col md:hero-content">
-        <div className="mb-4 sm:mb-0 sm:border-b sm:border-gray-200 sm:pb-3">
+    <div className="mx-auto px-4">
+      <div className="flex flex-col md:max-w-[80rem] md:p-1">
+        <div className="mb-4 sm:border-b sm:border-gray-200 sm:pb-3">
           <h1 className="mb-2 text-center font-display text-3xl font-semibold text-gray-900">
             Simple Arweave Uploader
           </h1>

@@ -12,8 +12,8 @@ import {
 import BigNumber from "bignumber.js";
 import { WalletContextState } from "@solana/wallet-adapter-react";
 import { Amount, lamports, toBigNumber } from "types";
-import { WithdrawalResponse } from "@bundlr-network/client/build/common/types";
 import { WalletError } from "@solana/wallet-adapter-base";
+import { type WithdrawalResponse } from "@bundlr-network/client/build/cjs/common/types";
 
 export type BundlrOptions = {
   address?: string;
