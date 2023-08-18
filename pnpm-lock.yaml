@@ -35,6 +35,9 @@ dependencies:
   '@project-serum/anchor':
     specifier: ^0.26.0
     version: 0.26.0
+  '@solana/buffer-layout':
+    specifier: ^4.0.1
+    version: 4.0.1
   '@solana/spl-token-next':
     specifier: npm:@solana/spl-token
     version: /@solana/spl-token@0.3.8(@solana/web3.js@1.78.4)
@@ -56,6 +59,9 @@ dependencies:
   '@solana/web3.js':
     specifier: ^1.66.2
     version: 1.78.4
+  '@types/bn.js':
+    specifier: ^5.1.1
+    version: 5.1.1
   '@vercel/analytics':
     specifier: ^0.1.5
     version: 0.1.11(react@18.2.0)
@@ -65,6 +71,9 @@ dependencies:
   bignumber.js:
     specifier: ^9.1.0
     version: 9.1.1
+  bn.js:
+    specifier: ^5.2.1
+    version: 5.2.1
   clsx:
     specifier: ^2.0.0
     version: 2.0.0
@@ -2153,7 +2162,7 @@ packages:
     dependencies:
       '@jest/fake-timers': 29.6.2
       '@jest/types': 29.6.1
-      '@types/node': 20.5.0
+      '@types/node': 18.17.5
       jest-mock: 29.6.2
     dev: false
 
@@ -2163,7 +2172,7 @@ packages:
     dependencies:
       '@jest/types': 29.6.1
       '@sinonjs/fake-timers': 10.3.0
-      '@types/node': 20.5.0
+      '@types/node': 18.17.5
       jest-message-util: 29.6.2
       jest-mock: 29.6.2
       jest-util: 29.6.2
@@ -2182,7 +2191,7 @@ packages:
     dependencies:
       '@types/istanbul-lib-coverage': 2.0.4
       '@types/istanbul-reports': 3.0.1
-      '@types/node': 20.5.0
+      '@types/node': 18.17.5
       '@types/yargs': 15.0.15
       chalk: 4.1.2
     dev: false
@@ -2193,7 +2202,7 @@ packages:
     dependencies:
       '@types/istanbul-lib-coverage': 2.0.4
       '@types/istanbul-reports': 3.0.1
-      '@types/node': 20.5.0
+      '@types/node': 18.17.5
       '@types/yargs': 16.0.5
       chalk: 4.1.2
     dev: false
@@ -2205,7 +2214,7 @@ packages:
       '@jest/schemas': 29.6.0
       '@types/istanbul-lib-coverage': 2.0.4
       '@types/istanbul-reports': 3.0.1
-      '@types/node': 20.5.0
+      '@types/node': 18.17.5
       '@types/yargs': 17.0.24
       chalk: 4.1.2
     dev: false
@@ -4525,6 +4534,12 @@ packages:
       - utf-8-validate
     dev: false
 
+  /@types/bn.js@5.1.1:
+    resolution: {integrity: sha512-qNrYbZqMx0uJAfKnKclPh+dTwK33KfLHYqtyODwd5HnXOjnkhc4qgn3BrK6RWyGZm5+sIFE7Q7Vz6QQtJB7w7g==}
+    dependencies:
+      '@types/node': 18.17.5
+    dev: false
+
   /@types/bs58@4.0.1:
     resolution: {integrity: sha512-yfAgiWgVLjFCmRv8zAcOIHywYATEwiTVccTLnRp6UxTNavT55M9d/uhK3T03St/+8/z/wW+CRjGKUNmEqoHHCA==}
     dependencies:
@@ -4606,7 +4621,6 @@ packages:
 
   /@types/node@18.17.5:
     resolution: {integrity: sha512-xNbS75FxH6P4UXTPUJp/zNPq6/xsfdJKussCWNOnz4aULWIRwMgP1LgaB5RiBnMX1DPCYenuqGZfnIAx5mbFLA==}
-    dev: true
 
   /@types/node@20.5.0:
     resolution: {integrity: sha512-Mgq7eCtoTjT89FqNoTzzXg2XvCi5VMhRV6+I2aYanc6kQCBImeNaAYRs/DyoVqk1YEUJK5gN9VO7HRIdz4Wo3Q==}
@@ -8180,7 +8194,7 @@ packages:
       '@jest/environment': 29.6.2
       '@jest/fake-timers': 29.6.2
       '@jest/types': 29.6.1
-      '@types/node': 20.5.0
+      '@types/node': 18.17.5
       jest-mock: 29.6.2
       jest-util: 29.6.2
     dev: false
@@ -8210,7 +8224,7 @@ packages:
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     dependencies:
       '@jest/types': 29.6.1
-      '@types/node': 20.5.0
+      '@types/node': 18.17.5
       jest-util: 29.6.2
     dev: false
 
@@ -8224,7 +8238,7 @@ packages:
     engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
     dependencies:
       '@jest/types': 27.5.1
-      '@types/node': 20.5.0
+      '@types/node': 18.17.5
       chalk: 4.1.2
       ci-info: 3.8.0
       graceful-fs: 4.2.11
@@ -8236,7 +8250,7 @@ packages:
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     dependencies:
       '@jest/types': 29.6.1
-      '@types/node': 20.5.0
+      '@types/node': 18.17.5
       chalk: 4.1.2
       ci-info: 3.8.0
       graceful-fs: 4.2.11
@@ -8259,7 +8273,7 @@ packages:
     resolution: {integrity: sha512-7vuh85V5cdDofPyxn58nrPjBktZo0u9x1g8WtjQol+jZDaE+fhN+cIvTj11GndBnMnyfrUOG1sZQxCdjKh+DKg==}
     engines: {node: '>= 10.13.0'}
     dependencies:
-      '@types/node': 20.5.0
+      '@types/node': 18.17.5
       merge-stream: 2.0.0
       supports-color: 8.1.1
     dev: false
@@ -10104,7 +10118,7 @@ packages:
     dependencies:
       object-assign: 4.1.1
       react: 18.2.0
-      react-is: 16.13.1
+      react-is: 18.2.0
     dev: false
 
   /react@16.13.1:
