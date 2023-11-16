@@ -15,7 +15,7 @@
     "@headlessui/react": "^1.7.17",
     "@heroicons/react": "^2.0.11",
     "@irys/sdk": "^0.0.4",
-    "@metaplex-foundation/js": "^0.19.4",
+    "@metaplex-foundation/js": "^0.20.1",
     "@metaplex-foundation/mpl-token-metadata": "^2.13.0",
     "@orca-so/common-sdk": "^0.1.12",
     "@orca-so/whirlpools-sdk": "^0.8.2",
