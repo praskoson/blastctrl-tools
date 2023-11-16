@@ -1,6 +1,5 @@
 import {
   ChevronRightIcon,
-  ExclamationCircleIcon,
   PlusCircleIcon,
   QuestionMarkCircleIcon,
   XMarkIcon,
@@ -21,20 +20,15 @@ import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { isPublicKey } from "utils/spl/common";
 
 import { Switch } from "@headlessui/react";
-import {
-  WalletAdapterNetwork,
-  WalletError,
-  WalletSignMessageError,
-  WalletSignTransactionError,
-} from "@solana/wallet-adapter-base";
+import { WalletError } from "@solana/wallet-adapter-base";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { PublicKey } from "@solana/web3.js";
-import { InputMultiline, notify, SpinnerIcon } from "components";
+import { InputMultiline, SpinnerIcon, notify } from "components";
+import { IrysStorage } from "lib/irys";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
 import { classNames, mimeTypeToCategory } from "utils";
-import { BundlrStorageDriver } from "utils/bundlr-storage";
 import { Attributes } from "views/nfts/Attributes";
 import { MediaFiles } from "views/nfts/MediaFiles";
 import { MAX_CREATORS } from "./update";
@@ -126,20 +120,15 @@ const Mint: NextPage = () => {
     if (!wallet.connected) {
       return setVisible(true);
     }
+    if (!wallet.signMessage) {
+      notify({ title: "Error", description: "Selected wallet doesn't support signing messages" });
+      return setVisible(true);
+    }
 
     // Setup
     setIsConfirming(true);
     const metaplex = Metaplex.make(connection).use(walletAdapterIdentity(wallet));
-    const bundlr = new BundlrStorageDriver(connection, wallet, {
-      priceMultiplier: 1.5,
-      timeout: 60000,
-      providerUrl: connection.rpcEndpoint,
-      identity: wallet,
-      address:
-        network === WalletAdapterNetwork.Mainnet
-          ? "https://node1.bundlr.network"
-          : "https://devnet.bundlr.network",
-    });
+    const irys = await IrysStorage.makeWebIrys(network, wallet);
 
     // Check if we are uploading a json file
     let jsonUrl: string;
@@ -155,8 +144,9 @@ const Mint: NextPage = () => {
       let imageUrl: string;
       let animationUrl: string;
       try {
-        if (image) imageUrl = await bundlr.upload(image);
-        if (animation_url) animationUrl = await bundlr.upload(animation_url);
+        if (image) imageUrl = `https://arweave.net/${(await irys.uploadFile(image)).id}`;
+        if (animation_url)
+          animationUrl = `https://arweave.net/${(await irys.uploadFile(animation_url)).id}`;
       } catch (err) {
         setIsConfirming(false);
         return notify({

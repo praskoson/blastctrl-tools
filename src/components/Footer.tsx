@@ -13,10 +13,22 @@ export const Footer = () => {
           className="group hover:cursor-pointer"
         >
           <div className="block group-hover:hidden">
-            <Image unoptimized={true} src={BlastCtrlIconWhite} height="24" width="24" alt="BlastCtrl" />
+            <Image
+              unoptimized={true}
+              src={BlastCtrlIconWhite}
+              height="24"
+              width="24"
+              alt="BlastCtrl"
+            />
           </div>
           <div className="hidden group-hover:block">
-            <Image unoptimized={true} src={BlastCtrlIconRed} height="24" width="24" alt="BlastCtrl" />
+            <Image
+              unoptimized={true}
+              src={BlastCtrlIconRed}
+              height="24"
+              width="24"
+              alt="BlastCtrl"
+            />
           </div>
         </a>
         <a
@@ -73,7 +85,7 @@ export const Footer = () => {
         </a>
       </div>
       <p className="font-sans text-sm font-light text-gray-300">
-        Copyright &copy; 2022 &bull; BlastCtrl
+        Copyright &copy; 2023 &bull; BlastCtrl
       </p>
     </footer>
   );
