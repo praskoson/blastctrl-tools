@@ -51,13 +51,13 @@ export const UploaderView = ({ irys }: { irys: IrysStorage }) => {
         title: `Network is set to ${network}`,
         description: (
           <>
-            Using Bundlr on non-mainnet networks will result in your uploads not being permanent.
-            All uploads are removed after a week.{" "}
+            Using Irys on non-mainnet networks will result in your uploads not being permanent. All
+            uploads are removed after a week.{" "}
             <a
               className="text-blue-300 underline"
               rel="noreferrer"
               target="_blank"
-              href="https://docs.bundlr.network/docs/devnet"
+              href="https://docs.irys.xyz/developer-docs/using-devnet"
             >
               Docs
             </a>
@@ -316,7 +316,7 @@ export const UploaderView = ({ irys }: { irys: IrysStorage }) => {
                     <dt className="text-sm font-medium text-gray-500">
                       Estimated cost
                       <a
-                        href="https://docs.bundlr.network/docs/learn/fees"
+                        href="https://docs.irys.xyz/overview/fees"
                         rel="noreferrer"
                         target="_blank"
                       >
@@ -374,7 +374,7 @@ export const UploaderView = ({ irys }: { irys: IrysStorage }) => {
             <span className="mb-1 block text-xs uppercase tracking-wider text-gray-500">
               {network}
             </span>
-            <span className="font-medium text-gray-500">Bundlr balance </span>
+            <span className="font-medium text-gray-500">Irys funds </span>
             <span className="mx-1 text-base font-semibold text-gray-700">
               {balance ? <>{formatAmount(balance)}</> : "0 SOL"}
             </span>
