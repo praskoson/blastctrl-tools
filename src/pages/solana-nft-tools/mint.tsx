@@ -136,7 +136,7 @@ const Mint: NextPage = () => {
       notify({
         title: "Uploading external metadata",
         description:
-          "The metadata JSON file is being uploaded to Arweave via Bundlr. This will require multiple wallet confirmations, including payment and signature verification.",
+          "The metadata JSON file is being uploaded to Arweave via Irys. This will require multiple wallet confirmations, including payment and signature verification.",
       });
 
       // Check if we're also uploading media files
@@ -387,7 +387,7 @@ const Mint: NextPage = () => {
                   <h3 className="text-lg font-medium leading-6 text-gray-900">Image and Files</h3>
                   <p className="mt-1 text-sm text-gray-500">
                     Image that represents your NFT and an additional file that will be associated
-                    with it. All files are uploaded to Arweave via Bundlr.
+                    with it. All files are uploaded to Arweave via Irys.
                   </p>
                 </div>
                 <MediaFiles watch={watch} setValue={setValue} />

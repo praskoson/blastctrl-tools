@@ -37,7 +37,7 @@ const FileUpload: NextPage = () => {
             Simple Arweave Uploader
           </h1>
           <p className="text-center text-sm leading-snug tracking-tight text-gray-900">
-            Upload files to Arweave using the Bundlr Network and paying in SOL.
+            Upload files to Arweave using the Irys Network and paying in SOL.
           </p>
         </div>
       </div>
