@@ -1,5 +1,4 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import axios from "axios";
 
 export type QuoteData = {
   rate: number;
@@ -14,12 +13,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   }
 
   let priceData;
+
   try {
-    priceData = (
-      await axios.get(
-        "https://api.coingecko.com/api/v3/simple/price?ids=bonk%2Csolana&vs_currencies=usd"
-      )
-    ).data;
+    const geckoRes = await fetch(
+      "https://api.coingecko.com/api/v3/simple/price?ids=bonk%2Csolana&vs_currencies=usd",
+      { method: "GET" }
+    );
+    if (!geckoRes.ok) {
+      throw Error(geckoRes.statusText);
+    }
+    priceData = await geckoRes.json();
   } catch (err) {
     console.log({ err });
     res.status(500).json(err);

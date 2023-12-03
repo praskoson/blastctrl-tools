@@ -69,7 +69,7 @@ dependencies:
     specifier: ^0.1.5
     version: 0.1.11(react@18.2.0)
   axios:
-    specifier: ^1.2.6
+    specifier: ^1.6.2
     version: 1.6.2(debug@4.3.4)
   bignumber.js:
     specifier: ^9.1.0
