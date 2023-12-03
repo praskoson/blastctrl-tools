@@ -11,7 +11,6 @@ import { useCallback, useMemo, useState } from "react";
 import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
 import { classNames } from "utils";
 import { compress } from "utils/spl";
-import { Jdenticon } from "./Jdenticon";
 
 export const MobileWallet = () => {
   const { network, setNetwork } = useNetworkConfigurationStore();
@@ -53,9 +52,10 @@ export const MobileWallet = () => {
     <div className="border-t border-white pt-4 pb-3">
       <div className="flex items-center justify-between gap-x-3 px-4">
         <div className="inline-flex items-center gap-x-3">
-          <div className="flex-shrink-0 overflow-hidden rounded-full border-2 border-white bg-gray-800">
-            <Jdenticon size="42px" value={wallet58} />
+          <div className="shrink-0 bg-white rounded-full w-10 h-10 flex justify-center items-center">
+            <Image src={wallet.adapter.icon} height={26} width={26} alt="wallet icon" />
           </div>
+
           <div className="cursor-default truncate text-base font-medium tracking-wider text-white">
             {compress(wallet58, 4)}
           </div>
@@ -66,9 +66,6 @@ export const MobileWallet = () => {
               <ClipboardDocumentIcon className="mr-2 h-5 w-5 text-white hover:text-red-200" />
             )}
           </button>
-        </div>
-        <div className="flex-shrink-0 rounded-lg px-3 py-1 hover:bg-primary-focus">
-          <Image src={wallet.adapter.icon} height={36} width={36} alt="wallet icon" />
         </div>
       </div>
       <div className="mt-3 px-2">

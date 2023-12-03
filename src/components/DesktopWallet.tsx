@@ -12,7 +12,6 @@ import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
 import { classNames } from "utils";
 import { compress } from "utils/spl";
 import SolanaLogo from "../../public/solanaLogoMark.svg";
-import { Jdenticon } from "./Jdenticon";
 
 export const DesktopWallet = () => {
   const { network, setNetwork } = useNetworkConfigurationStore();
@@ -50,12 +49,11 @@ export const DesktopWallet = () => {
   }
   return (
     <Menu as="div" className="relative ml-4 flex-shrink-0">
-      <div>
-        <Menu.Button className="flex overflow-hidden rounded-full border-2 border-transparent bg-gray-800 text-sm focus:outline-none focus:ring focus:ring-white focus:ring-offset-gray-100">
-          <span className="sr-only">Open user menu</span>
-          <Jdenticon size="36px" value={wallet58} />
-        </Menu.Button>
-      </div>
+      <Menu.Button className="rounded-md bg-primary-focus flex gap-2 items-center py-1.5 px-4">
+        <span className="sr-only">Open user menu</span>
+        <Image src={wallet.adapter.icon} height={24} width={24} alt="wallet icon" />
+        <span className="font-semibold text-sm text-white">{compress(wallet58, 4)}</span>
+      </Menu.Button>
       <Transition
         as={Fragment}
         enter="transition ease-out duration-100"
@@ -79,15 +77,6 @@ export const DesktopWallet = () => {
                   <ClipboardDocumentIcon className="mr-2 h-5 w-5 text-gray-500 hover:text-gray-600" />
                 )}
               </button>
-              <div className="ml-auto max-h-fit flex-shrink-0 rounded-lg px-3 py-1 hover:bg-gray-50">
-                <Image
-                  unoptimized={true}
-                  src={wallet.adapter.icon}
-                  height={24}
-                  width={24}
-                  alt="wallet icon"
-                />
-              </div>
             </div>
           </div>
           <div>
