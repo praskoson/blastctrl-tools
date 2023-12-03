@@ -8,18 +8,12 @@ import {
   WalletSignTransactionError,
 } from "@solana/wallet-adapter-base";
 import { ConnectionProvider, WalletProvider } from "@solana/wallet-adapter-react";
-import { WalletModalProvider as ReactUIWalletModalProvider } from "@solana/wallet-adapter-react-ui";
 import { FC, ReactNode, useCallback, useMemo } from "react";
 import { AutoConnectProvider, useAutoConnect } from "./AutoConnectProvider";
 import { mergeClusterApiUrl } from "utils/spl/common";
 import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
 import { notify } from "components";
-import {
-  SolflareWalletAdapter,
-  LedgerWalletAdapter,
-  BraveWalletAdapter,
-  SalmonWalletAdapter,
-} from "@solana/wallet-adapter-wallets";
+import { SolflareWalletAdapter, LedgerWalletAdapter } from "@solana/wallet-adapter-wallets";
 import dynamic from "next/dynamic";
 
 const DynamicReactUiWalletModalProvider = dynamic(
@@ -48,8 +42,6 @@ const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
        */
       new SolflareWalletAdapter(),
       new LedgerWalletAdapter(),
-      new BraveWalletAdapter(),
-      new SalmonWalletAdapter(),
     ],
     []
   );

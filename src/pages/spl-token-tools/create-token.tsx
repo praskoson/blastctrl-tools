@@ -1,20 +1,20 @@
-import { ChevronRightIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
-import { WalletAdapterNetwork, WalletError } from "@solana/wallet-adapter-base";
+import { ChevronUpDownIcon } from "@heroicons/react/20/solid";
+import { WalletError } from "@solana/wallet-adapter-base";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
-import { InputGroup, InputMultiline, notify, UploadFile, notifyPromise, Select } from "components";
+import { PublicKey, TransactionInstruction } from "@solana/web3.js";
+import { InputGroup, InputMultiline, Select, UploadFile, notify, notifyPromise } from "components";
+import { useWalletConnection } from "hooks/useWalletConnection";
+import { IrysStorage } from "lib/irys";
 import { NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
-import { BundlrStorageDriver } from "utils/bundlr-storage";
-import { compress, isPublicKey } from "utils/spl/common";
-import { createMetadataInstruction, updateMetadataInstruction } from "utils/spl";
-import { useWalletConnection } from "hooks/useWalletConnection";
-import { PublicKey, TransactionInstruction } from "@solana/web3.js";
 import { classNames } from "utils";
+import { createMetadataInstruction, updateMetadataInstruction } from "utils/spl";
+import { compress, isPublicKey } from "utils/spl/common";
 
 type TokenData = {
   mint: string;
@@ -50,16 +50,7 @@ const CreateToken: NextPage = () => {
     }
 
     setIsConfirming(true);
-    const storage = new BundlrStorageDriver(connection, wallet, {
-      priceMultiplier: 1.5,
-      timeout: 60000,
-      providerUrl: connection.rpcEndpoint,
-      identity: wallet,
-      address:
-        network === WalletAdapterNetwork.Mainnet
-          ? "https://node1.bundlr.network"
-          : "https://devnet.bundlr.network",
-    });
+    const irys = await IrysStorage.makeWebIrys(network, wallet);
 
     // Test if creating metadata is possible
     const ix =
@@ -70,7 +61,6 @@ const CreateToken: NextPage = () => {
 
     if (value.err) {
       setIsConfirming(false);
-      console.log({ value });
 
       return notify({
         type: "error",
@@ -92,35 +82,38 @@ const CreateToken: NextPage = () => {
     let metadataUri: string;
 
     if (data.image) {
-      imageUri = await notifyPromise(storage.upload(data.image), {
-        loading: { description: "Uploading image to Arweave..." },
-        success: { description: "Image upload complete" },
-        error: (err: any) => {
-          setIsConfirming(false);
-          console.log(err);
-          return {
-            title: "Image Upload Error",
-            description: (
-              <div className="break-normal">
-                <p>
-                  There has been an error while uploading with the message:{" "}
-                  <span className="break-all font-medium text-yellow-300">{err?.message}</span>.
-                </p>
-                <p className="mt-2">
-                  You can recover any lost funds on the{" "}
-                  <Link
-                    href="/permanent-storage-tools/file-upload"
-                    className="font-medium text-blue-300"
-                  >
-                    /permanent-storage-tools
-                  </Link>{" "}
-                  page.
-                </p>
-              </div>
-            ),
-          };
-        },
-      });
+      imageUri = await notifyPromise(
+        irys.uploadFile(data.image).then((r) => `https://arweave.net/${r.id}`),
+        {
+          loading: { description: "Uploading image to Arweave..." },
+          success: { description: "Image upload complete" },
+          error: (err: any) => {
+            setIsConfirming(false);
+            console.log(err);
+            return {
+              title: "Image Upload Error",
+              description: (
+                <div className="break-normal">
+                  <p>
+                    There has been an error while uploading with the message:{" "}
+                    <span className="break-all font-medium text-yellow-300">{err?.message}</span>.
+                  </p>
+                  <p className="mt-2">
+                    You can recover any lost funds on the{" "}
+                    <Link
+                      href="/permanent-storage-tools/file-upload"
+                      className="font-medium text-blue-300"
+                    >
+                      /permanent-storage-tools
+                    </Link>{" "}
+                    page.
+                  </p>
+                </div>
+              ),
+            };
+          },
+        }
+      );
     }
 
     const json = {
@@ -134,35 +127,38 @@ const CreateToken: NextPage = () => {
       type: "application/json",
     });
 
-    metadataUri = await notifyPromise(storage.upload(metadataFile), {
-      loading: { description: "Uploading metadata file to Arweave..." },
-      success: { description: "JSON upload complete" },
-      error: (err: any) => {
-        setIsConfirming(false);
-        console.log({ err });
-        return {
-          title: "JSON upload error",
-          description: (
-            <div className="break-normal">
-              <p>
-                There has been an error while uploading with the message:{" "}
-                <span className="break-all font-medium text-yellow-300">{err?.message}</span>.
-              </p>
-              <p className="mt-2">
-                You can recover any lost funds on the{" "}
-                <Link
-                  href="/permanent-storage-tools/file-upload"
-                  className="font-medium text-blue-300"
-                >
-                  /storage
-                </Link>{" "}
-                page.
-              </p>
-            </div>
-          ),
-        };
-      },
-    });
+    metadataUri = await notifyPromise(
+      irys.uploadFile(metadataFile).then((r) => `https://arweave.net/${r.id}`),
+      {
+        loading: { description: "Uploading metadata file to Arweave..." },
+        success: { description: "JSON upload complete" },
+        error: (err: any) => {
+          setIsConfirming(false);
+          console.log({ err });
+          return {
+            title: "JSON upload error",
+            description: (
+              <div className="break-normal">
+                <p>
+                  There has been an error while uploading with the message:{" "}
+                  <span className="break-all font-medium text-yellow-300">{err?.message}</span>.
+                </p>
+                <p className="mt-2">
+                  You can recover any lost funds on the{" "}
+                  <Link
+                    href="/permanent-storage-tools/file-upload"
+                    className="font-medium text-blue-300"
+                  >
+                    /storage
+                  </Link>{" "}
+                  page.
+                </p>
+              </div>
+            ),
+          };
+        },
+      }
+    );
 
     try {
       let ix: TransactionInstruction;

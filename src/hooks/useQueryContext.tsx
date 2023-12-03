@@ -1,9 +1,7 @@
-import { useRouter } from "next/router";
 import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
-import { EndpointTypes } from "../models/types";
 
 export default function useQueryContext() {
-  const { network } = useNetworkConfigurationStore()
+  const { network } = useNetworkConfigurationStore();
 
   const endpoint = network || "mainnet-beta";
   const hasClusterOption = endpoint !== "mainnet-beta";

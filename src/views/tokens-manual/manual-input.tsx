@@ -13,9 +13,9 @@ import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { Transaction } from "@solana/web3.js";
 import { SpinnerIcon } from "components";
 import { notify } from "components";
-import { AccountInfo } from "models/types";
 import { Fragment, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { RawAccount } from "@solana/spl-token-next";
 import useUserSOLBalanceStore from "stores/useUserSOLBalanceStore";
 import { assert, classNames } from "utils";
 import {
@@ -31,6 +31,15 @@ type FormValues = {
   parentAta: string;
   nestedAta: string;
   destinationAta: string;
+};
+
+type AccountInfo = {
+  address: PublicKey;
+  data: RawAccount;
+  executable: boolean;
+  owner: PublicKey;
+  lamports: number;
+  rentEpoch?: number;
 };
 
 export const ManualInput = () => {
