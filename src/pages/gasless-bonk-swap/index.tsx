@@ -62,7 +62,8 @@ const BonkSwap: NextPage = () => {
   const { tokenBalance } = useTokenBalance(selectToken.mint, selectToken.decimals);
   useOctaneConfigStore((s) => s.config);
   const { fetchOctaneConfig, getSwapFeeConfig } = useOctaneConfigStore();
-  useEffect(() => fetchOctaneConfig, [fetchOctaneConfig]);
+  // TODO: this is shit
+  useEffect(fetchOctaneConfig, [fetchOctaneConfig]);
 
   const debouncedSwapAmount = useDebounce(swapAmount, 500);
   const quoteQuery = useJupQuery({
