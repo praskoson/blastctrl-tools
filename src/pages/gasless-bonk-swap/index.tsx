@@ -6,17 +6,18 @@ import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { PublicKey, Transaction } from "@solana/web3.js";
 import { notify, notifyPromise, Select, SpinnerIcon } from "components";
 import { useTokenBalance } from "hooks";
-import { debounce } from "lodash-es";
+import { useJupQuery } from "lib/query/use-jup-quote";
 import { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/legacy/image";
-import { WhirlpoolQuoteData } from "pages/api/bonk/whirlpool-quote";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
 import useOctaneConfigStore from "stores/useOctaneConfigStore";
-import { classNames, fetcher, formatNumber, numberFormatter, roundTo } from "utils";
+import { classNames, formatNumber, numberFormatter } from "utils";
 import { buildWhirlpoolsSwapTransaction, sendWhirlpoolsSwapTransaction } from "utils/octane";
+import { lamportsToSol } from "utils/spl/common";
+import { useDebounce } from "utils/use-debounce";
 import { FormLeft } from "views/gasless-swap/FormLeft";
 
 type FormData = {
@@ -46,51 +47,58 @@ const BonkSwap: NextPage = () => {
     register,
     handleSubmit,
     setValue,
+    watch,
     formState: { errors },
   } = useForm<FormData>({
     defaultValues: { slippage: 0.5 },
     mode: "onSubmit",
   });
+  const swapAmount = watch("swapAmount");
   const [notifyId, setNotifyId] = useState<string>("");
   const [isSwapping, setIsSwapping] = useState(false);
-  const [priceQuote, setPriceQuote] = useState<WhirlpoolQuoteData | null>(null);
   const [isFetchingQuote, setIsFetchingQuote] = useState(false);
   const [selectToken, setSelectToken] = useState(TOKENS[0]);
 
   const { tokenBalance } = useTokenBalance(selectToken.mint, selectToken.decimals);
   useOctaneConfigStore((s) => s.config);
   const { fetchOctaneConfig, getSwapFeeConfig } = useOctaneConfigStore();
-  useEffect(fetchOctaneConfig, [fetchOctaneConfig]);
+  useEffect(() => fetchOctaneConfig, [fetchOctaneConfig]);
 
-  const getQuote = useCallback(
-    async (num: number) => {
-      if (!num) return setPriceQuote(null);
+  const debouncedSwapAmount = useDebounce(swapAmount, 500);
+  const quoteQuery = useJupQuery({
+    inputMint: selectToken.mint,
+    amount: debouncedSwapAmount * Math.pow(10, selectToken.decimals),
+  });
 
-      setIsFetchingQuote(true);
-      const feeConfig = getSwapFeeConfig(selectToken.mint);
-      const feeBp = feeConfig.burnFeeBp + feeConfig.transferFeeBp;
-      try {
-        const quote = await fetcher<WhirlpoolQuoteData>("/api/bonk/whirlpool-quote", {
-          method: "POST",
-          body: JSON.stringify({
-            quoteMint: selectToken.mint,
-            amountIn: num * (1 - feeBp / 10000),
-            numerator: 10,
-            denominator: 1000,
-          }),
-          headers: { "Content-type": "application/json; charset=UTF-8" },
-        });
-        setPriceQuote(quote);
-      } catch (err) {
-        setPriceQuote(null);
-      } finally {
-        setIsFetchingQuote(false);
-      }
-    },
-    [selectToken.mint, getSwapFeeConfig]
-  );
+  // const getQuote = useCallback(
+  //   async (num: number) => {
+  //     if (!num) return setPriceQuote(null);
 
-  const debouncedGetQuote = useMemo(() => debounce(getQuote, 500), [getQuote]);
+  //     setIsFetchingQuote(true);
+  //     const feeConfig = getSwapFeeConfig(selectToken.mint);
+  //     const feeBp = feeConfig.burnFeeBp + feeConfig.transferFeeBp;
+  //     try {
+  //       const quote = await fetcher<WhirlpoolQuoteData>("/api/bonk/whirlpool-quote", {
+  //         method: "POST",
+  //         body: JSON.stringify({
+  //           quoteMint: selectToken.mint,
+  //           amountIn: num * (1 - feeBp / 10000),
+  //           numerator: 10,
+  //           denominator: 1000,
+  //         }),
+  //         headers: { "Content-type": "application/json; charset=UTF-8" },
+  //       });
+  //       setPriceQuote(quote);
+  //     } catch (err) {
+  //       setPriceQuote(null);
+  //     } finally {
+  //       setIsFetchingQuote(false);
+  //     }
+  //   },
+  //   [selectToken.mint, getSwapFeeConfig]
+  // );
+
+  // const debouncedGetQuote = useMemo(() => debounce(getQuote, 500), [getQuote]);
 
   const submitSwap = async (data: FormData) => {
     // Bonk!
@@ -125,83 +133,83 @@ const BonkSwap: NextPage = () => {
     await notifyPromise(sendWhirlpoolsSwapTransaction(signedTransaction, messageToken), {
       loading: { description: "Confirming transaction" },
       success: (value) => ({
-        title: "Bonk Swap Success",
+        title: `${selectToken.name} Swap Success`,
         txid: value,
       }),
       error: (err) => ({ title: "Bonk Swap Error", description: err?.message }),
     }).finally(() => setIsSwapping(false));
   };
 
-  const handleSolClick = (amount: number) => async () => {
-    const id = notify(
-      {
-        type: "info",
-        title: `${amount} SOL is enough for...`,
-        description: (
-          <ul className="mt-1 ">
-            <li>
-              <span className="font-bold text-blue-400">~{Math.round(amount / 0.000005)}</span>{" "}
-              token transfers or swaps
-            </li>
-            <li>
-              <span className="font-bold text-blue-400">~{Math.round(amount / 0.0022)}</span> token
-              accounts created
-            </li>
-            <li>
-              <span className="font-bold text-blue-400">~{Math.round(amount / 0.005)}</span> NFTs
-              minted
-            </li>
-          </ul>
-        ),
-      },
-      notifyId ? notifyId : null
-    );
-    if (!notifyId) setNotifyId(id);
+  // const handleSolClick = (amount: number) => async () => {
+  //   const id = notify(
+  //     {
+  //       type: "info",
+  //       title: `${amount} SOL is enough for...`,
+  //       description: (
+  //         <ul className="mt-1 ">
+  //           <li>
+  //             <span className="font-bold text-blue-400">~{Math.round(amount / 0.000005)}</span>{" "}
+  //             token transfers or swaps
+  //           </li>
+  //           <li>
+  //             <span className="font-bold text-blue-400">~{Math.round(amount / 0.0022)}</span> token
+  //             accounts created
+  //           </li>
+  //           <li>
+  //             <span className="font-bold text-blue-400">~{Math.round(amount / 0.005)}</span> NFTs
+  //             minted
+  //           </li>
+  //         </ul>
+  //       ),
+  //     },
+  //     notifyId ? notifyId : null
+  //   );
+  //   if (!notifyId) setNotifyId(id);
 
-    setIsFetchingQuote(true);
-    const feeConfig = getSwapFeeConfig(selectToken.mint);
-    try {
-      const quote = await fetcher<WhirlpoolQuoteData>("/api/bonk/whirlpool-quote", {
-        method: "POST",
-        body: JSON.stringify({
-          quoteMint: selectToken.mint,
-          amountOut: amount,
-          numerator: 10,
-          denominator: 1000,
-        }),
-        headers: { "Content-type": "application/json; charset=UTF-8" },
-      });
+  //   setIsFetchingQuote(true);
+  //   const feeConfig = getSwapFeeConfig(selectToken.mint);
+  //   try {
+  //     const quote = await fetcher<WhirlpoolQuoteData>("/api/bonk/whirlpool-quote", {
+  //       method: "POST",
+  //       body: JSON.stringify({
+  //         quoteMint: selectToken.mint,
+  //         amountOut: amount,
+  //         numerator: 10,
+  //         denominator: 1000,
+  //       }),
+  //       headers: { "Content-type": "application/json; charset=UTF-8" },
+  //     });
 
-      const ratioReducedByFee = 1 - (feeConfig.burnFeeBp + feeConfig.transferFeeBp) / 10000;
-      const swapAmount = parseFloat(quote.estimatedAmountIn) / ratioReducedByFee;
-      setValue("swapAmount", swapAmount > 1e6 ? Math.ceil(swapAmount) : roundTo(swapAmount, 5));
-      setPriceQuote(quote);
-    } catch (err) {
-    } finally {
-      setIsFetchingQuote(false);
-    }
-  };
+  //     const ratioReducedByFee = 1 - (feeConfig.burnFeeBp + feeConfig.transferFeeBp) / 10000;
+  //     const swapAmount = parseFloat(quote.estimatedAmountIn) / ratioReducedByFee;
+  //     setValue("swapAmount", swapAmount > 1e6 ? Math.ceil(swapAmount) : roundTo(swapAmount, 5));
+  //     setPriceQuote(quote);
+  //   } catch (err) {
+  //   } finally {
+  //     setIsFetchingQuote(false);
+  //   }
+  // };
 
-  const handleSetMax = async () => {
-    setValue("swapAmount", tokenBalance);
-    setIsFetchingQuote(true);
-    try {
-      const quote = await fetcher<WhirlpoolQuoteData>("/api/bonk/whirlpool-quote", {
-        method: "POST",
-        body: JSON.stringify({
-          amountIn: tokenBalance,
-          numerator: 10,
-          denominator: 1000,
-        }),
-        headers: { "Content-type": "application/json; charset=UTF-8" },
-      });
+  // const handleSetMax = async () => {
+  //   setValue("swapAmount", tokenBalance);
+  //   setIsFetchingQuote(true);
+  //   try {
+  //     const quote = await fetcher<WhirlpoolQuoteData>("/api/bonk/whirlpool-quote", {
+  //       method: "POST",
+  //       body: JSON.stringify({
+  //         amountIn: tokenBalance,
+  //         numerator: 10,
+  //         denominator: 1000,
+  //       }),
+  //       headers: { "Content-type": "application/json; charset=UTF-8" },
+  //     });
 
-      setPriceQuote(quote);
-    } catch (err) {
-    } finally {
-      setIsFetchingQuote(false);
-    }
-  };
+  //     setPriceQuote(quote);
+  //   } catch (err) {
+  //   } finally {
+  //     setIsFetchingQuote(false);
+  //   }
+  // };
 
   if (network === WalletAdapterNetwork.Devnet) {
     return (
@@ -243,7 +251,7 @@ const BonkSwap: NextPage = () => {
           <form onSubmit={handleSubmit(submitSwap)} className="flex flex-1 flex-col justify-start">
             {tokenBalance !== null && tokenBalance > 0 && (
               <span
-                onClick={handleSetMax}
+                // onClick={handleSetMax}
                 className="mb-2 w-full border-b pb-2 text-right text-base"
               >
                 <span className="mr-0.5 text-xs text-gray-600">Balance </span>
@@ -296,7 +304,7 @@ const BonkSwap: NextPage = () => {
                           ? value <= tokenBalance || `Not enough ${selectToken.name}`
                           : true,
                     },
-                    onChange: (e) => debouncedGetQuote(e?.target?.value),
+                    // onChange: (e) => debouncedGetQuote(e?.target?.value),
                   })}
                   placeholder="0.00"
                   className={classNames(
@@ -332,8 +340,8 @@ const BonkSwap: NextPage = () => {
                     <SpinnerIcon className="h-5 w-5 animate-spin text-gray-500" />
                   )}
                   <span className="font-medium text-gray-600">
-                    {priceQuote
-                      ? formatNumber.format(parseFloat(priceQuote.estimatedAmountOut), 5)
+                    {quoteQuery.isFetched
+                      ? formatNumber.format(lamportsToSol(parseFloat(quoteQuery.data.outAmount)), 5)
                       : "0.00"}
                   </span>
                 </div>
@@ -345,7 +353,7 @@ const BonkSwap: NextPage = () => {
                 <button
                   key={amount}
                   type="button"
-                  onClick={handleSolClick(amount)}
+                  // onClick={handleSolClick(amount)}
                   className={classNames(
                     "rounded-xl bg-gray-200 px-1.5 py-0.5 font-medium text-gray-500 transition-colors duration-150 hover:bg-amber-500 hover:text-white"
                   )}
@@ -408,10 +416,10 @@ const BonkSwap: NextPage = () => {
             <a
               target="_blank"
               rel="noreferrer"
-              href="https://orca-so.gitbook.io/orca-developer-portal/orca/welcome"
+              href="https://station.jup.ag/docs"
               className="mt-1 text-right text-sm text-gray-600 hover:underline"
             >
-              Swap is powered by Orca.so
+              Swap is powered by Jupiter
             </a>
           </form>
         </div>

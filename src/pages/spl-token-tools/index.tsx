@@ -12,9 +12,10 @@ const Tokens: NextPage = () => {
       active: true,
     },
     {
-      name: "Add metadata to tokens",
+      name: "Add/update metadata on tokens",
       href: "/spl-token-tools/create-token",
-      description: "Add on chain metadata to a fungible token",
+      description:
+        "Add or update on chain metadata for fungible tokens. Intended to be used with tokens made with the old SPL Token program, not 22.",
       active: true,
     },
     {
