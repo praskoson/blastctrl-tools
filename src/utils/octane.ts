@@ -1,6 +1,6 @@
 import axios from "axios";
 import base58 from "bs58";
-import { Connection, PublicKey, Transaction } from "@solana/web3.js";
+import { Connection, PublicKey, Transaction, VersionedTransaction } from "@solana/web3.js";
 import {
   createAssociatedTokenAccountInstruction,
   createTransferInstruction,
@@ -52,8 +52,8 @@ export interface BuildWhirlpoolsSwapResponse {
   messageToken: string;
 }
 
-const OCTANE_ENDPOINT = "https://octane-server-seven.vercel.app/api";
-// const OCTANE_ENDPOINT = "http://localhost:3001/api";
+// const OCTANE_ENDPOINT = "https://octane-server-seven.vercel.app/api";
+const OCTANE_ENDPOINT = "http://localhost:3001/api";
 
 export async function loadOctaneConfig(): Promise<OctaneConfig> {
   return (await axios.get(OCTANE_ENDPOINT)).data as OctaneConfig;
@@ -82,7 +82,7 @@ export async function buildWhirlpoolsSwapTransaction(
   sourceMint: PublicKey,
   amount: number,
   slippingTolerance: number = 0.5
-): Promise<{ transaction: Transaction; quote: WhirlpoolsQuote; messageToken: string }> {
+): Promise<{ transaction: VersionedTransaction; quote: WhirlpoolsQuote; messageToken: string }> {
   const response = (
     await axios.post(OCTANE_ENDPOINT + "/buildWhirlpoolsSwap", {
       user: user.toBase58(),
@@ -92,19 +92,19 @@ export async function buildWhirlpoolsSwapTransaction(
     })
   ).data as BuildWhirlpoolsSwapResponse;
   return {
-    transaction: Transaction.from(base58.decode(response.transaction)),
+    transaction: VersionedTransaction.deserialize(base58.decode(response.transaction)),
     quote: response.quote,
     messageToken: response.messageToken,
   };
 }
 
 export async function sendWhirlpoolsSwapTransaction(
-  transaction: Transaction,
+  transaction: VersionedTransaction,
   messageToken: string
 ): Promise<string> {
   const response = (
     await axios.post(OCTANE_ENDPOINT + "/sendWhirlpoolsSwap", {
-      transaction: base58.encode(transaction.serialize({ requireAllSignatures: false })),
+      transaction: base58.encode(transaction.serialize()),
       messageToken,
     })
   ).data;

@@ -3,10 +3,10 @@ import { CogIcon } from "@heroicons/react/24/outline";
 import { WalletAdapterNetwork, WalletSignTransactionError } from "@solana/wallet-adapter-base";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
-import { PublicKey, Transaction } from "@solana/web3.js";
+import { PublicKey, VersionedTransaction } from "@solana/web3.js";
 import { notify, notifyPromise, Select, SpinnerIcon } from "components";
-import { useTokenBalance } from "hooks";
 import { useJupQuery } from "lib/query/use-jup-quote";
+import { useTokenBalance } from "lib/query/use-token-balance";
 import { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/legacy/image";
@@ -58,8 +58,7 @@ const BonkSwap: NextPage = () => {
   const [isSwapping, setIsSwapping] = useState(false);
   const [isFetchingQuote, setIsFetchingQuote] = useState(false);
   const [selectToken, setSelectToken] = useState(TOKENS[0]);
-
-  const { tokenBalance } = useTokenBalance(selectToken.mint, selectToken.decimals);
+  const balanceQuery = useTokenBalance(selectToken.mint);
   useOctaneConfigStore((s) => s.config);
   const { fetchOctaneConfig, getSwapFeeConfig } = useOctaneConfigStore();
   // TODO: this is shit
@@ -109,7 +108,7 @@ const BonkSwap: NextPage = () => {
     const mintAsPublicKey = new PublicKey(selectToken.mint);
     const amountAsDecimals = Math.floor(swapAmount * 10 ** feeConfig.decimals);
 
-    let signedTransaction: Transaction;
+    let signedTransaction: VersionedTransaction;
     let messageToken: string;
     setIsSwapping(true);
     try {
@@ -138,7 +137,10 @@ const BonkSwap: NextPage = () => {
         txid: value,
       }),
       error: (err) => ({ title: "Bonk Swap Error", description: err?.message }),
-    }).finally(() => setIsSwapping(false));
+    }).finally(() => {
+      setIsSwapping(false);
+      void balanceQuery.refetch();
+    });
   };
 
   // const handleSolClick = (amount: number) => async () => {
@@ -191,27 +193,6 @@ const BonkSwap: NextPage = () => {
   //   }
   // };
 
-  // const handleSetMax = async () => {
-  //   setValue("swapAmount", tokenBalance);
-  //   setIsFetchingQuote(true);
-  //   try {
-  //     const quote = await fetcher<WhirlpoolQuoteData>("/api/bonk/whirlpool-quote", {
-  //       method: "POST",
-  //       body: JSON.stringify({
-  //         amountIn: tokenBalance,
-  //         numerator: 10,
-  //         denominator: 1000,
-  //       }),
-  //       headers: { "Content-type": "application/json; charset=UTF-8" },
-  //     });
-
-  //     setPriceQuote(quote);
-  //   } catch (err) {
-  //   } finally {
-  //     setIsFetchingQuote(false);
-  //   }
-  // };
-
   if (network === WalletAdapterNetwork.Devnet) {
     return (
       <div className="mx-auto text-lg">
@@ -250,14 +231,21 @@ const BonkSwap: NextPage = () => {
 
           {/* Form */}
           <form onSubmit={handleSubmit(submitSwap)} className="flex flex-1 flex-col justify-start">
-            {tokenBalance !== null && tokenBalance > 0 && (
+            {!balanceQuery.data && <div aria-hidden="true" className="block mb-2 h-[33px]" />}
+            {balanceQuery.data && (
               <span
-                // onClick={handleSetMax}
-                className="mb-2 w-full border-b pb-2 text-right text-base"
+                role="button"
+                aria-disabled={balanceQuery.status !== "success"}
+                onClick={() => {
+                  if (balanceQuery.data) {
+                    setValue("swapAmount", balanceQuery?.data?.uiAmount);
+                  }
+                }}
+                className="mb-2 w-full border-b pb-2 text-right text-base whitespace-pre"
               >
-                <span className="mr-0.5 text-xs text-gray-600">Balance </span>
+                <span className="text-xs text-gray-600">Balance </span>
                 <span className="font-medium text-amber-600">
-                  {numberFormatter.format(tokenBalance)}
+                  {numberFormatter.format(balanceQuery?.data?.uiAmount)}
                 </span>
               </span>
             )}
@@ -301,8 +289,9 @@ const BonkSwap: NextPage = () => {
                     required: true,
                     validate: {
                       notEnoughTokens: (value) =>
-                        tokenBalance
-                          ? value <= tokenBalance || `Not enough ${selectToken.name}`
+                        balanceQuery.data
+                          ? value <= balanceQuery?.data?.uiAmount ||
+                            `Not enough ${selectToken.name}`
                           : true,
                     },
                     // onChange: (e) => debouncedGetQuote(e?.target?.value),
@@ -341,8 +330,11 @@ const BonkSwap: NextPage = () => {
                     <SpinnerIcon className="h-5 w-5 animate-spin text-gray-500" />
                   )}
                   <span className="font-medium text-gray-600">
-                    {quoteQuery.isFetched
-                      ? formatNumber.format(lamportsToSol(parseFloat(quoteQuery.data.outAmount)), 5)
+                    {quoteQuery.data
+                      ? formatNumber.format(
+                          lamportsToSol(parseFloat(quoteQuery.data?.outAmount || "")),
+                          5
+                        )
                       : "0.00"}
                   </span>
                 </div>
