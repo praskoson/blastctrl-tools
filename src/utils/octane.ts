@@ -52,8 +52,8 @@ export interface BuildWhirlpoolsSwapResponse {
   messageToken: string;
 }
 
-// const OCTANE_ENDPOINT = "https://octane-server-seven.vercel.app/api";
-const OCTANE_ENDPOINT = "http://localhost:3001/api";
+const OCTANE_ENDPOINT = "https://octane-server-seven.vercel.app/api";
+// const OCTANE_ENDPOINT = "http://localhost:3001/api";
 
 export async function loadOctaneConfig(): Promise<OctaneConfig> {
   return (await axios.get(OCTANE_ENDPOINT)).data as OctaneConfig;
