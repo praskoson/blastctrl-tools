@@ -227,7 +227,7 @@ const BonkSwap: NextPage = () => {
 
         <div className="mt-4 flex gap-x-8">
           {/* Image + exchange rate */}
-          <FormLeft quoteToken={selectToken.name} />
+          <FormLeft quoteToken={selectToken} />
 
           {/* Form */}
           <form onSubmit={handleSubmit(submitSwap)} className="flex flex-1 flex-col justify-start">
