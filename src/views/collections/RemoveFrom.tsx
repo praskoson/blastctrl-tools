@@ -9,8 +9,8 @@ import { useWalletConnection } from "hooks/useWalletConnection";
 import { TxUnverifyData } from "pages/api/tx/remove-from-collection";
 import { useForm } from "react-hook-form";
 import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
-import { fetcher } from "utils";
 import { isPublicKey } from "utils/spl/common";
+import { fetcher } from "lib/utils";
 
 type FormData = {
   nftList: string;

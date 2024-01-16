@@ -13,10 +13,10 @@ import { useForm } from "react-hook-form";
 import { compress, isPublicKey } from "utils/spl/common";
 import { useWalletConnection } from "hooks/useWalletConnection";
 import { ChevronRightIcon } from "@heroicons/react/20/solid";
-import { fetcher } from "utils";
 import { TxSetAndVerifyData } from "pages/api/tx/add-to-collection";
 import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
 import { useState } from "react";
+import { fetcher } from "lib/utils";
 
 type FormData = {
   nftList: string;
