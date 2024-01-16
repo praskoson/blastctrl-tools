@@ -71,7 +71,7 @@ const GaslessSwap = () => {
         publicKey,
         selectToken.address,
         amountAsDecimals,
-        slippage
+        slippage,
       );
       messageToken = swap.messageToken;
       signedTransaction = await signTransaction(swap.transaction);
@@ -123,7 +123,6 @@ const GaslessSwap = () => {
             you can swap it for SOL here! <br />
             <br />
             Just connect your wallet, enter the swap amount and we&apos;ll fund your trade for you.
-            2.5% of the swap amount will be paid as a fee.
             <br />
             <br />
             You can swap $BONK with our{" "}
@@ -192,7 +191,7 @@ const GaslessSwap = () => {
                 className={cn(
                   "block grow min-w-0 rounded-md border-none border-transparent bg-gray-200 text-right font-medium text-gray-600",
                   "rounded-md placeholder:font-medium placeholder:text-gray-400",
-                  "focus:outline-none focus:ring-0 sm:text-base"
+                  "focus:outline-none focus:ring-0 sm:text-base",
                 )}
               />
             </div>
@@ -222,7 +221,7 @@ const GaslessSwap = () => {
                   {quoteQuery.data
                     ? formatNumber.format(
                         lamportsToSol(parseFloat(quoteQuery.data?.outAmount || "")),
-                        5
+                        5,
                       )
                     : "0.00"}
                 </span>
