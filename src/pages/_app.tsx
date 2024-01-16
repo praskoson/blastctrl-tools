@@ -23,7 +23,7 @@ require("../styles/globals.css");
 
 const navigation = [
   {
-    name: "NFT Tools",
+    name: "NFTs",
     href: "/solana-nft-tools",
     description: "Run common Metaplex instructions",
   },
@@ -33,6 +33,7 @@ const navigation = [
     href: "/permanent-storage-tools",
     description: "Decentralized file hosting",
   },
+  { name: "Gasless Swap", href: "/gasless-swap", description: "Swap any token for SOL"},
   { name: "Add or remove from collection", href: "/solana-nft-tools/collections", in: "NFT Tools" },
   { name: "Mint NFT", href: "/solana-nft-tools/mint", in: "NFT Tools" },
   { name: "Create collection", href: "/solana-nft-tools/mint", in: "NFT Tools" },
@@ -80,7 +81,7 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
                               />
                             </Link>
                           </div>
-                          <div className="hidden lg:ml-8 lg:flex lg:space-x-4">
+                          <div className="hidden lg:ml-6 lg:flex">
                             {navigation
                               .filter((nav) => !nav.in && nav.name !== "Gasless Bonk Swap")
                               .map((item) => (
@@ -95,7 +96,7 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
                             <Link
                               href="/gasless-bonk-swap"
                               className={classNames(
-                                "group inline-flex max-w-[42px] items-center space-x-2 overflow-hidden rounded-full",
+                                "group ml-2 inline-flex max-w-[42px] items-center space-x-2 overflow-hidden rounded-full",
                                 "bg-gradient-to-r from-[#f97100] to-[#fdce00] hover:max-w-full",
                                 "pl-0.5 pr-4 text-sm font-medium text-white",
                                 "transition-all duration-500"

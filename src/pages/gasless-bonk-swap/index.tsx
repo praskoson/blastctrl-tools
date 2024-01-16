@@ -1,24 +1,25 @@
-import { ChevronRightIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
+import { ChevronRightIcon } from "@heroicons/react/20/solid";
 import { CogIcon } from "@heroicons/react/24/outline";
 import { WalletAdapterNetwork, WalletSignTransactionError } from "@solana/wallet-adapter-base";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
-import { PublicKey, VersionedTransaction } from "@solana/web3.js";
-import { notify, notifyPromise, Select, SpinnerIcon } from "components";
+import { VersionedTransaction } from "@solana/web3.js";
+import { Select, SpinnerIcon, notify, notifyPromise } from "components";
+import { buildWhirlpoolsSwapTransaction, sendWhirlpoolsSwapTransaction } from "lib/octane";
 import { useJupQuery } from "lib/query/use-jup-quote";
 import { useTokenBalance } from "lib/query/use-token-balance";
 import { NextPage } from "next";
 import Head from "next/head";
-import Image from "next/legacy/image";
-import { useEffect, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
-import useOctaneConfigStore from "stores/useOctaneConfigStore";
 import { classNames, formatNumber, numberFormatter } from "utils";
-import { buildWhirlpoolsSwapTransaction, sendWhirlpoolsSwapTransaction } from "utils/octane";
 import { lamportsToSol } from "utils/spl/common";
 import { useDebounce } from "utils/use-debounce";
 import { FormLeft } from "views/gasless-swap/FormLeft";
+import BonkSmall from "../../../public/bonk_small.png";
 
 type FormData = {
   swapAmount: number;
@@ -29,10 +30,7 @@ const BONK_MINT_58 = "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263";
 const BONK_DECIMALS = 5;
 const USDC_MINT_58 = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
 const USDC_DECIMALS = 6;
-const TOKENS = [
-  { mint: BONK_MINT_58, decimals: BONK_DECIMALS, name: "BONK" },
-  { mint: USDC_MINT_58, decimals: USDC_DECIMALS, name: "USDC" },
-];
+
 const slippages = [
   { value: 0.1, label: "0.1%", id: 0 },
   { value: 0.5, label: "0.5%", id: 1 },
@@ -57,17 +55,12 @@ const BonkSwap: NextPage = () => {
   const [notifyId, setNotifyId] = useState<string>("");
   const [isSwapping, setIsSwapping] = useState(false);
   const [isFetchingQuote, setIsFetchingQuote] = useState(false);
-  const [selectToken, setSelectToken] = useState(TOKENS[0]);
-  const balanceQuery = useTokenBalance(selectToken.mint);
-  useOctaneConfigStore((s) => s.config);
-  const { fetchOctaneConfig, getSwapFeeConfig } = useOctaneConfigStore();
-  // TODO: this is shit
-  useEffect(fetchOctaneConfig, [fetchOctaneConfig]);
+  const balanceQuery = useTokenBalance(BONK_MINT_58);
 
   const debouncedSwapAmount = useDebounce(swapAmount, 500);
   const quoteQuery = useJupQuery({
-    inputMint: selectToken.mint,
-    amount: debouncedSwapAmount * Math.pow(10, selectToken.decimals),
+    inputMint: BONK_MINT_58,
+    amount: debouncedSwapAmount * Math.pow(10, BONK_DECIMALS),
   });
 
   // const getQuote = useCallback(
@@ -103,10 +96,7 @@ const BonkSwap: NextPage = () => {
   const submitSwap = async (data: FormData) => {
     // Bonk!
     const { swapAmount, slippage } = data;
-
-    const feeConfig = getSwapFeeConfig(selectToken.mint);
-    const mintAsPublicKey = new PublicKey(selectToken.mint);
-    const amountAsDecimals = Math.floor(swapAmount * 10 ** feeConfig.decimals);
+    const amountAsDecimals = Math.floor(swapAmount * 10 ** BONK_DECIMALS);
 
     let signedTransaction: VersionedTransaction;
     let messageToken: string;
@@ -114,7 +104,7 @@ const BonkSwap: NextPage = () => {
     try {
       const swap = await buildWhirlpoolsSwapTransaction(
         publicKey,
-        mintAsPublicKey,
+        BONK_MINT_58,
         amountAsDecimals,
         slippage
       );
@@ -133,7 +123,7 @@ const BonkSwap: NextPage = () => {
     await notifyPromise(sendWhirlpoolsSwapTransaction(signedTransaction, messageToken), {
       loading: { description: "Confirming transaction" },
       success: (value) => ({
-        title: `${selectToken.name} Swap Success`,
+        title: "BONK Swap Success",
         txid: value,
       }),
       error: (err) => ({ title: "Bonk Swap Error", description: err?.message }),
@@ -222,12 +212,21 @@ const BonkSwap: NextPage = () => {
             swap using $BONK itself. No Solana required!
             <br />
             2.5% of the $BONK amount that you submit for swapping will be burned! 🔥
+            <br />
+            <br />
+            You can swap other tokens on our{" "}
+            <Link
+              href="/gasless-bonk-swap"
+              className="text-blue-600 hover:underline font-medium whitespace-nowrap"
+            >
+              gasless swap tool &rarr;
+            </Link>
           </p>
         </div>
 
         <div className="mt-4 flex gap-x-8">
           {/* Image + exchange rate */}
-          <FormLeft quoteToken={selectToken} />
+          <FormLeft quoteToken={{ name: "Bonk", mint: BONK_MINT_58 }} />
 
           {/* Form */}
           <form onSubmit={handleSubmit(submitSwap)} className="flex flex-1 flex-col justify-start">
@@ -250,36 +249,17 @@ const BonkSwap: NextPage = () => {
               </span>
             )}
             <div>
-              <div className="flex flex-wrap gap-x-2">
-                <label className="text-base font-medium text-gray-600">You will sell:</label>
-              </div>
+              <span className="text-base font-medium text-gray-600">You will sell:</span>
+
               <div className="relative mt-2 flex w-full justify-between gap-x-2 sm:mt-1">
-                <Select value={selectToken} onChange={(value) => setSelectToken(value)}>
-                  <Select.Button
-                    as="button"
-                    className="inline-flex h-full w-32 items-center justify-between rounded-md border border-transparent bg-gray-200 px-3 font-medium text-gray-800"
-                  >
-                    {selectToken.name}
-                    <ChevronUpDownIcon className="h-4 w-4 text-gray-700" />
-                  </Select.Button>
-                  <Select.Options>
-                    {TOKENS.map((token) => (
-                      <Select.Option
-                        className={({ selected, active }) =>
-                          classNames(
-                            "cursor-pointer rounded-full px-3",
-                            selected && "bg-amber-500 text-white",
-                            active && !selected && "bg-amber-500/30"
-                          )
-                        }
-                        key={token.mint}
-                        value={token}
-                      >
-                        {token.name}
-                      </Select.Option>
-                    ))}
-                  </Select.Options>
-                </Select>
+                <div className="w-32 inline-flex items-center rounded-md border border-transparent bg-gray-200 px-3 font-medium text-gray-800">
+                  <Image
+                    src={BonkSmall}
+                    alt="Bonk"
+                    className="block size-5 mr-2 rounded-full object-contain"
+                  />
+                  BONK
+                </div>
 
                 <input
                   type="number"
@@ -290,11 +270,9 @@ const BonkSwap: NextPage = () => {
                     validate: {
                       notEnoughTokens: (value) =>
                         balanceQuery.data
-                          ? value <= balanceQuery?.data?.uiAmount ||
-                            `Not enough ${selectToken.name}`
+                          ? value <= balanceQuery?.data?.uiAmount || "Not enough Bonk"
                           : true,
                     },
-                    // onChange: (e) => debouncedGetQuote(e?.target?.value),
                   })}
                   placeholder="0.00"
                   className={classNames(
@@ -316,14 +294,13 @@ const BonkSwap: NextPage = () => {
               <div className="pointer-events-none relative mt-2 flex h-10 w-full items-center justify-between rounded-md bg-gray-200 px-3 shadow-sm sm:mt-1">
                 <div className="inline-flex items-center">
                   <Image
-                    unoptimized={true}
                     src="/sol_coin.png"
                     alt=""
                     className="rounded-full"
                     height={20}
                     width={20}
                   />
-                  <span className="pl-2 font-medium tracking-wider text-gray-500">SOL</span>
+                  <span className="pl-2 font-medium tracking-wider">SOL</span>
                 </div>
                 <div className="inline-flex items-center gap-x-2">
                   {isFetchingQuote && (

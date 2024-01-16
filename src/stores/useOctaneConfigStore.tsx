@@ -1,5 +1,5 @@
 import create, { State } from "zustand";
-import { loadOctaneConfig, OctaneConfig, TokenFee } from "../utils/octane";
+import { loadOctaneConfig, OctaneConfig, TokenFee } from "../lib/octane";
 
 interface OctaneConfigStore extends State {
   config: OctaneConfig | null;

@@ -1,9 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  images: {
-    loader: "cloudinary",
-    path: "https://res.cloudinary.com/doz0obwb0/image/fetch/",
-  },
   redirects: async () => [
     { source: "/nft-tools", destination: "/solana-nft-tools", permanent: true },
     { source: "/storage", destination: "/permanent-storage-tools", permanent: true },

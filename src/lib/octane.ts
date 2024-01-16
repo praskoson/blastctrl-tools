@@ -52,8 +52,8 @@ export interface BuildWhirlpoolsSwapResponse {
   messageToken: string;
 }
 
-const OCTANE_ENDPOINT = "https://octane-server-seven.vercel.app/api";
-// const OCTANE_ENDPOINT = "http://localhost:3001/api";
+// const OCTANE_ENDPOINT = "https://octane-server-seven.vercel.app/api";
+const OCTANE_ENDPOINT = "http://localhost:3001/api";
 
 export async function loadOctaneConfig(): Promise<OctaneConfig> {
   return (await axios.get(OCTANE_ENDPOINT)).data as OctaneConfig;
@@ -79,14 +79,14 @@ export async function sendTransactionWithTokenFee(transaction: Transaction): Pro
 
 export async function buildWhirlpoolsSwapTransaction(
   user: PublicKey,
-  sourceMint: PublicKey,
+  sourceMint: string,
   amount: number,
   slippingTolerance: number = 0.5
 ): Promise<{ transaction: VersionedTransaction; quote: WhirlpoolsQuote; messageToken: string }> {
   const response = (
     await axios.post(OCTANE_ENDPOINT + "/buildWhirlpoolsSwap", {
       user: user.toBase58(),
-      sourceMint: sourceMint.toBase58(),
+      sourceMint: sourceMint,
       amount: amount,
       slippingTolerance: slippingTolerance,
     })

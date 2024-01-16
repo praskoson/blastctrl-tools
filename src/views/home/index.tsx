@@ -1,29 +1,9 @@
-// Next, React
-import { FC, useEffect } from "react";
-import Image from "next/legacy/image";
-import BlastCtrlTag from "../../../public/blastctrl_tag.png";
-import Link from "next/link";
-
-// Wallet
-import { useWallet, useConnection } from "@solana/wallet-adapter-react";
-
-// Store
-import useUserSOLBalanceStore from "../../stores/useUserSOLBalanceStore";
 import { WrenchScrewdriverIcon } from "@heroicons/react/24/outline";
+import Image from "next/legacy/image";
+import Link from "next/link";
+import BlastCtrlTag from "../../../public/blastctrl_tag.png";
 
-export const HomeView: FC = ({}) => {
-  const wallet = useWallet();
-  const { connection } = useConnection();
-
-  const { getUserSOLBalance } = useUserSOLBalanceStore();
-
-  useEffect(() => {
-    if (wallet.publicKey) {
-      console.log(wallet.publicKey.toBase58());
-      getUserSOLBalance(wallet.publicKey, connection);
-    }
-  }, [wallet.publicKey, connection, getUserSOLBalance]);
-
+export const HomeView = () => {
   return (
     <div className="relative overflow-hidden">
       <div className="mx-auto max-w-7xl">

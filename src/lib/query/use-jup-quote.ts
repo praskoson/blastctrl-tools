@@ -25,6 +25,8 @@ type QuoteResponse = {
   timeTaken?: number;
 };
 
+const PLATFORM_FEE_BPS = 250;
+
 export function useJupQuery({ inputMint, amount, slippageBps = 50 }: UseJupQueryArgs) {
   const outputMint = "So11111111111111111111111111111111111111112";
 
@@ -45,6 +47,14 @@ export function useJupQuery({ inputMint, amount, slippageBps = 50 }: UseJupQuery
         throw new Error("Network response was not ok");
       }
       return quoteResponse.json();
+    },
+    select: (data) => {
+      const outAmount = Number(data.outAmount);
+      const reduced = outAmount - outAmount * (PLATFORM_FEE_BPS / 10000);
+      return {
+        ...data,
+        outAmount: reduced.toString(),
+      };
     },
     enabled: !!inputMint && !!outputMint && !!amount,
   });
