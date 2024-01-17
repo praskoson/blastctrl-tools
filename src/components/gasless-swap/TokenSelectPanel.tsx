@@ -90,14 +90,18 @@ export function TokenSelectPanel({ onSelect }: { onSelect: (token: Token) => voi
                 onClick={() => onSelect(filteredTokens[virtualItem.index])}
                 className="w-full h-full py-3 px-4 flex items-center gap-3"
               >
-                <img
-                  loading="lazy"
-                  src={filteredTokens[virtualItem.index]?.logoURI}
-                  alt=""
-                  height={40}
-                  width={40}
-                  className="h-6 w-6 aspect-square object-cover rounded-full"
-                />
+                {filteredTokens[virtualItem.index]?.logoURI ? (
+                  <img
+                    loading="lazy"
+                    src={filteredTokens[virtualItem.index]?.logoURI}
+                    alt=""
+                    height={40}
+                    width={40}
+                    className="h-6 w-6 aspect-square object-cover rounded-full"
+                  />
+                ) : (
+                  <span className="size-6 rounded-full bg-gray-400" />
+                )}
                 <span className="font-medium">{filteredTokens[virtualItem.index]?.symbol}</span>
                 <a
                   href={`https://solscan.io/token/${filteredTokens[virtualItem.index]?.address}`}
