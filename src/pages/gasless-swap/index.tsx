@@ -130,7 +130,7 @@ const GaslessSwap = () => {
               href="/gasless-bonk-swap"
               className="text-blue-600 hover:underline font-medium whitespace-nowrap"
             >
-              Gasless BONK Swap utility &rarr;
+              gasless BONK Swap utility &rarr;
             </Link>
           </p>
         </div>

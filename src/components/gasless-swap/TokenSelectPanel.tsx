@@ -91,6 +91,7 @@ export function TokenSelectPanel({ onSelect }: { onSelect: (token: Token) => voi
                 className="w-full h-full py-3 px-4 flex items-center gap-3"
               >
                 {filteredTokens[virtualItem.index]?.logoURI ? (
+                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     loading="lazy"
                     src={filteredTokens[virtualItem.index]?.logoURI}

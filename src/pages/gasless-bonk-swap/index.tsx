@@ -28,8 +28,6 @@ type FormData = {
 
 const BONK_MINT_58 = "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263";
 const BONK_DECIMALS = 5;
-const USDC_MINT_58 = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
-const USDC_DECIMALS = 6;
 
 const slippages = [
   { value: 0.1, label: "0.1%", id: 0 },
@@ -106,7 +104,7 @@ const BonkSwap: NextPage = () => {
         publicKey,
         BONK_MINT_58,
         amountAsDecimals,
-        slippage
+        slippage,
       );
       messageToken = swap.messageToken;
       signedTransaction = await signTransaction(swap.transaction);
@@ -216,7 +214,7 @@ const BonkSwap: NextPage = () => {
             <br />
             You can swap other tokens on our{" "}
             <Link
-              href="/gasless-bonk-swap"
+              href="/gasless-swap"
               className="text-blue-600 hover:underline font-medium whitespace-nowrap"
             >
               gasless swap tool &rarr;
@@ -278,7 +276,7 @@ const BonkSwap: NextPage = () => {
                   className={classNames(
                     "block grow rounded-md border-none border-transparent bg-gray-200 text-right font-medium text-gray-600",
                     "rounded-md placeholder:font-medium placeholder:text-gray-400",
-                    "focus:outline-none focus:ring-0 sm:text-base"
+                    "focus:outline-none focus:ring-0 sm:text-base",
                   )}
                 />
               </div>
@@ -310,7 +308,7 @@ const BonkSwap: NextPage = () => {
                     {quoteQuery.data
                       ? formatNumber.format(
                           lamportsToSol(parseFloat(quoteQuery.data?.outAmount || "")),
-                          5
+                          5,
                         )
                       : "0.00"}
                   </span>
@@ -325,7 +323,7 @@ const BonkSwap: NextPage = () => {
                   type="button"
                   // onClick={handleSolClick(amount)}
                   className={classNames(
-                    "rounded-xl bg-gray-200 px-1.5 py-0.5 font-medium text-gray-500 transition-colors duration-150 hover:bg-amber-500 hover:text-white"
+                    "rounded-xl bg-gray-200 px-1.5 py-0.5 font-medium text-gray-500 transition-colors duration-150 hover:bg-amber-500 hover:text-white",
                   )}
                 >
                   {amount} SOL
@@ -340,7 +338,7 @@ const BonkSwap: NextPage = () => {
                     <CogIcon
                       className={classNames(
                         "h-6 w-6 transition-transform duration-200 group-hover:rotate-90",
-                        open && "rotate-90"
+                        open && "rotate-90",
                       )}
                     />
                   )}
@@ -355,7 +353,7 @@ const BonkSwap: NextPage = () => {
                         classNames(
                           "cursor-pointer rounded-full px-3",
                           selected && "bg-amber-500 text-white",
-                          active && !selected && "bg-amber-500/30"
+                          active && !selected && "bg-amber-500/30",
                         )
                       }
                     >
