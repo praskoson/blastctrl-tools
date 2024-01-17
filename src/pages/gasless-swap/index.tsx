@@ -160,20 +160,17 @@ const GaslessSwap = () => {
           </span>
 
           <div>
-            <div className="flex flex-wrap gap-x-2">
-              <label className="text-base font-medium text-gray-600">You will sell:</label>
-            </div>
-            <div className="relative mt-2 flex w-full justify-between gap-x-2 sm:mt-1">
-              <Popover as="div" className="relative">
-                <PopoverButton className="h-full w-32 inline-flex items-center border border-transparent justify-between rounded-md bg-gray-200 px-3 font-medium text-gray-800">
-                  {selectToken?.symbol || "Name"}
+            <span className="block font-medium text-gray-600">You will sell:</span>
+            <div className="mt-2 flex gap-x-2 sm:mt-1">
+              <Popover as="div" className="relative xs:w-32">
+                <PopoverButton className="size-full inline-flex items-center border border-transparent justify-between rounded-md bg-gray-200 px-3 font-medium text-gray-800">
+                  <span className="block mr-2 xs:mr-0">{selectToken?.symbol || "Name"}</span>
                   <ChevronUpDownIcon className="h-4 w-4 text-gray-700" />
                 </PopoverButton>
                 <PopoverPanel>
                   <TokenSelectPanel onSelect={(token) => setSelectToken(token)} />
                 </PopoverPanel>
               </Popover>
-
               <input
                 type="number"
                 step="any"
@@ -188,11 +185,7 @@ const GaslessSwap = () => {
                   },
                 })}
                 placeholder="0.00"
-                className={cn(
-                  "block grow min-w-0 rounded-md border-none border-transparent bg-gray-200 text-right font-medium text-gray-600",
-                  "rounded-md placeholder:font-medium placeholder:text-gray-400",
-                  "focus:outline-none focus:ring-0 sm:text-base",
-                )}
+                className="grow min-w-0 border-transparent rounded-md bg-gray-200 text-right font-medium text-gray-600 placeholder:text-gray-400 focus:outline-none focus:ring-0"
               />
             </div>
             <span className="text-sm text-red-600">{errors?.swapAmount?.message}</span>
