@@ -1,8 +1,11 @@
 import { LinkIcon, MagnifyingGlassIcon } from "@heroicons/react/20/solid";
+import { useWallet } from "@solana/wallet-adapter-react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { SpinnerIcon } from "components";
 import { PopoverButton } from "components/Popover";
+import { useLocalStorageState } from "hooks/useLocalStorage";
 import { useJupTokens } from "lib/query/use-jup-tokens";
+import { cn } from "lib/utils";
 import { useRef, useState } from "react";
 import { compress } from "utils/spl";
 import { useDebounce } from "utils/use-debounce";
@@ -15,14 +18,16 @@ type Token = {
 };
 
 export function TokenSelectPanel({ onSelect }: { onSelect: (token: Token) => void }) {
-  const { data, status, error } = useJupTokens();
+  const { publicKey } = useWallet();
+  const [strictTokenList, setStrictTokenList] = useLocalStorageState("strictTokenList", true);
+  const { data, status, error } = useJupTokens(publicKey?.toString(), strictTokenList);
   const [filter, setFilter] = useState("");
   const debouncedFilter = useDebounce(filter, 400);
   const filteredTokens =
     data?.filter(
       (token) =>
         token.symbol.toLowerCase().includes(debouncedFilter.toLowerCase()) ||
-        token.name.toLowerCase().includes(debouncedFilter.toLowerCase())
+        token.name.toLowerCase().includes(debouncedFilter.toLowerCase()),
     ) || [];
 
   // The scrollable element for your list
@@ -53,7 +58,7 @@ export function TokenSelectPanel({ onSelect }: { onSelect: (token: Token) => voi
   }
 
   return (
-    <div className="w-[280px] h-[440px] bg-white">
+    <div className="w-[280px] h-[440px] bg-white flex flex-col">
       <div className="relative pb-3">
         <MagnifyingGlassIcon className="absolute left-2 size-5 text-gray-400 mt-2.5" />
         <input
@@ -64,7 +69,7 @@ export function TokenSelectPanel({ onSelect }: { onSelect: (token: Token) => voi
         />
       </div>
 
-      <div ref={parentRef} className="h-full overflow-auto -mx-4">
+      <div ref={parentRef} className="grow overflow-auto -mx-4">
         <ul
           style={{ height: `${rowVirtualizer.getTotalSize()}px` }}
           className="relative w-full flex flex-col"
@@ -109,6 +114,32 @@ export function TokenSelectPanel({ onSelect }: { onSelect: (token: Token) => voi
             </li>
           ))}
         </ul>
+      </div>
+
+      <div className="pt-2 flex justify-center items-center whitespace-pre">
+        <span className="text-sm">Token list: </span>
+        <fieldset className="p-0.5 border border-gray-300 rounded-md grid grid-cols-[64px_64px]">
+          <button
+            type="button"
+            onClick={() => setStrictTokenList(true)}
+            className={cn(
+              "rounded transition-colors",
+              strictTokenList ? "bg-indigo-600 text-white" : "bg-white text-gray-950",
+            )}
+          >
+            Strict
+          </button>
+          <button
+            type="button"
+            onClick={() => setStrictTokenList(false)}
+            className={cn(
+              "rounded transition-colors",
+              !strictTokenList ? "bg-indigo-600 text-white" : "bg-white text-gray-950",
+            )}
+          >
+            All
+          </button>
+        </fieldset>
       </div>
     </div>
   );
