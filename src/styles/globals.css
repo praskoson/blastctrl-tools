@@ -86,7 +86,8 @@
 }
 
 .fire-in {
-  animation: fade-in 1s ease-in-out forwards,
+  animation:
+    fade-in 1s ease-in-out forwards,
     shake-lr 0.7s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
 }
 

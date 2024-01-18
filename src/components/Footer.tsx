@@ -8,10 +8,12 @@ export const Footer = () => {
       <div className="mx-0 my-2 mt-4 flex gap-x-4">
         <a
           href="https://blastctrl.com"
+          title="BlastCtrl Homepage"
           target="_blank"
           rel="noopener noreferrer"
           className="group hover:cursor-pointer"
         >
+          <span className="sr-only">Home page</span>
           <div className="block group-hover:hidden">
             <Image
               unoptimized={true}
@@ -33,10 +35,12 @@ export const Footer = () => {
         </a>
         <a
           href="https://twitter.com/BlastCtrl"
+          title="BlastCtrl Twitter"
           target="_blank"
           rel="noopener noreferrer"
           className="hover:cursor-pointer"
         >
+          <span className="sr-only">Twitter / X</span>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="24"
@@ -49,10 +53,12 @@ export const Footer = () => {
         </a>
         <a
           href="https://discord.gg/KHar5PyXtE"
+          title="BlastCtrl Discord"
           target="_blank"
           rel="noopener noreferrer"
           className="hover:cursor-pointer"
         >
+          <span className="sr-only">Discord</span>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="24"
@@ -65,10 +71,12 @@ export const Footer = () => {
         </a>
         <a
           href="https://t.me/BlastCtrl"
+          title="BlastCtrl Telegram"
           target="_blank"
           rel="noopener noreferrer"
           className="hover:cursor-pointer"
         >
+          <span className="sr-only">Telegram</span>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="24"
