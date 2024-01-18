@@ -56,6 +56,7 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
     <>
       <Head>
         <title>Solana Tools | BlastTools</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Head>
       <Toaster position="bottom-left" />
       <QueryClientProvider client={queryClient}>
