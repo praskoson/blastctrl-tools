@@ -7,18 +7,19 @@ import {
   WalletSignMessageError,
   WalletSignTransactionError,
 } from "@solana/wallet-adapter-base";
+import { LedgerWalletAdapter } from "@solana/wallet-adapter-ledger";
 import { ConnectionProvider, WalletProvider } from "@solana/wallet-adapter-react";
-import { FC, ReactNode, useCallback, useMemo } from "react";
-import { AutoConnectProvider, useAutoConnect } from "./AutoConnectProvider";
-import { mergeClusterApiUrl } from "utils/spl/common";
-import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
+import { SolflareWalletAdapter } from "@solana/wallet-adapter-solflare";
 import { notify } from "components";
-import { SolflareWalletAdapter, LedgerWalletAdapter } from "@solana/wallet-adapter-wallets";
 import dynamic from "next/dynamic";
+import { FC, ReactNode, useCallback, useMemo } from "react";
+import { useNetworkConfigurationStore } from "stores/useNetworkConfiguration";
+import { mergeClusterApiUrl } from "utils/spl/common";
+import { AutoConnectProvider, useAutoConnect } from "./AutoConnectProvider";
 
 const DynamicReactUiWalletModalProvider = dynamic(
   () => import("@solana/wallet-adapter-react-ui").then((box) => box.WalletModalProvider),
-  { ssr: false }
+  { ssr: false },
 );
 
 const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
@@ -43,7 +44,7 @@ const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
       new SolflareWalletAdapter(),
       new LedgerWalletAdapter(),
     ],
-    []
+    [],
   );
 
   const onError = useCallback((error: WalletError) => {
