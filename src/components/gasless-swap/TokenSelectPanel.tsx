@@ -19,7 +19,7 @@ type Token = {
 
 export function TokenSelectPanel({ onSelect }: { onSelect: (token: Token) => void }) {
   const { publicKey } = useWallet();
-  const [strictTokenList, setStrictTokenList] = useLocalStorageState("strictTokenList", true);
+  const [strictTokenList, setStrictTokenList] = useLocalStorageState("strictTokenList", false);
   const { data, status, error } = useJupTokens(publicKey?.toString(), strictTokenList);
   const [filter, setFilter] = useState("");
   const debouncedFilter = useDebounce(filter, 400);
