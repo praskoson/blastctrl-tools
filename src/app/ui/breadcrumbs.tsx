@@ -2,8 +2,7 @@
 
 import { HomeIcon } from "@heroicons/react/20/solid";
 import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation";
-import { startCase } from "lodash-es";
+import { usePathname } from "next/navigation";
 
 export const Breadcrumbs = () => {
   const pathname = usePathname();
@@ -12,7 +11,8 @@ export const Breadcrumbs = () => {
   const length = paths.length - 1;
   const breadcrumbs = paths.filter(Boolean).reduce<any[]>((crumbs, path, index) => {
     const crumb = index === 0 ? path : crumbs[index - 1].href.concat("/", path);
-    return [...crumbs, { name: startCase(path), href: crumb, current: index === length - 1 }];
+    path = path.replaceAll("-", " ");
+    return [...crumbs, { name: path, href: crumb, current: index === length - 1 }];
   }, []);
 
   // Do not show breadcrumbs if we're on the home page

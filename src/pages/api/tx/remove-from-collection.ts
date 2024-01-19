@@ -2,9 +2,9 @@ import { Cluster, clusterApiUrl, Connection, PublicKey, Transaction } from "@sol
 import { NextApiRequest, NextApiResponse } from "next";
 import { Networks } from "utils/endpoints";
 import { unverifyCollectionNft } from "utils/spl/collections";
-import { chunk } from "lodash-es";
 import { Metadata } from "@metaplex-foundation/mpl-token-metadata";
 import { getMetadata } from "utils/spl";
+import { chunk } from "lib/utils";
 
 export type TxUnverifyData = {
   tx: string[];
@@ -30,13 +30,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     const collection = nftMetadata.collection.key;
     const collectionMetadata = await Metadata.fromAccountAddress(
       connection,
-      getMetadata(collection)
+      getMetadata(collection),
     );
 
     const batchSize = 12;
     const chunkedInstructions = chunk(
       nfts.map((nft) => unverifyCollectionNft(nft, authority, collection, collectionMetadata)),
-      batchSize
+      batchSize,
     );
 
     const {
@@ -44,7 +44,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
       value: { blockhash, lastValidBlockHeight },
     } = await connection.getLatestBlockhashAndContext("finalized");
     const transactions = chunkedInstructions.map((batch) =>
-      new Transaction({ feePayer: authority, blockhash, lastValidBlockHeight }).add(...batch.flat())
+      new Transaction({ feePayer: authority, blockhash, lastValidBlockHeight }).add(
+        ...batch.flat(),
+      ),
     );
 
     // for (const tx of transactions) {
@@ -57,7 +59,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
           requireAllSignatures: false,
           verifySignatures: true,
         })
-        .toString("base64")
+        .toString("base64"),
     );
 
     res

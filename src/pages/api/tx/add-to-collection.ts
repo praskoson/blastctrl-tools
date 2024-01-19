@@ -4,7 +4,7 @@ import { Networks } from "utils/endpoints";
 import { getMetadata } from "utils/spl";
 import { Metadata } from "@metaplex-foundation/mpl-token-metadata";
 import { addNftToCollection } from "utils/spl/collections";
-import { chunk } from "lodash-es";
+import { chunk } from "lib/utils";
 
 export type TxSetAndVerifyData = {
   tx: string[];
@@ -22,7 +22,7 @@ export type Input = {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<TxSetAndVerifyData>
+  res: NextApiResponse<TxSetAndVerifyData>,
 ) {
   if (req.method === "POST") {
     const { authorityAddress, collectionAddress, nftMints, network } = req.body as Input;
@@ -33,13 +33,13 @@ export default async function handler(
     const nfts = nftMints.map((str) => new PublicKey(str));
     const collectionMetadata = await Metadata.fromAccountAddress(
       connection,
-      getMetadata(collection)
+      getMetadata(collection),
     );
 
     const batchSize = 12;
     const chunkedInstructions = chunk(
       nfts.map((nft) => addNftToCollection(authority, nft, collection, collectionMetadata)),
-      batchSize
+      batchSize,
     );
 
     const {
@@ -47,7 +47,9 @@ export default async function handler(
       value: { blockhash, lastValidBlockHeight },
     } = await connection.getLatestBlockhashAndContext("finalized");
     const transactions = chunkedInstructions.map((batch) =>
-      new Transaction({ feePayer: authority, blockhash, lastValidBlockHeight }).add(...batch.flat())
+      new Transaction({ feePayer: authority, blockhash, lastValidBlockHeight }).add(
+        ...batch.flat(),
+      ),
     );
 
     const serializedTransactionsBase64 = transactions.map((tx) =>
@@ -56,7 +58,7 @@ export default async function handler(
           requireAllSignatures: false,
           verifySignatures: true,
         })
-        .toString("base64")
+        .toString("base64"),
     );
 
     res
