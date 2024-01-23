@@ -4,19 +4,18 @@ import { ChevronRightIcon } from "@heroicons/react/24/solid";
 import { PublicKey, zipMap } from "@metaplex-foundation/js";
 import {
   AccountLayout,
+  Mint,
+  RawAccount,
   getAssociatedTokenAddressSync,
   getMint,
-  Mint,
 } from "@solana/spl-token-next";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { Transaction } from "@solana/web3.js";
-import { SpinnerIcon } from "components";
-import { notify } from "components";
-import { Fragment, useEffect, useState } from "react";
+import { SpinnerIcon, notify } from "components";
+import { useSolBalance } from "lib/query/use-sol-balance";
+import { Fragment, useState } from "react";
 import { useForm } from "react-hook-form";
-import { RawAccount } from "@solana/spl-token-next";
-import useUserSOLBalanceStore from "stores/useUserSOLBalanceStore";
 import { assert, classNames } from "utils";
 import {
   compress,
@@ -47,7 +46,7 @@ export const ManualInput = () => {
   const { publicKey: wallet, connected, sendTransaction } = useWallet();
   const { setVisible } = useWalletModal();
   const [isProcessing, setIsProcessing] = useState(false);
-  const { balance, getUserSOLBalance } = useUserSOLBalanceStore();
+  const { data: balance, refetch } = useSolBalance()
 
   const [parentInfo, setParentInfo] = useState<AccountInfo>(null);
   const [nestedInfo, setNestedInfo] = useState<AccountInfo>(null);
@@ -68,11 +67,6 @@ export const ManualInput = () => {
       nestedAta: "",
     },
   });
-
-  useEffect(() => {
-    // TODO: account change listener
-    getUserSOLBalance(wallet, connection);
-  }, [connection, wallet, getUserSOLBalance]);
 
   const onSubmit = async (data: FormValues) => {
     if (!connected) {
@@ -254,6 +248,7 @@ export const ManualInput = () => {
       setMintInfo(null);
       setConfirming(false);
       setOpenDialog(false);
+      refetch();
     }
   };
 
@@ -434,7 +429,7 @@ export const ManualInput = () => {
                                             </span>
                                           </td>
                                           <td className="whitespace-nowrap py-2 pl-4 pr-3 text-sm text-gray-500 sm:pl-6">
-                                            {balance + lamportsToSol(nestedInfo.lamports)}
+                                            {(balance || 0) + lamportsToSol(nestedInfo.lamports)}
                                           </td>
                                         </tr>
                                         <tr>
