@@ -38,11 +38,11 @@ type AssetsResponse = {
 
 const ignoreList = ["Bonk", "SOL"];
 
-export function useJupTokens(wallet = "", strict = true) {
+export function useJupTokens(wallet = "") {
   return useQuery<Array<TokensResponse>, Error>({
-    queryKey: ["jup-tokens", strict ? "strict" : "all", wallet || "none"],
+    queryKey: ["jup-tokens", wallet || "none"],
     queryFn: async () => {
-      const jupFetch = fetch(`https://token.jup.ag/${strict ? "strict" : "all"}`);
+      const jupFetch = fetch(`https://token.jup.ag/all`);
 
       if (!wallet) {
         const jupResponse = await jupFetch;

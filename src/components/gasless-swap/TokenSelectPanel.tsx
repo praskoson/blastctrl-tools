@@ -19,8 +19,7 @@ type Token = {
 
 export function TokenSelectPanel({ onSelect }: { onSelect: (token: Token) => void }) {
   const { publicKey } = useWallet();
-  const [strictTokenList, setStrictTokenList] = useLocalStorageState("strictTokenList", false);
-  const { data, status, error } = useJupTokens(publicKey?.toString(), strictTokenList);
+  const { data, status, error } = useJupTokens(publicKey?.toString());
   const [filter, setFilter] = useState("");
   const debouncedFilter = useDebounce(filter, 400);
   const filteredTokens =
@@ -119,32 +118,6 @@ export function TokenSelectPanel({ onSelect }: { onSelect: (token: Token) => voi
             </li>
           ))}
         </ul>
-      </div>
-
-      <div className="pt-2 flex justify-center items-center whitespace-pre">
-        <span className="text-sm">Token list: </span>
-        <fieldset className="p-0.5 border border-gray-300 rounded-md grid grid-cols-[64px_64px]">
-          <button
-            type="button"
-            onClick={() => setStrictTokenList(true)}
-            className={cn(
-              "rounded transition-colors",
-              strictTokenList ? "bg-indigo-600 text-white" : "bg-white text-gray-950",
-            )}
-          >
-            Strict
-          </button>
-          <button
-            type="button"
-            onClick={() => setStrictTokenList(false)}
-            className={cn(
-              "rounded transition-colors",
-              !strictTokenList ? "bg-indigo-600 text-white" : "bg-white text-gray-950",
-            )}
-          >
-            All
-          </button>
-        </fieldset>
       </div>
     </div>
   );
