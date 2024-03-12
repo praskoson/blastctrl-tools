@@ -61,6 +61,15 @@ Notifications (optional): Example of using a notification system
 
 A Solana Components Repo will be released in the near future to house a common components library.
 
+### Using custom Swap API urls
+
+
+You can set custom URLs via the configuration for any self-hosted Jupiter APIs, like the [V6 Swap API](https://station.jup.ag/docs/apis/self-hosted) or [QuickNode's Metis API](https://marketplace.quicknode.com/add-on/metis-jupiter-v6-swap-api). Here is an example
+
+```
+JUP_SWAP_API=https://metis.quiknode.pro/D3ADB33F/quote
+```
+
 ### Structure
 
 The scaffold project structure may vary based on the front end framework being utilized. The below is an example structure for the Next js Scaffold.
