@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 
-const QUOTE_API_BASE = process.env.JUP_SWAP_API || "https://public.jupiterapi.com/quote";
+const QUOTE_API_BASE = process.env.JUP_SWAP_API || "https://quote-api.jup.ag/v6/quote";
 
 type UseJupQueryArgs = {
   inputMint: string;
