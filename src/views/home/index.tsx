@@ -61,7 +61,7 @@ export const HomeView = () => {
                 </Link>
                 <Link
                   href="/gasless-swap"
-                  className="inline-flex items-center justify-center rounded-lg border-2 border-emerald-600 px-3 py-1.5 text-emerald-900 shadow hover:bg-pink-50"
+                  className="inline-flex items-center justify-center rounded-lg border-2 border-emerald-600 px-3 py-1.5 text-emerald-900 shadow hover:bg-emerald-50"
                 >
                   Gasless Swap
                 </Link>
