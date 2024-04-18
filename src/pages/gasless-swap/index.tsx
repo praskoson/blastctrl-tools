@@ -3,14 +3,13 @@ import { WalletAdapterNetwork, WalletSignTransactionError } from "@solana/wallet
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { VersionedTransaction } from "@solana/web3.js";
-import { notify, notifyPromise } from "components";
+import { notify } from "components";
 import { Popover, PopoverButton, PopoverPanel } from "components/Popover";
 import { TokenQuote } from "components/gasless-swap/TokenQuote";
 import { TokenSelectPanel } from "components/gasless-swap/TokenSelectPanel";
 import { buildWhirlpoolsSwapTransaction, sendWhirlpoolsSwapTransaction } from "lib/octane";
 import { useJupQuery } from "lib/query/use-jup-quote";
 import { useTokenBalance } from "lib/query/use-token-balance";
-import { cn } from "lib/utils";
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
@@ -85,19 +84,17 @@ const GaslessSwap = () => {
       });
     }
 
-    notifyPromise(sendWhirlpoolsSwapTransaction(signedTransaction, messageToken), {
-      loading: { description: "Confirming transaction" },
-      success: (value) => ({
-        title: `${selectToken.name} Swap Success`,
-        txid: value,
-      }),
-      error: (err) => ({ title: "Swap Error", description: err?.message }),
-    })
-      .catch()
-      .finally(() => {
-        setIsSwapping(false);
-        void balanceQuery.refetch();
-      });
+    const id = notify({ type: "loading", description: "Confirming transaction" });
+    try {
+      const signature = await sendWhirlpoolsSwapTransaction(signedTransaction, messageToken);
+      notify({ type: "success", title: `${selectToken.name} Swap Success`, txid: signature }, id);
+    } catch (err) {
+      if (err instanceof WalletSignTransactionError) return;
+      notify({ type: "error", title: "Swap Error", description: err?.message }, id);
+    } finally {
+      setIsSwapping(false);
+      void balanceQuery.refetch();
+    }
   };
 
   if (network === WalletAdapterNetwork.Devnet) {

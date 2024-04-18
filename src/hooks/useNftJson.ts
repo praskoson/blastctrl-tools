@@ -1,9 +1,10 @@
-import axios from "axios";
 import useSWR from "swr";
 import { JsonMetadata } from "@metaplex-foundation/js";
 
-const fetcher = async (uri: string): Promise<JsonMetadata> =>
-  (await axios.get(uri)).data as JsonMetadata;
+const fetcher = async (uri: string): Promise<JsonMetadata> => {
+  const res = await fetch(uri);
+  return res.json() as Promise<JsonMetadata>;
+};
 
 export const useNftJson = (uri?: string) => {
   const { data, error } = useSWR<JsonMetadata, Error>(uri, fetcher, {

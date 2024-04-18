@@ -1,4 +1,3 @@
-import axios from "axios";
 import base58 from "bs58";
 import { Connection, PublicKey, Transaction, VersionedTransaction } from "@solana/web3.js";
 import {
@@ -55,26 +54,28 @@ export interface BuildWhirlpoolsSwapResponse {
 const OCTANE_ENDPOINT = "https://octane-server-seven.vercel.app/api";
 // const OCTANE_ENDPOINT = "http://localhost:3001/api";
 
-export async function loadOctaneConfig(): Promise<OctaneConfig> {
-  return (await axios.get(OCTANE_ENDPOINT)).data as OctaneConfig;
-}
-
 export async function createAssociatedTokenAccount(transaction: Transaction): Promise<string> {
-  const response = (
-    await axios.post(OCTANE_ENDPOINT + "/createAssociatedTokenAccount", {
+  return fetch(OCTANE_ENDPOINT + "/createAssociatedTokenAccount", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
       transaction: base58.encode(transaction.serialize({ requireAllSignatures: false })),
-    })
-  ).data;
-  return response.signature as string;
+    }),
+  })
+    .then((res) => res.json())
+    .then((data) => data.signature as string);
 }
 
 export async function sendTransactionWithTokenFee(transaction: Transaction): Promise<string> {
-  const response = (
-    await axios.post(OCTANE_ENDPOINT + "/transfer", {
+  return fetch(OCTANE_ENDPOINT + "/transfer", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
       transaction: base58.encode(transaction.serialize({ requireAllSignatures: false })),
-    })
-  ).data;
-  return response.signature as string;
+    }),
+  })
+    .then((res) => res.json())
+    .then((data) => data.signature as string);
 }
 
 export async function buildWhirlpoolsSwapTransaction(
@@ -83,14 +84,19 @@ export async function buildWhirlpoolsSwapTransaction(
   amount: number,
   slippingTolerance: number = 0.5,
 ): Promise<{ transaction: VersionedTransaction; quote: WhirlpoolsQuote; messageToken: string }> {
-  const response = (
-    await axios.post(OCTANE_ENDPOINT + "/buildWhirlpoolsSwap", {
+  const response = await fetch(OCTANE_ENDPOINT + "/buildWhirlpoolsSwap", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
       user: user.toBase58(),
       sourceMint: sourceMint,
       amount: amount,
       slippingTolerance: slippingTolerance,
-    })
-  ).data as BuildWhirlpoolsSwapResponse;
+    }),
+  })
+    .then((res) => res.json())
+    .then((data) => data as BuildWhirlpoolsSwapResponse);
+
   return {
     transaction: VersionedTransaction.deserialize(base58.decode(response.transaction)),
     quote: response.quote,
@@ -102,13 +108,20 @@ export async function sendWhirlpoolsSwapTransaction(
   transaction: VersionedTransaction,
   messageToken: string,
 ): Promise<string> {
-  const response = (
-    await axios.post(OCTANE_ENDPOINT + "/sendWhirlpoolsSwap", {
-      transaction: base58.encode(transaction.serialize()),
-      messageToken,
-    })
-  ).data;
-  return response.signature as string;
+  const res = await fetch(OCTANE_ENDPOINT + "/sendWhirlpoolsSwap", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ transaction: base58.encode(transaction.serialize()), messageToken }),
+  });
+  const data = await res.json();
+  return data.signature as string;
+  // const response = (
+  //   await axios.post(OCTANE_ENDPOINT + "/sendWhirlpoolsSwap", {
+  //     transaction: base58.encode(transaction.serialize()),
+  //     messageToken,
+  //   })
+  // ).data;
+  // return response.signature as string;
 }
 
 export async function buildTransactionToTransfer(
