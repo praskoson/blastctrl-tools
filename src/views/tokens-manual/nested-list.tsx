@@ -11,7 +11,6 @@ import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { Transaction } from "@solana/web3.js";
 import { createRecoverNestedTokenAccountInstruction } from "utils/spl/token";
 import { Dispatch, SetStateAction, useState } from "react";
-import { useAutoAnimate } from "@formkit/auto-animate/react";
 
 type NestedPairs = Awaited<ReturnType<typeof findNestedAta>>;
 
@@ -21,8 +20,6 @@ type NestedListProps = {
 };
 
 export const NestedList = ({ nestedTokenAccounts, setNestedTokenAccounts }: NestedListProps) => {
-  const [parent] = useAutoAnimate<HTMLUListElement>({});
-
   if (!nestedTokenAccounts || nestedTokenAccounts?.length === 0) {
     return <div className="pt-4 pb-1 font-normal">No nested accounts found ✔</div>;
   }
@@ -35,7 +32,7 @@ export const NestedList = ({ nestedTokenAccounts, setNestedTokenAccounts }: Nest
         {nestedTokenAccounts.length} nested token account{singleOrMany ? "" : "s"} found.
       </h3>
 
-      <ul ref={parent} role="list" className="mt-4 w-full space-y-4">
+      <ul role="list" className="mt-4 w-full space-y-4">
         {nestedTokenAccounts.map(({ parent, nested }, idx) => (
           <li key={idx}>
             <NestedInfo
@@ -95,8 +92,8 @@ export const NestedInfo = ({
           nested.mint,
           destination,
           parent.address,
-          parent.mint
-        )
+          parent.mint,
+        ),
       );
       setConfirming(true);
       const signature = await sendTransaction(tx, connection, { minContextSlot });
@@ -183,7 +180,7 @@ export const NestedInfo = ({
                     <span className="font-mono text-gray-900 underline">
                       {normalizeTokenAmount(
                         account.amount.toString(),
-                        tokenInfo?.decimals ?? 0
+                        tokenInfo?.decimals ?? 0,
                       ).toLocaleString()}
                     </span>
                   </div>

@@ -1,4 +1,3 @@
-import { useAutoAnimate } from "@formkit/auto-animate/react";
 import {
   CodeBracketIcon,
   DocumentTextIcon,
@@ -64,7 +63,6 @@ const getFilePreview = (item: UploadedFile) => {
 };
 
 export const Uploads = memo(function Uploads({ files }: UploadsProps) {
-  const [parent] = useAutoAnimate<HTMLUListElement>({});
   const [length, setLength] = useState(5);
 
   const handleShowMore = () => {
@@ -74,7 +72,7 @@ export const Uploads = memo(function Uploads({ files }: UploadsProps) {
   return (
     <div>
       <h2 className="font-xl mb-2 font-semibold text-slate-700 sm:mb-4">Previous uploads</h2>
-      <ul ref={parent} role="list" className="space-y-3">
+      <ul role="list" className="space-y-3">
         {files.slice(0, length).map((item, idx) => (
           <li key={idx} className="overflow-hidden bg-white px-4 py-3 shadow sm:rounded-md sm:px-6">
             <div className="flex flex-row flex-wrap items-center justify-between gap-x-4 gap-y-2">

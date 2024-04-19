@@ -9,7 +9,6 @@ import {
 } from "@solana/wallet-adapter-base";
 import { LedgerWalletAdapter } from "@solana/wallet-adapter-ledger";
 import { ConnectionProvider, WalletProvider } from "@solana/wallet-adapter-react";
-import { SolflareWalletAdapter } from "@solana/wallet-adapter-solflare";
 import { notify } from "components";
 import dynamic from "next/dynamic";
 import { FC, ReactNode, useCallback, useMemo } from "react";
@@ -27,25 +26,7 @@ const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const { network } = useNetworkConfigurationStore();
   const endpoint = useMemo(() => mergeClusterApiUrl(network), [network]);
 
-  const wallets = useMemo(
-    () => [
-      /**
-       * Wallets that implement either of these standards will be available automatically.
-       *
-       *   - Solana Mobile Stack Mobile Wallet Adapter Protocol
-       *     (https://github.com/solana-mobile/mobile-wallet-adapter)
-       *   - Solana Wallet Standard
-       *     (https://github.com/solana-labs/wallet-standard)
-       *
-       * If you wish to support a wallet that supports neither of those standards,
-       * instantiate its legacy wallet adapter here. Common legacy adapters can be found
-       * in the npm package `@solana/wallet-adapter-wallets`.
-       */
-      new SolflareWalletAdapter(),
-      new LedgerWalletAdapter(),
-    ],
-    [],
-  );
+  const wallets = useMemo(() => [new LedgerWalletAdapter()], []);
 
   const onError = useCallback((error: WalletError) => {
     if (
