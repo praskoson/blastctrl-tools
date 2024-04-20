@@ -1,52 +1,37 @@
-import { Account, TOKEN_PROGRAM_ID, unpackAccount } from "@solana/spl-token-next";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { SpinnerIcon, notify } from "components";
+import { useOwnerAssets } from "lib/query/use-owner-assets";
+import { cn, iife } from "lib/utils";
 import { NextPage } from "next";
 import Head from "next/head";
-import { useState } from "react";
 import { classNames } from "utils";
-import { AccountList } from "views/empty-accounts/account-list";
+import { AccountList } from "components/close-empty/account-list";
 
 const CloseEmpty: NextPage = () => {
-  const { connection } = useConnection();
   const { connected, publicKey } = useWallet();
   const { setVisible } = useWalletModal();
-  const [isLoading, setIsLoading] = useState(false);
-  const [accounts, setAccounts] = useState<Account[] | null>(null);
+  const { data, isFetching, refetch } = useOwnerAssets(publicKey?.toString() || "");
 
   const handleLoad = async () => {
     if (!connected) {
       setVisible(true);
       return;
     }
-    setIsLoading(true);
-    try {
-      const result = await connection.getTokenAccountsByOwner(publicKey, {
-        programId: TOKEN_PROGRAM_ID,
-      });
-      const accounts = result.value.map(({ pubkey, account }) => ({
-        ...unpackAccount(pubkey, account),
-      }));
-      setAccounts(accounts.filter(({ amount }) => amount.toString() === "0"));
-    } catch (err) {
-      notify({ type: "error", title: "Error loading token accounts", description: err?.message });
-    } finally {
-      setIsLoading(false);
-    }
+    refetch();
   };
 
   const buttonText = () => {
     if (!connected) return "Connect your wallet";
-    if (isLoading)
+    if (isFetching)
       return (
         <>
-          <SpinnerIcon className="-ml-1 mr-2 h-5 w-5 animate-spin" />
+          <SpinnerIcon className="-ml-1 mr-2 size-5 animate-spin" />
           Loading
         </>
       );
 
-    return "Load token accounts";
+    return "I understand, show my token accounts";
   };
 
   return (
@@ -55,33 +40,50 @@ const CloseEmpty: NextPage = () => {
         <title>BlastTools - Close Empty Accounts</title>
         <meta name="Close Token Accounts" content="Recover SOL by closing empty token accounts." />
       </Head>
-      <div className="mx-auto max-w-xl overflow-visible bg-white px-4 pb-5 sm:mb-6 sm:rounded-lg sm:p-6 sm:shadow">
+      <div
+        className={cn(
+          "mx-auto w-full max-w-3xl overflow-visible bg-white px-4 pb-5 sm:rounded-lg sm:p-6 sm:shadow",
+          !!data && "!pb-0",
+        )}
+      >
         <h1 className="mb-4 font-display text-3xl font-semibold">Close Empty Token Accounts</h1>
-        <p className="text-sm text-gray-500">
-          List all empty token accounts in your wallet. You can use this tool to close those
-          accounts, recovering the SOL used to create them. Each token account can recover{" "}
-          <code className="text-sm">
-            <span className="mr-1 text-lg leading-tight">◎</span>0.0020342
-          </code>
-          .
-        </p>
-        {accounts?.length > 0 ? (
-          <AccountList accounts={accounts} />
-        ) : (
-          <div className="flex items-center justify-center py-4">
-            <button
-              type="button"
-              onClick={handleLoad}
-              disabled={isLoading}
-              className={classNames(
-                "inline-flex items-center rounded-md bg-indigo-600 px-3 py-1.5 text-base text-white",
-                "hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2",
-                "disabled:bg-indigo-700"
-              )}
-            >
-              {buttonText()}
-            </button>
-          </div>
+        {!data && (
+          <>
+            <div className="space-y-2 text-gray-500">
+              <p className="text-pretty">
+                You can use this tool to list empty token accounts in your wallet and close them, to
+                recover SOL that was used to create them. Some token accounts (frozen) cannot be
+                closed, so those won&apos;t be displayed.
+              </p>
+              <p className="text-balance">
+                While token accounts can be recreated after you close them, this is still a
+                destructive action and could have unexpected consequences, so you should be aware of
+                that before proceeding.
+              </p>
+              <p>Each token account can recover 0.0020342 SOL.</p>
+            </div>
+
+            <div className="flex items-center justify-center pt-8 pb-2">
+              <button
+                type="button"
+                onClick={handleLoad}
+                disabled={isFetching}
+                className={classNames(
+                  "inline-flex items-center justify-center text-center rounded-md bg-indigo-600 px-3 py-3 text-base text-white w-[320px]",
+                  "hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2",
+                  "disabled:bg-indigo-700",
+                )}
+              >
+                {buttonText()}
+              </button>
+            </div>
+          </>
+        )}
+
+        {data && (
+          <AccountList
+            tokenAccounts={data.result.items.filter((item) => item.token_info.balance === 0)}
+          />
         )}
       </div>
     </>

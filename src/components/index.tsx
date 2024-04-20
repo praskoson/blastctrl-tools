@@ -1,6 +1,6 @@
 export * from "./SpinnerIcon";
 export * from "./CommandPalette";
-export * from "./CopyButton";
+export * from "./deprecated_CopyButton";
 export * from "./Tooltip";
 export * from "./Notification";
 export * from "./InputGroup";

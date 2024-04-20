@@ -30,3 +30,5 @@ export async function fetcher<T>(url: string, options?: RequestInit) {
 
   return (await res.json()) as T;
 }
+
+export const iife = <T>(fn: () => T): T => fn();

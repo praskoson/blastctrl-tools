@@ -11,6 +11,7 @@
     "analyze": "ANALYZE=true pnpm build"
   },
   "dependencies": {
+    "@floating-ui/react": "^0.26.12",
     "@headlessui/react": "^1.7.17",
     "@heroicons/react": "^2.0.11",
     "@irys/sdk": "^0.0.4",

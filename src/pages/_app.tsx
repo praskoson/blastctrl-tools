@@ -20,6 +20,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 dayjs.extend(relativeTime);
 require("@solana/wallet-adapter-react-ui/styles.css");
 require("../styles/globals.css");
+require("../styles/scroller.css");
 
 const navigation = [
   {
@@ -33,7 +34,7 @@ const navigation = [
     href: "/permanent-storage-tools",
     description: "Decentralized file hosting",
   },
-  { name: "Gasless Swap", href: "/gasless-swap", description: "Swap any token for SOL"},
+  { name: "Gasless Swap", href: "/gasless-swap", description: "Swap any token for SOL" },
   { name: "Add or remove from collection", href: "/solana-nft-tools/collections", in: "NFT Tools" },
   { name: "Mint NFT", href: "/solana-nft-tools/mint", in: "NFT Tools" },
   { name: "Create collection", href: "/solana-nft-tools/mint", in: "NFT Tools" },
@@ -100,7 +101,7 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
                                 "group ml-2 inline-flex max-w-[42px] items-center space-x-2 overflow-hidden rounded-full",
                                 "bg-gradient-to-r from-[#f97100] to-[#fdce00] hover:max-w-full",
                                 "pl-0.5 pr-4 text-sm font-medium text-white",
-                                "transition-all duration-500"
+                                "transition-all duration-500",
                               )}
                             >
                               <div className="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-full">
@@ -138,7 +139,7 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
                                 value="Search"
                                 className={classNames(
                                   "block w-full rounded-md border-transparent bg-primary-focus py-2 pl-10 pr-3 text-left text-base leading-5 sm:text-sm",
-                                  "hover:cursor-text"
+                                  "hover:cursor-text",
                                 )}
                               >
                                 Search
@@ -156,7 +157,7 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
                           <Disclosure.Button
                             className={classNames(
                               "inline-flex items-center justify-center rounded-md p-2 text-gray-50",
-                              "hover:bg-accent hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+                              "hover:bg-accent hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white",
                             )}
                           >
                             <span className="sr-only">Open menu</span>
