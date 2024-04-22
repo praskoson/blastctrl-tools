@@ -13,7 +13,7 @@ export const NftSelector = (
 ) => {
   const { publicKey } = useWallet();
   const [query, setQuery] = useState("");
-  const { data, isLoading, isError } = useOwnerNfts(publicKey?.toString());
+  const { data } = useOwnerNfts(publicKey?.toString());
 
   const {
     field: { name, onBlur, onChange, ref, value },
@@ -31,11 +31,11 @@ export const NftSelector = (
       <Combobox
         as="div"
         value={value}
-        // onChange={(token: NftAsset) => {
-        //   onChange(token);
-        //   props.onSelectCallback(token);
-        // }}
-        // nullable
+        onChange={(token: FormToken) => {
+          onChange(token);
+          props.onSelectCallback(token);
+        }}
+        nullable
       >
         <Combobox.Label className="sr-only">Mint address</Combobox.Label>
 
@@ -86,7 +86,7 @@ export const NftSelector = (
             {filteredTokens.map((nft) => (
               <Combobox.Option
                 key={nft.id}
-                value={nft}
+                value={{ name: nft.content.metadata.name, mint: nft.id }}
                 className={({ active }) =>
                   cn(
                     "relative cursor-default select-none py-2 pl-3 pr-9",
