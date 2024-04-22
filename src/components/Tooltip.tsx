@@ -8,6 +8,7 @@ export type TooltipProps = {
 
 export const Tooltip = ({ children, content }: TooltipProps) => {
   const [popoverShow, setPopoverShow] = useState(false);
+
   const triggerRef = createRef<HTMLDivElement>();
   const popoverRef = createRef<HTMLDivElement>();
   const openTooltip = () => {

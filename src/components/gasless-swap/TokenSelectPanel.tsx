@@ -50,28 +50,28 @@ export function TokenSelectPanel({ onSelect }: { onSelect: (token: Token) => voi
 
   if (status === "pending") {
     return (
-      <div className="w-[280px] h-[440px] bg-white grid place-content-center">
+      <div className="grid h-[440px] w-[280px] place-content-center bg-white">
         <SpinnerIcon className="size-8 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="w-[280px] h-[440px] bg-white flex flex-col">
+    <div className="flex h-[440px] w-[280px] flex-col bg-white">
       <div className="relative pb-3">
-        <MagnifyingGlassIcon className="absolute left-2 size-5 text-gray-400 mt-2.5" />
+        <MagnifyingGlassIcon className="absolute left-2 mt-2.5 size-5 text-gray-400" />
         <input
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
           placeholder="Search for tokens"
-          className="w-full pl-9 border-b-2 placeholder:text-gray-400 border-t-0 border-x-0 focus:ring-0 border-gray-400 focus:border-b-2 focus:border-indigo-600"
+          className="w-full border-x-0 border-b-2 border-t-0 border-gray-400 pl-9 placeholder:text-gray-400 focus:border-b-2 focus:border-indigo-600 focus:ring-0"
         />
       </div>
 
-      <div ref={parentRef} className="grow overflow-auto -mx-4">
+      <div ref={parentRef} className="-mx-4 grow overflow-auto">
         <ul
           style={{ height: `${rowVirtualizer.getTotalSize()}px` }}
-          className="relative w-full flex flex-col"
+          className="relative flex w-full flex-col"
         >
           {rowVirtualizer.getVirtualItems().map((virtualItem) => (
             <li
@@ -87,7 +87,7 @@ export function TokenSelectPanel({ onSelect }: { onSelect: (token: Token) => voi
             >
               <PopoverButton
                 onClick={() => onSelect(filteredTokens[virtualItem.index])}
-                className="w-full h-full py-3 px-4 flex items-center gap-3"
+                className="flex h-full w-full items-center gap-3 px-4 py-3"
               >
                 {filteredTokens[virtualItem.index]?.logoURI ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -97,7 +97,7 @@ export function TokenSelectPanel({ onSelect }: { onSelect: (token: Token) => voi
                     alt=""
                     height={40}
                     width={40}
-                    className="h-6 w-6 aspect-square object-cover rounded-full"
+                    className="aspect-square h-6 w-6 rounded-full object-cover"
                   />
                 ) : (
                   <span className="size-6 rounded-full bg-gray-400" />
@@ -107,12 +107,12 @@ export function TokenSelectPanel({ onSelect }: { onSelect: (token: Token) => voi
                   href={`https://solscan.io/token/${filteredTokens[virtualItem.index]?.address}`}
                   target="_blank"
                   onClick={(e) => e.stopPropagation()}
-                  className="bg-gray-300 px-3 py-1 text-xs flex flex-nowrap items-center rounded-md"
+                  className="flex flex-nowrap items-center rounded-md bg-gray-300 px-3 py-1 text-xs"
                 >
-                  <span className="text-xs font-medium text-neutral-400">
+                  <span className="text-neutral-400 text-xs font-medium">
                     {compress(filteredTokens[virtualItem.index]?.address, 4)}
                   </span>
-                  <LinkIcon aria-hidden="true" className="size-4 ml-1" />
+                  <LinkIcon aria-hidden="true" className="ml-1 size-4" />
                 </a>
               </PopoverButton>
             </li>

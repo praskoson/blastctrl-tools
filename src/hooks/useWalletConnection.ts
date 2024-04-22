@@ -29,17 +29,19 @@ export const useWalletConnection = () => {
   const sendAndConfirmTransaction = useCallback(
     async (
       transaction: Transaction,
-      opts?: SendTransactionOptions
+      opts?: SendTransactionOptions,
     ): Promise<SendAndConfirmReturnType> => {
       if (!publicKey) throw new WalletNotConnectedError();
 
       const {
         context: { slot: minContextSlot },
         value: { blockhash, lastValidBlockHeight },
-      } = await connection.getLatestBlockhashAndContext();
+      } = await connection.getLatestBlockhashAndContext(opts?.commitment);
 
       const signature = await sendTransaction(transaction, connection, {
         minContextSlot,
+        maxRetries: 0,
+        preflightCommitment: opts?.commitment,
         skipPreflight: opts?.skipPreflight,
       });
 
@@ -47,14 +49,14 @@ export const useWalletConnection = () => {
 
       const result = await connection.confirmTransaction(
         { blockhash, lastValidBlockHeight, signature },
-        opts?.commitment
+        opts?.commitment,
       );
 
       if (result.value.err) throw Error(JSON.stringify(result.value.err));
 
       return { signature, result };
     },
-    [publicKey, sendTransaction, connection]
+    [publicKey, sendTransaction, connection],
   );
 
   const simulateVersionedTransaction = useCallback(
@@ -73,7 +75,7 @@ export const useWalletConnection = () => {
 
       return await connection.simulateTransaction(tx);
     },
-    [connection, publicKey]
+    [connection, publicKey],
   );
 
   const sendAndConfirmVersionedTransaction = useCallback(
@@ -99,7 +101,7 @@ export const useWalletConnection = () => {
 
       return { signature, result };
     },
-    [connection, publicKey, sendTransaction]
+    [connection, publicKey, sendTransaction],
   );
 
   return {

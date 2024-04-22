@@ -46,7 +46,7 @@ export const ManualInput = () => {
   const { publicKey: wallet, connected, sendTransaction } = useWallet();
   const { setVisible } = useWalletModal();
   const [isProcessing, setIsProcessing] = useState(false);
-  const { data: balance, refetch } = useSolBalance()
+  const { data: balance, refetch } = useSolBalance();
 
   const [parentInfo, setParentInfo] = useState<AccountInfo>(null);
   const [nestedInfo, setNestedInfo] = useState<AccountInfo>(null);
@@ -143,33 +143,33 @@ export const ManualInput = () => {
       const actualParentAta = getAssociatedTokenAddressSync(
         parentAtaInfo.data.mint,
         parentAtaInfo.data.owner,
-        true
+        true,
       );
       assert(
         parentAta.equals(actualParentAta),
-        `Not a valid ATA. Expected: ${actualParentAta.toBase58()}, actual: ${parentAta.toBase58()}`
+        `Not a valid ATA. Expected: ${actualParentAta.toBase58()}, actual: ${parentAta.toBase58()}`,
       );
 
       const actualNestedAta = getAssociatedTokenAddressSync(
         nestedAtaInfo.data.mint,
         nestedAtaInfo.data.owner,
-        true
+        true,
       );
       assert(
         actualNestedAta.equals(nestedAta),
-        `Not a valid ATA. Expected: ${actualNestedAta.toBase58()}, actual: ${nestedAta.toBase58()}`
+        `Not a valid ATA. Expected: ${actualNestedAta.toBase58()}, actual: ${nestedAta.toBase58()}`,
       );
 
       assert(
         nestedAtaInfo.data.owner.equals(parentAta),
-        `Nested ATA is not owned by parent. Expected: ${nestedAtaInfo.data.owner.toBase58()}, actual: ${parentAta.toBase58()}`
+        `Nested ATA is not owned by parent. Expected: ${nestedAtaInfo.data.owner.toBase58()}, actual: ${parentAta.toBase58()}`,
       );
 
       assert(
         destinationInfo.data.mint.equals(nestedAtaInfo.data.mint),
         `Destination and nested account's mint addresses do not match. Nested: ${nestedAtaInfo.data.mint.toBase58()}, destination: ${
           destinationInfo.data.mint.toBase58
-        }`
+        }`,
       );
 
       setParentInfo(parentAtaInfo);
@@ -209,8 +209,8 @@ export const ManualInput = () => {
           nestedInfo.data.mint,
           destinationInfo.address,
           parentInfo.address,
-          parentInfo.data.mint
-        )
+          parentInfo.data.mint,
+        ),
       );
       setConfirming(true);
       const signature = await sendTransaction(tx, connection, { minContextSlot });
@@ -265,7 +265,7 @@ export const ManualInput = () => {
 
       <div className="my-6">
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="grid gap-y-6 gap-x-2 border-b border-gray-200 pb-6 sm:grid-cols-6 ">
+          <div className="grid gap-x-2 gap-y-6 border-b border-gray-200 pb-6 sm:grid-cols-6 ">
             <div className="relative mt-1 sm:col-span-6">
               <label className="mb-1 block text-sm font-medium text-gray-600" htmlFor="parentAta">
                 Parent associated token account
@@ -275,7 +275,7 @@ export const ManualInput = () => {
                 className={classNames(
                   "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm",
                   !!errors?.parentAta &&
-                    "border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:outline-none focus:ring-red-500"
+                    "border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:outline-none focus:ring-red-500",
                 )}
                 aria-invalid={errors?.parentAta ? "true" : "false"}
                 {...register("parentAta", {
@@ -301,7 +301,7 @@ export const ManualInput = () => {
                 className={classNames(
                   "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm",
                   !!errors?.nestedAta &&
-                    "border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:outline-none focus:ring-red-500"
+                    "border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:outline-none focus:ring-red-500",
                 )}
                 aria-invalid={errors?.nestedAta ? "true" : "false"}
                 {...register("nestedAta", {
@@ -380,12 +380,12 @@ export const ManualInput = () => {
                 leaveFrom="opacity-100 translate-y-0 sm:scale-100"
                 leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
               >
-                <Dialog.Panel className="absolute top-[20vh] max-w-[92%] transform overflow-hidden rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all sm:relative sm:top-auto sm:my-8 sm:w-full sm:max-w-xl sm:p-6">
+                <Dialog.Panel className="absolute top-[20vh] max-w-[92%] transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:relative sm:top-auto sm:my-8 sm:w-full sm:max-w-xl sm:p-6">
                   <div className="sm:flex sm:items-start">
                     <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-indigo-100 sm:mx-0 sm:h-10 sm:w-10">
                       <CheckCircleIcon className="h-6 w-6 text-indigo-600" aria-hidden="true" />
                     </div>
-                    <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                    <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
                       <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
                         Recover nested account available
                       </Dialog.Title>
@@ -396,7 +396,7 @@ export const ManualInput = () => {
                               Balance changes after recovering
                             </p>
                             <div className="mt-4 flex-col">
-                              <div className="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                              <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                                 <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
                                   <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
                                     <table className="min-w-full divide-y divide-gray-300">
@@ -411,7 +411,7 @@ export const ManualInput = () => {
                                               >
                                                 {col}
                                               </th>
-                                            )
+                                            ),
                                           )}
                                         </tr>
                                       </thead>
@@ -444,7 +444,7 @@ export const ManualInput = () => {
                                               +
                                               {normalizeTokenAmount(
                                                 Number(nestedInfo.data.amount),
-                                                mintInfo.decimals
+                                                mintInfo.decimals,
                                               )}
                                             </span>
                                           </td>
@@ -453,7 +453,7 @@ export const ManualInput = () => {
                                               (
                                                 destinationInfo.data.amount + nestedInfo.data.amount
                                               ).toString(),
-                                              mintInfo.decimals
+                                              mintInfo.decimals,
                                             )}
                                           </td>
                                         </tr>
@@ -485,7 +485,7 @@ export const ManualInput = () => {
                                               -
                                               {normalizeTokenAmount(
                                                 nestedInfo.data.amount.toString(),
-                                                mintInfo.decimals
+                                                mintInfo.decimals,
                                               )}
                                             </span>
                                           </td>

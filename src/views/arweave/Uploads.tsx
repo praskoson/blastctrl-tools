@@ -5,7 +5,7 @@ import {
   PlayCircleIcon,
   QuestionMarkCircleIcon,
 } from "@heroicons/react/24/outline";
-import { CopyButton } from "components";
+import { CopyButton } from "components/copy-button";
 import dayjs from "dayjs";
 import Image from "next/legacy/image";
 import { memo, useState } from "react";
@@ -89,10 +89,11 @@ export const Uploads = memo(function Uploads({ files }: UploadsProps) {
               </div>
               <div className="inline-flex space-x-1 pt-1 sm:pt-0">
                 <CopyButton
-                  text="Copy"
-                  content={item.uri}
+                  clipboard={item.uri}
                   className="inline-flex h-7 items-center rounded-full border border-gray-300 bg-white px-2.5 py-0.5 text-sm font-medium text-gray-700 shadow-sm hover:cursor-pointer hover:bg-gray-50"
-                />
+                >
+                  {(props) => (props.copied ? "Copied!" : "Copy")}
+                </CopyButton>
                 <a
                   rel="noreferrer noopener"
                   target="_blank"

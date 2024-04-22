@@ -1,48 +1,30 @@
-import { useMemo, useState } from "react";
-import { useUserNfts } from "hooks";
 import { Combobox } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
-import { NftSelectorOption } from "./NftSelectorOption";
-import { UseControllerProps, useController } from "react-hook-form";
-import { classNames } from "utils";
-import type { FormInputs, FormToken } from "pages/solana-nft-tools/update";
 import { useWallet } from "@solana/wallet-adapter-react";
+import { NftAsset, useOwnerNfts } from "lib/query/use-owner-nfts";
+import { cn } from "lib/utils";
+import type { FormInputs, FormToken } from "pages/solana-nft-tools/update";
+import { useState } from "react";
+import { UseControllerProps, useController } from "react-hook-form";
+import { NftSelectorOption } from "./NftSelectorOption";
 
 export const NftSelector = (
-  props: UseControllerProps<FormInputs> & { onSelectCallback: (props: any) => void }
+  props: UseControllerProps<FormInputs> & { onSelectCallback: (props: any) => void },
 ) => {
   const { publicKey } = useWallet();
   const [query, setQuery] = useState("");
-  const { isError, isLoading, nfts } = useUserNfts();
+  const { data } = useOwnerNfts(publicKey?.toString());
 
   const {
     field: { name, onBlur, onChange, ref, value },
     fieldState: { error },
   } = useController(props);
 
-  const tokens = useMemo(
-    () =>
-      isLoading || isError
-        ? []
-        : nfts
-            .filter((nft) => (publicKey ? publicKey.equals(nft.updateAuthorityAddress) : true))
-            .map((nft) => ({
-              name: nft.name,
-              address: nft.address.toBase58(),
-              uri: nft.uri,
-              model: nft.model,
-            })),
-    [isError, isLoading, nfts, publicKey]
+  const filteredTokens = (data ?? []).filter((nft) =>
+    nft.content?.metadata?.name?.toLowerCase().includes(query.toLowerCase()),
   );
 
-  const filteredTokens =
-    isLoading || isError
-      ? []
-      : query === ""
-      ? tokens
-      : tokens.filter((nft) => {
-          return nft.name.toLowerCase().includes(query.toLowerCase());
-        });
+  // TODO: fix this!
 
   return (
     <>
@@ -64,11 +46,11 @@ export const NftSelector = (
             data-lpignore="true"
             placeholder="Token"
             autoComplete="off"
-            className={classNames(
+            className={cn(
               "w-full rounded-md border border-gray-300 bg-white py-2 pl-3 pr-10 shadow-sm",
               "focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm",
               error &&
-                "border-red-300 text-red-900  focus:border-red-500 focus:outline-none focus:ring-red-500"
+                "border-red-300 text-red-900  focus:border-red-500 focus:outline-none focus:ring-red-500",
             )}
             name={name}
             onBlur={onBlur}
@@ -82,19 +64,19 @@ export const NftSelector = (
           </Combobox.Button>
 
           <Combobox.Options
-            className={classNames(
+            className={cn(
               "absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg",
               "ring-1 ring-black ring-opacity-5",
-              "focus:outline-none sm:text-sm"
+              "focus:outline-none sm:text-sm",
             )}
           >
             {query.length > 0 && (
               <Combobox.Option
                 value={{ name: query, address: query, uri: "", model: "nft" }}
                 className={({ active }) =>
-                  classNames(
+                  cn(
                     "relative cursor-default select-none py-2 pl-3 pr-9",
-                    active ? "bg-indigo-600 text-white" : "text-gray-900"
+                    active ? "bg-indigo-600 text-white" : "text-gray-900",
                   )
                 }
               >
@@ -103,23 +85,23 @@ export const NftSelector = (
             )}
             {filteredTokens.map((nft) => (
               <Combobox.Option
-                key={nft.address}
-                value={nft}
+                key={nft.id}
+                value={{ name: nft.content.metadata.name, mint: nft.id }}
                 className={({ active }) =>
-                  classNames(
+                  cn(
                     "relative cursor-default select-none py-2 pl-3 pr-9",
-                    active ? "bg-indigo-600 text-white" : "text-gray-900"
+                    active ? "bg-indigo-600 text-white" : "text-gray-900",
                   )
                 }
               >
                 {({ active, selected }) => (
                   <>
-                    <NftSelectorOption metadata={nft} selected={selected} />
+                    <NftSelectorOption nft={nft} selected={selected} />
                     {selected && (
                       <span
-                        className={classNames(
+                        className={cn(
                           "absolute inset-y-0 right-0 flex items-center pr-4",
-                          active ? "text-white" : "text-indigo-600"
+                          active ? "text-white" : "text-indigo-600",
                         )}
                       >
                         <CheckIcon className="h-5 w-5" aria-hidden="true" />

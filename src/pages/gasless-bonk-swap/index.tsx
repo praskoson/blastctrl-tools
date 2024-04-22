@@ -215,7 +215,7 @@ const BonkSwap: NextPage = () => {
             You can swap other tokens on our{" "}
             <Link
               href="/gasless-swap"
-              className="text-blue-600 hover:underline font-medium whitespace-nowrap"
+              className="whitespace-nowrap font-medium text-blue-600 hover:underline"
             >
               gasless swap tool &rarr;
             </Link>
@@ -228,7 +228,7 @@ const BonkSwap: NextPage = () => {
 
           {/* Form */}
           <form onSubmit={handleSubmit(submitSwap)} className="flex flex-1 flex-col justify-start">
-            {!balanceQuery.data && <div aria-hidden="true" className="block mb-2 h-[33px]" />}
+            {!balanceQuery.data && <div aria-hidden="true" className="mb-2 block h-[33px]" />}
             {balanceQuery.data && (
               <span
                 role="button"
@@ -238,7 +238,7 @@ const BonkSwap: NextPage = () => {
                     setValue("swapAmount", balanceQuery?.data?.uiAmount);
                   }
                 }}
-                className="mb-2 w-full border-b pb-2 text-right text-base whitespace-pre"
+                className="mb-2 w-full whitespace-pre border-b pb-2 text-right text-base"
               >
                 <span className="text-xs text-gray-600">Balance </span>
                 <span className="font-medium text-amber-600">
@@ -250,11 +250,11 @@ const BonkSwap: NextPage = () => {
               <span className="text-base font-medium text-gray-600">You will sell:</span>
 
               <div className="relative mt-2 flex w-full justify-between gap-x-2 sm:mt-1">
-                <div className="w-32 inline-flex items-center rounded-md border border-transparent bg-gray-200 px-3 font-medium text-gray-800">
+                <div className="inline-flex w-32 items-center rounded-md border border-transparent bg-gray-200 px-3 font-medium text-gray-800">
                   <Image
                     src={BonkSmall}
                     alt="Bonk"
-                    className="block size-5 mr-2 rounded-full object-contain"
+                    className="mr-2 block size-5 rounded-full object-contain"
                   />
                   BONK
                 </div>

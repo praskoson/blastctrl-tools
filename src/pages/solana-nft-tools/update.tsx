@@ -7,8 +7,6 @@ import {
   XMarkIcon,
 } from "@heroicons/react/20/solid";
 import {
-  JsonMetadata,
-  Metadata,
   Metaplex,
   Nft,
   NftWithToken,
@@ -21,20 +19,20 @@ import { WalletError } from "@solana/wallet-adapter-base";
 import { useConnection, useLocalStorage, useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { PublicKey } from "@solana/web3.js";
-import { InputGroup, NftSelector, notify, SpinnerIcon, SwitchButton } from "components";
-import { useUserNfts } from "hooks";
+import { useQueryClient } from "@tanstack/react-query";
+import { InputGroup, NftSelector, SpinnerIcon, SwitchButton, notify } from "components";
+import { assetDataQueryKey } from "lib/query/use-asset-data";
+import { NftAsset, useOwnerNfts } from "lib/query/use-owner-nfts";
 import type { NextPage } from "next";
 import Head from "next/head";
 import { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { classNames } from "utils";
-import { getMetadata, isPublicKey } from "utils/spl/common";
+import { isPublicKey } from "utils/spl/common";
 
 export type FormToken = {
   name: string;
-  address: string;
-  uri: string;
-  model: "nft" | "sft" | "metadata";
+  mint: string;
 };
 
 export const MAX_CREATORS = 5;
@@ -70,13 +68,14 @@ const Update: NextPage = () => {
   const { connection } = useConnection();
   const wallet = useWallet();
   const { setVisible } = useWalletModal();
-  const { nfts } = useUserNfts();
+  const queryClient = useQueryClient();
+  const { data } = useOwnerNfts(wallet?.publicKey?.toBase58());
   const [isConfirming, setIsConfirming] = useState(false);
-  const [current, setCurrent] = useState<Metadata<JsonMetadata<string>> | Nft | Sft>(null);
+  const [current, setCurrent] = useState<NftAsset | null>(null);
 
   const [isShowingCurrentValues, setIsShowingCurrentValues] = useLocalStorage(
     "showCurrentValues",
-    true
+    true,
   );
 
   const {
@@ -103,24 +102,15 @@ const Update: NextPage = () => {
   const isCreatorAddable = fields.length < MAX_CREATORS;
 
   const onSelectCallback = async (selectedToken: FormToken) => {
-    let nft: Metadata<JsonMetadata<string>> | Nft | Sft;
-    if (!nfts) {
-      // Wait 1 second, maybe they load lol
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+    let nft: NftAsset;
+    nft = data?.find((asset) => asset.id === selectedToken.mint);
+
+    if (!nft) {
+      nft = queryClient.getQueryData(assetDataQueryKey(selectedToken.mint));
     }
 
-    nft = nfts?.find((nft) => nft.address.toBase58() === selectedToken?.address);
     if (!nft) {
-      try {
-        const address = new PublicKey(selectedToken.address);
-        const metadata = selectedToken.model === "metadata" ? address : getMetadata(address);
-        nft = await Metaplex.make(connection).nfts().findByMetadata({ metadata });
-      } catch (err) {
-        if (selectedToken?.address) {
-          console.log({ err });
-          notify({ type: "info", description: "Couldn't load information on the selected token." });
-        }
-      }
+      notify({ type: "info", description: "Couldn't load information on the selected token." });
     }
 
     setCurrent(nft);
@@ -129,17 +119,17 @@ const Update: NextPage = () => {
     }
   };
 
-  const setFormValues = (nft: Metadata<JsonMetadata<string>> | Nft | Sft) => {
+  const setFormValues = (nft: NftAsset) => {
     if (nft) {
-      setValue("name", nft.name);
-      setValue("symbol", nft.symbol);
-      setValue("uri", nft.uri);
-      setValue("updateAuthority", nft.updateAuthorityAddress.toBase58());
-      setValue("isMutable", nft.isMutable);
-      setValue("primarySaleHappened", nft.primarySaleHappened);
-      setValue("sellerFeeBasisPoints", nft.sellerFeeBasisPoints);
+      setValue("name", nft.content?.metadata?.name);
+      setValue("symbol", nft.content?.metadata?.symbol);
+      setValue("uri", nft.content?.json_uri);
+      setValue("updateAuthority", nft.authorities[0].address);
+      setValue("isMutable", nft.mutable);
+      setValue("primarySaleHappened", nft.royalty.primary_sale_happened);
+      setValue("sellerFeeBasisPoints", nft.royalty.basis_points);
       nft.creators.forEach((creator, idx) => {
-        update(idx, { address: creator.address.toBase58(), share: creator.share });
+        update(idx, { address: creator.address, share: creator.share });
       });
     }
   };
@@ -154,13 +144,8 @@ const Update: NextPage = () => {
     const metaplex = Metaplex.make(connection).use(walletAdapterIdentity(wallet));
 
     let token: Sft | SftWithToken | Nft | NftWithToken;
-    if (data.mint.model === "metadata") {
-      const metadata = new PublicKey(data.mint.address);
-      token = await metaplex.nfts().findByMetadata({ metadata }, { commitment: "confirmed" });
-    } else {
-      const mintAddress = new PublicKey(data.mint.address);
-      token = await metaplex.nfts().findByMint({ mintAddress }, { commitment: "confirmed" });
-    }
+    const mintAddress = new PublicKey(data.mint.mint);
+    token = await metaplex.nfts().findByMint({ mintAddress }, { commitment: "confirmed" });
 
     if (!token.updateAuthorityAddress.equals(wallet.publicKey)) {
       notify({
@@ -259,7 +244,7 @@ const Update: NextPage = () => {
                     required: { value: true, message: "Select a token or enter an address." },
                     validate: {
                       pubkey: (value: FormToken) =>
-                        isPublicKey(value?.address) || `Not a valid pubkey: ${value.address}`,
+                        isPublicKey(value?.mint) || `Not a valid pubkey: ${value.mint}`,
                     },
                   }}
                 />
@@ -276,14 +261,14 @@ const Update: NextPage = () => {
                   }}
                   className={classNames(
                     isShowingCurrentValues ? "bg-indigo-600" : "bg-gray-200",
-                    "relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                    "relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2",
                   )}
                 >
                   <span
                     aria-hidden="true"
                     className={classNames(
                       isShowingCurrentValues ? "translate-x-5" : "translate-x-0",
-                      "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+                      "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
                     )}
                   />
                 </Switch>
@@ -386,7 +371,7 @@ const Update: NextPage = () => {
                                 "relative block w-full rounded-none rounded-bl-md rounded-tl-md border-gray-300 bg-transparent pr-6",
                                 "focus:z-10 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm",
                                 errors?.creators?.[idx]?.address &&
-                                  "border-red-500 focus:border-red-600 focus:ring-red-500"
+                                  "border-red-500 focus:border-red-600 focus:ring-red-500",
                               )}
                               placeholder="Creator address"
                             />
@@ -404,7 +389,7 @@ const Update: NextPage = () => {
                                 "relative block w-full rounded-none border-gray-300 bg-transparent",
                                 "focus:z-10 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm",
                                 errors?.creators?.[idx]?.share &&
-                                  "border-red-500 focus:border-red-600 focus:ring-red-500"
+                                  "border-red-500 focus:border-red-600 focus:ring-red-500",
                               )}
                               placeholder="Share"
                             />
@@ -446,9 +431,7 @@ const Update: NextPage = () => {
                   className="block text-sm font-medium text-gray-700"
                 >
                   Royalties{" "}
-                  <code className="text-sm tracking-tighter">
-                    (sellerFeeBasisPoints [0-10000])
-                  </code>
+                  <code className="text-sm tracking-tighter">(sellerFeeBasisPoints [0-10000])</code>
                 </label>
                 <div className="relative mt-1">
                   <input
@@ -462,7 +445,7 @@ const Update: NextPage = () => {
                     className={classNames(
                       "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm",
                       errors?.sellerFeeBasisPoints &&
-                        "border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:outline-none focus:ring-red-500"
+                        "border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:outline-none focus:ring-red-500",
                     )}
                     aria-invalid={errors?.sellerFeeBasisPoints ? "true" : "false"}
                   />

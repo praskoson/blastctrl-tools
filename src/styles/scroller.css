@@ -1,0 +1,29 @@
+.scroller {
+  overflow-y: auto;
+  --scrollbar-color-thumb: rgba(0, 0, 0, 0.1);
+  --scrollbar-color-track: transparent;
+  --scrollbar-width: 5px;
+}
+
+/* Modern browsers with `scrollbar-*` support */
+@supports (scrollbar-width: auto) {
+  .scroller {
+    scrollbar-color: var(--scrollbar-color-thumb) var(--scrollbar-color-track);
+    scrollbar-width: thin;
+  }
+}
+
+/* Legacy browsers with `::-webkit-scrollbar-*` support */
+@supports selector(::-webkit-scrollbar) {
+  .scroller::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-color-thumb);
+    border-radius: 9999px;
+  }
+  .scroller::-webkit-scrollbar-track {
+    background: var(--scrollbar-color-track);
+  }
+  .scroller::-webkit-scrollbar {
+    max-width: var(--scrollbar-width);
+    max-height: var(--scrollbar-width);
+  }
+}

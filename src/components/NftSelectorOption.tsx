@@ -1,29 +1,19 @@
-import { useNftJson } from "hooks";
+import { NftAsset } from "lib/query/use-owner-nfts";
+import { cn } from "lib/utils";
 import Image from "next/legacy/image";
-import { FormToken } from "pages/solana-nft-tools/update";
 
 type NftSelectorProp = {
-  metadata: FormToken;
   selected: boolean;
+  nft: NftAsset;
 };
 
-const classNames = (...classNames: any[]) => classNames.filter(Boolean).join(" ");
-
-export const NftSelectorOption = ({ metadata, selected }: NftSelectorProp) => {
-  const { json, isLoading, isError } = useNftJson(metadata.uri);
-
+export const NftSelectorOption = ({ nft, selected }: NftSelectorProp) => {
   return (
     <div className="flex items-center">
-      {isError && <div className="h-6 w-6 flex-shrink-0 rounded bg-slate-200"></div>}
-
-      {isLoading && (
-        <div className="h-6 w-6 flex-shrink-0 animate-pulse rounded bg-slate-400"></div>
-      )}
-
       {/* TODO: default image if the json is invalid */}
-      {json?.image && (
+      {nft.content?.links?.image && (
         <Image
-          src={json?.image}
+          src={nft.content.links.image}
           alt=""
           height={24}
           width={24}
@@ -33,8 +23,8 @@ export const NftSelectorOption = ({ metadata, selected }: NftSelectorProp) => {
         />
       )}
 
-      <span className={classNames("ml-3 truncate", selected && "font-semibold")}>
-        {metadata.name}
+      <span className={cn("ml-3 truncate", selected && "font-semibold")}>
+        {nft?.content?.metadata?.name}
       </span>
     </div>
   );

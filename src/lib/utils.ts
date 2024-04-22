@@ -5,6 +5,8 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 export function chunk<T>(array: T[], size: number): T[][] {
   if (!array?.length || size < 1) {
     return [];
@@ -29,4 +31,22 @@ export async function fetcher<T>(url: string, options?: RequestInit) {
   }
 
   return (await res.json()) as T;
+}
+
+export const iife = <T>(fn: () => T): T => fn();
+
+export async function retryWithBackoff<T>(fn: () => Promise<T>, retries: number = 5) {
+  let i = 0;
+
+  for (;;) {
+    i++;
+    try {
+      return await fn();
+    } catch (err) {
+      if (i === retries) {
+        throw err;
+      }
+      await sleep(i ** 2 * 100);
+    }
+  }
 }

@@ -20,7 +20,7 @@ export const TokenQuote = ({ quoteToken }: Props) => {
   }
 
   return (
-    <div className="h-12 flex items-center justify-center">
+    <div className="flex h-12 items-center justify-center">
       {error && <p>Failed to load token exchange rate</p>}
 
       {isLoading && (
@@ -30,7 +30,7 @@ export const TokenQuote = ({ quoteToken }: Props) => {
       )}
 
       {data && (
-        <div className="text-sm font-medium text-gray-600 flex items-center gap-x-2 justify-center flex-nowrap">
+        <div className="flex flex-nowrap items-center justify-center gap-x-2 text-sm font-medium text-gray-600">
           <span>1 SOL</span>
 
           <div className="aspect-square w-6 rounded-full bg-gray-200 px-0.5 py-0.5">

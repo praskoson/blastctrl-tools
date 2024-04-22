@@ -114,7 +114,7 @@ const GaslessSwap = () => {
       <div className="mx-auto max-w-lg overflow-visible bg-white px-4 py-4 sm:mb-6 sm:rounded-lg sm:p-6 sm:shadow">
         <div className="border-b border-gray-200 pb-6">
           <h1 className="mb-4 text-center font-display text-3xl font-semibold">Gasless Swap</h1>
-          <p className="text-sm text-gray-500 mx-4">
+          <p className="mx-4 text-sm text-gray-500">
             Dive deeper into Solana&apos;s DeFi with our Gasless Swap tool! If you have a wallet
             that has no SOL, but owns any token that can be traded on the Jupiter Swap aggregator,
             you can swap it for SOL here! <br />
@@ -125,7 +125,7 @@ const GaslessSwap = () => {
             You can swap $BONK with our{" "}
             <Link
               href="/gasless-bonk-swap"
-              className="text-blue-600 hover:underline font-medium whitespace-nowrap"
+              className="whitespace-nowrap font-medium text-blue-600 hover:underline"
             >
               gasless BONK Swap utility &rarr;
             </Link>
@@ -134,7 +134,7 @@ const GaslessSwap = () => {
 
         <form
           onSubmit={handleSubmit(submitSwap)}
-          className="flex flex-1 flex-col justify-start w-[95%] sm:w-4/5 mx-auto"
+          className="mx-auto flex w-[95%] flex-1 flex-col justify-start sm:w-4/5"
         >
           <span
             role="button"
@@ -144,7 +144,7 @@ const GaslessSwap = () => {
                 setValue("swapAmount", balanceQuery?.data?.uiAmount);
               }
             }}
-            className="w-full py-2 text-right text-base whitespace-pre"
+            className="w-full whitespace-pre py-2 text-right text-base"
           >
             <span className="text-xs text-gray-600">Balance </span>
             {balanceQuery.status === "success" ? (
@@ -160,8 +160,8 @@ const GaslessSwap = () => {
             <span className="block font-medium text-gray-600">You will sell:</span>
             <div className="mt-2 flex gap-x-2 sm:mt-1">
               <Popover as="div" className="relative xs:w-32">
-                <PopoverButton className="size-full inline-flex items-center border border-transparent justify-between rounded-md bg-gray-200 px-3 font-medium text-gray-800">
-                  <span className="block mr-2 xs:mr-0">{selectToken?.symbol || "Name"}</span>
+                <PopoverButton className="inline-flex size-full items-center justify-between rounded-md border border-transparent bg-gray-200 px-3 font-medium text-gray-800">
+                  <span className="mr-2 block xs:mr-0">{selectToken?.symbol || "Name"}</span>
                   <ChevronUpDownIcon className="h-4 w-4 text-gray-700" />
                 </PopoverButton>
                 <PopoverPanel>
@@ -182,7 +182,7 @@ const GaslessSwap = () => {
                   },
                 })}
                 placeholder="0.00"
-                className="grow min-w-0 border-transparent rounded-md bg-gray-200 text-right font-medium text-gray-600 placeholder:text-gray-400 focus:outline-none focus:ring-0"
+                className="min-w-0 grow rounded-md border-transparent bg-gray-200 text-right font-medium text-gray-600 placeholder:text-gray-400 focus:outline-none focus:ring-0"
               />
             </div>
             <span className="text-sm text-red-600">{errors?.swapAmount?.message}</span>
