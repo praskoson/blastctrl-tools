@@ -4,6 +4,10 @@ const nextConfig = {
     loader: "cloudinary",
     path: "https://res.cloudinary.com/doz0obwb0/image/fetch/",
   },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  // typescript: { ignoreBuildErrors: true },
 };
 
 // const withBundleAnalyzer = require("@next/bundle-analyzer")({

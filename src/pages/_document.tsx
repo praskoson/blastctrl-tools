@@ -9,7 +9,7 @@ class MyDocument extends Document {
 
   render() {
     return (
-      <Html lang="en" className="scroll-smooth antialiased">
+      <Html lang="en" className="scroll-smooth antialiased" style={{ colorScheme: "only light" }}>
         <Head>
           <link rel="shortcut icon" href="/favicon.ico" />
           <link

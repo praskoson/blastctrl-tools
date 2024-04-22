@@ -74,3 +74,36 @@ export type SearchAssetsByOwnerResponse = {
     };
   }[];
 };
+
+export type DasAsset = {
+  interface:
+    | "V1_NFT"
+    | "V1_PRINT"
+    | "LEGACY_NFT"
+    | "V2_NFT"
+    | "FungibleAsset"
+    | "FungibleToken"
+    | "Custom"
+    | "Identity"
+    | "Executable"
+    | "ProgrammableNFT";
+  id: string;
+  authorities: string[];
+  creators: string[];
+  mutable: boolean;
+  burnt: boolean;
+  content: {
+    metadata: any;
+    links: any;
+  };
+  token_info: {
+    symbol: string;
+    supply: number;
+    decimals: number;
+    token_program: string;
+    price_info: {
+      price_per_token: number;
+      currency: string;
+    };
+  };
+};

@@ -16,6 +16,7 @@ import { classNames } from "utils";
 import BlastCtrlIcon from "../../public/blastctrl_icon_white.svg";
 import BonkSmall from "../../public/bonk_small.png";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 dayjs.extend(relativeTime);
 require("@solana/wallet-adapter-react-ui/styles.css");
@@ -48,10 +49,9 @@ const navigation = [
   },
 ];
 
-const queryClient = new QueryClient();
-
 const App: FC<AppProps> = ({ Component, pageProps }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [queryClient] = useState(() => new QueryClient());
 
   return (
     <>
@@ -59,8 +59,9 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
         <title>Solana Tools | BlastTools</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Head>
-      <Toaster position="bottom-left" />
       <QueryClientProvider client={queryClient}>
+        <ReactQueryDevtools initialIsOpen={false} />
+        <Toaster position="bottom-left" />
         <ContextProvider>
           <CommandPalette isOpen={isOpen} navigation={navigation} setIsOpen={setIsOpen} />
 
