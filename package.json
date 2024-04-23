@@ -4,11 +4,14 @@
   "license": "MIT",
   "private": false,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --turbo",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "analyze": "ANALYZE=true pnpm build"
+  },
+  "engines": {
+    "node": ">=20.0.0"
   },
   "dependencies": {
     "@floating-ui/react": "^0.26.12",
