@@ -23,7 +23,7 @@ const Tokens: NextPage = () => {
       href: "/spl-token-tools/close-empty",
       description:
         "Attempt to close your empty token accounts, recovering the SOL used to open them.",
-      active: false,
+      active: true,
     },
   ];
   return (
@@ -40,7 +40,7 @@ const Tokens: NextPage = () => {
             className={classNames(
               "block cursor-pointer rounded-md border border-gray-300 bg-white p-4 transition-all duration-75",
               "hover:bg-indigo-100 hover:ring-2 hover:ring-indigo-600 focus:outline-none",
-              !navItem.active && "pointer-events-none"
+              !navItem.active && "pointer-events-none",
             )}
           >
             <div className="flex items-center justify-between">
@@ -54,7 +54,7 @@ const Tokens: NextPage = () => {
             <h3
               className={classNames(
                 "mt-1 flex items-center text-sm text-gray-500",
-                !navItem.active && "blur-[2px]"
+                !navItem.active && "blur-[2px]",
               )}
             >
               {navItem.description}

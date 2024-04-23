@@ -79,6 +79,12 @@ export const HomeView = () => {
                   />
                   <span className="ml-2">Gasless Bonk Swap</span>
                 </Link>
+                <Link
+                  href="/spl-token-tools/close-empty"
+                  className="inline-flex items-center justify-center rounded-lg border-2 border-blue-600 px-3 py-1.5 text-blue-900 shadow hover:bg-blue-50"
+                >
+                  Close empty accounts
+                </Link>
               </div>
               <div className="mt-6 text-sm font-medium text-gray-700">More to come...</div>
             </div>

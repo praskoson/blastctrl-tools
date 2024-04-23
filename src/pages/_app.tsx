@@ -19,9 +19,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 dayjs.extend(relativeTime);
-require("@solana/wallet-adapter-react-ui/styles.css");
-require("../styles/globals.css");
-require("../styles/scroller.css");
+import "@solana/wallet-adapter-react-ui/styles.css";
+import "../styles/globals.css";
+import "../styles/scroller.css";
 
 const navigation = [
   {
@@ -47,6 +47,7 @@ const navigation = [
     href: "/gasless-bonk-swap",
     description: "Swap Bonk tokens for SOL without gas fees",
   },
+  { name: "Close empty accounts", href: "/spl-token-tools/close-empty", in: "Tokens" },
 ];
 
 const App: FC<AppProps> = ({ Component, pageProps }) => {
