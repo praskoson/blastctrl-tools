@@ -42,9 +42,9 @@ const Nfts: NextPage = (props) => {
     },
     {
       name: "Solana NFT Faucet",
-      href: "/solana-nft-tools/collections",
+      href: "/solana-nft-tools/nft-faucet",
       description: "Mint a random NFT for testing purposes.",
-      active: false,
+      active: true,
     },
   ];
 
@@ -62,7 +62,7 @@ const Nfts: NextPage = (props) => {
             className={classNames(
               "block cursor-pointer rounded-md border border-gray-300 bg-white p-4 transition-all duration-75",
               "hover:bg-indigo-100 hover:ring-2 hover:ring-indigo-600 focus:outline-none",
-              !navItem.active && "pointer-events-none"
+              !navItem.active && "pointer-events-none",
             )}
           >
             <div className="flex items-center justify-between">
@@ -76,7 +76,7 @@ const Nfts: NextPage = (props) => {
             <h3
               className={classNames(
                 "mt-1 flex items-center text-sm text-gray-500",
-                !navItem.active && "blur-[2px]"
+                !navItem.active && "blur-[2px]",
               )}
             >
               {navItem.description}
